@@ -6,8 +6,10 @@ This repository is a personal library of reusable GitHub Copilot skills and agen
 
 ```text
 agents/
+  artifact-roastmaster.agent.md
   prompt-coach.agent.md
   skill-coach.agent.md
+  ste-coach.agent.md
 doctrine/
   <id>.doctrine.md
 skills/
@@ -19,7 +21,11 @@ skills/
 
 `SKILL.md` is the canonical entry point for every skill. Supporting instructions belong beside it under `references/` and are linked from the skill.
 
-Agents are standalone `.agent.md` files. Prompt Coach reviews single-prompt quality; Skill Coach reviews skill package and workflow quality — structure, routing, determinism, and safety. Use Skill Coach to gut-check new and revised skills.
+Agents are standalone `.agent.md` files. Prompt Coach reviews single-prompt
+quality; Skill Coach reviews skill package and workflow quality; Simplified
+Technical English Coach reviews documentation-production guardrails. Artifact
+Roastmaster is a shared non-user-invocable coordinator that roast skills load
+as a document rather than invoke directly.
 
 Doctrine files are shared software-engineering industry best practices. Skills
 and agents reference only the doctrine relevant to their job; doctrine does
@@ -33,6 +39,17 @@ Copy a skill package to one of Copilot's recognized locations:
 - Repository: `.github/skills/<skill-name>/`
 
 Copy an agent file to `.github/agents/` when it should be available in a repository.
+
+Doctrine-consuming skills require the sibling `doctrine/` directory in the
+canonical repository layout. Copying only one roast skill is supported, but it
+degrades to `Doctrine status: unavailable`.
+
+For a repository installation, copy doctrine to `.github/doctrine/` beside
+`.github/skills/`. For a personal installation, copy it to
+`~/.agents/doctrine/` beside `~/.agents/skills/`.
+
+`ship-with-squadron` also requires the separately installed `/handoff` skill.
+This repository does not currently ship that external prerequisite.
 
 ## Adding Skills
 

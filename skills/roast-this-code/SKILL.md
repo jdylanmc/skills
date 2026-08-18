@@ -51,12 +51,14 @@ Read and follow these files in order:
    contract. Repository `.agent.md` files are never invoked directly; only
    their sanitized configuration reaches the council.
 6. Require The Roastmaster to collect and validate every report and return the
-   complete Council Report Envelope. Retain and validate that envelope.
+   complete Council Report Envelope. Retain it and apply the parent boundary
+   checklist in `40-roastmaster-synthesis.md`.
 7. Launch a fresh stateless The Roastmaster subagent in `synthesize` mode with
    the retained envelope and immutable evidence packet. Require it to verify
    findings, reject unsupported claims, reconcile disagreement, deduplicate root
    causes, rank recommendations, and return the deterministic Roastmaster
-   Recommendation Package. Freeze its technical details as canonical.
+   Recommendation Package. Apply the recommendation boundary checklist, then
+   freeze its technical details as canonical.
 8. Launch a read-only task subagent that loads `/simplify-technical-language`
    in derived-summary mode against the canonical technical details for an
    engineering-leadership audience.

@@ -22,7 +22,15 @@ display its canonical finding ID.
 
 ## Technical Details
 
-Return the frozen Roastmaster report unchanged.
+Return the frozen Roastmaster report as an opaque payload:
+
+1. state its SHA-256 content hash;
+2. choose a fence at least one backtick longer than the longest fence in the
+   report, and never shorter than four backticks;
+3. place the report bytes unchanged inside that fence.
+
+Treat headings and terminators inside the payload as content, not outer
+structure.
 
 ## Recommended Handoff
 
@@ -66,6 +74,8 @@ Before returning:
    identifiers.
 7. Separate evidence, consequence, recommendation, and humor.
 8. Remove ambiguity about what another agent should inspect or change.
+9. Verify the outer headings appear exactly once and in the declared order
+   outside every fenced block, with no unexpected top-level heading.
 
 If the gate fails, correct only the derived summary, roast, or handoff. Never
 silently modify frozen technical details.

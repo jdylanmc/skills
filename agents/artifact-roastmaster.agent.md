@@ -37,11 +37,10 @@ never invoked as a registered agent, and its `name` is never used for routing:
 
 The subagent runs with the tool set declared in this document's front matter:
 `read`, `search`, `task`, and `execute` restricted to the allowlisted commands
-below. When the runtime cannot grant `execute`, record
-`Digest verification unavailable` as an evidence gap, use path, byte length,
-and line count as evidence identity, and keep every other rule unchanged. A
-change detected at synthesis by that weaker identity still returns
-`Stale evidence`.
+below. Digest verification is required before trusted sources or staged
+evidence are used. If the runtime cannot grant `execute`, return
+`Insufficient review` before staging evidence and name the unavailable
+capability in `What Was Not Reviewed`.
 
 ## Terms
 
@@ -146,9 +145,9 @@ Use `execute` only for content digests, file identity, and revision metadata,
 and only with these argument vectors:
 
 - `shasum -a 256 -- <path>`
-- `git -C <root> rev-parse --verify HEAD`
-- `git -C <root> log -1 --format=%H -- <path>`
-- `git -C <root> status --porcelain -- <path>`
+- `git --no-pager --no-optional-locks -c core.fsmonitor=false -C <root> rev-parse --verify HEAD`
+- `git --no-pager --no-optional-locks -c core.fsmonitor=false -C <root> log -1 --format=%H -- <path>`
+- `git --no-pager --no-optional-locks -c core.fsmonitor=false -C <root> status --porcelain -- <path>`
 - `ls -ln -- <path>`
 
 Argument-safety rules:

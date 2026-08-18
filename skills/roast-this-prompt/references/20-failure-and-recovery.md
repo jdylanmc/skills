@@ -92,8 +92,8 @@ status unchanged.
   [Trusted manifest](./trusted-manifest.md). The repository copy is used.
   Refresh the bundled snapshot and its digest.
 - **Digest verification unavailable** — the runtime could not grant `execute`
-  to the coordinator subagent, so evidence identity falls back to path, byte
-  length, and line count. Freshness is still checked at synthesis.
+  to the caller or coordinator. Return `Insufficient review` before staging
+  evidence; no trusted source or evidence identity was verified.
 - **Restricted or unreadable evidence** — never bypass the restriction. Record
   the path and the consequence for the affected dimensions.
 

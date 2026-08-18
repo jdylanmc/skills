@@ -13,6 +13,13 @@ merge-gate actions. A dedicated Coordinator owns planning, delegation,
 persistence, recovery, and backlog completion. Workers implement and shepherd
 exactly one bounded ticket each, but never merge.
 
+## External Prerequisite
+
+Require the separately installed `/handoff` skill before launching workers.
+This repository does not ship it. If it is unavailable, stop with that exact
+missing prerequisite; do not substitute the timeout envelope for the required
+human-readable handoff.
+
 ## Required References
 
 Read and follow these files in order:

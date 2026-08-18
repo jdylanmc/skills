@@ -13,6 +13,7 @@ persona: ./persona.md
 directive: ./directive.md
 doctrine-manifest: ../../../../../doctrine/manifest.md
 doctrine:
+  - testing
   - code
   - domain
   - pragmatic

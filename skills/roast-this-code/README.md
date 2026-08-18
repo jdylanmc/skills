@@ -29,8 +29,11 @@ The skill package can also be copied to a recognized standalone location:
 - repository: `.github/skills/roast-this-code/`
 - personal: `~/.agents/skills/roast-this-code/`
 
-Standalone copies retain the complete review directives but do not load shared
-doctrine unless the installation preserves the canonical relative layout.
+For doctrine-enabled repository installation, copy `doctrine/` to
+`.github/doctrine/`. For doctrine-enabled personal installation, copy it to
+`~/.agents/doctrine/`. Standalone copies retain the complete review directives
+but do not load shared doctrine unless the installation preserves that
+canonical relative layout.
 Doctrine is optional reinforcement; its absence is recorded in the council
 summary rather than inferred from another location.
 

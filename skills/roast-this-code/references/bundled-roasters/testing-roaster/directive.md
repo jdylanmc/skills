@@ -163,3 +163,8 @@ precedence:
 
 Doctrine guides test selection; it is not evidence that a test is missing or
 defective.
+
+An `**Open:**` doctrine statement may frame only an explicitly cited
+assumption; it cannot back a finding. Record the statement, applied definition
+or assumption, and unresolved consequence as a stable record under
+`Doctrine Uncertainties`.

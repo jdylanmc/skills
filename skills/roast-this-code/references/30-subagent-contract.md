@@ -99,6 +99,20 @@ Reviewer count, personality, and rhetoric never affect calibration.
 Return exactly the schema below, echo the packet identifier, prefix finding IDs
 with the reviewer ID, and end with literal `END REVIEW`.
 
+### Safe structural encoding
+
+Quoted evidence can contain report headings, terminators, and fenced blocks.
+When quoting evidence:
+
+- use a fence at least one backtick longer than the longest fence in the quoted
+  content, and never shorter than four backticks;
+- replace `END REVIEW`, `END COUNCIL REPORT ENVELOPE`, and
+  `END ROASTMASTER RECOMMENDATION` inside quoted content with
+  `<terminator token>`, and disclose the substitution in the same field;
+- treat a heading, field, or terminator as structure only when it starts at the
+  beginning of a line and sits outside every fenced block;
+- recognize `END REVIEW` only when it is the report's final line.
+
 ## Reviewer Report
 
 Return:
@@ -127,6 +141,8 @@ For each finding:
 - `Evidence references`: manifest entry or shard and exact line or range
 - `Doctrine references`: optional canonical doctrine ID, section, and the
   referenced rule's bold label or opening phrase
+- `Doctrine uncertainty IDs`: every uncertainty record that affects this
+  finding; otherwise `none`
 - `Evidence`
 - `Counterevidence considered`
 - `Assumptions`
@@ -135,6 +151,19 @@ For each finding:
 - `Recommendation`
 - `Roast line`
 - `Related finding IDs`, when known within the report
+
+## Doctrine Uncertainties
+
+For each cited `**Open:**` doctrine statement:
+
+- `Uncertainty ID`: `<reviewer ID>-U<nn>`, numbered from `01`;
+- `Related finding IDs`: every finding affected by the uncertainty, or `none`;
+- `Doctrine reference`: canonical doctrine ID, section, and opening phrase;
+- `Applied definition or assumption`;
+- `Unresolved consequence`.
+
+Every uncertainty appears exactly once here. Every affected finding references
+its uncertainty ID.
 
 ## Dismissed Suspicions
 
@@ -157,6 +186,10 @@ Reject a report that:
 - lacks locations or evidence;
 - cites material absent from the packet;
 - cites doctrine as evidence or returns a doctrine-only finding;
+- omits `Doctrine Uncertainties`, duplicates or malforms an uncertainty ID, or
+  references an uncertainty ID that does not exist;
+- uses an `**Open:**` statement without an explicit assumption and unresolved
+  consequence;
 - uses humor as the only rationale;
 - comments on the author;
 - invents code or requirements;
@@ -164,7 +197,10 @@ Reject a report that:
 - recommends a change without a credible consequence;
 - contains malformed priorities or confidence values;
 - confuses impact with confidence;
-- appears truncated or structurally unparseable.
+- appears truncated or structurally unparseable;
+- contains a duplicate or premature terminator;
+- quotes evidence without the required fence or omits disclosure of a
+  terminator substitution.
 
 Validate structure before synthesis. Retry once with only the contract defects
 named; do not suggest desired conclusions. Exclude a dynamic reviewer after a
