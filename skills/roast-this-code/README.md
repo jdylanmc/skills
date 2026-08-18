@@ -47,10 +47,16 @@ synthesis.
 In the canonical repository layout, the bundled council selectively applies
 these shared industry best-practice files:
 
+- `doctrine/testing.doctrine.md`
 - `doctrine/code.doctrine.md`
 - `doctrine/domain.doctrine.md`
 - `doctrine/pragmatic.doctrine.md`
 - `doctrine/data.doctrine.md`
+
+No doctrine has global precedence. Each bundled roaster applies every declared
+doctrine pressure that is relevant to its lens, and the Roastmaster weighs
+findings by evidence, consequence, and confidence rather than doctrine or
+reviewer identity.
 
 The exact trusted doctrine set is declared by `doctrine/manifest.md`, including
 integrity hashes. The skill uses only the explicit manifest path in each
@@ -80,11 +86,14 @@ These are the expected default panel. Each bundled roaster separates:
 Every accepted critique must include a recommendation that fixes the issue and
 satisfies the critique. The skill never applies the recommendation.
 
-The testing roaster focuses on tests submitted with the reviewed change. When
-no tests are present, it recommends the smallest risk-based test plan needed to
-prove the behavior. When tests are present, it scrutinizes their coverage,
-assertions, determinism, isolation, readability, and ability to catch the
-actual regression.
+The testing roaster is an equal member of the bundled panel. When no tests are
+present, it recommends the smallest risk-based test plan needed to prove the
+behavior. When tests are present, it evaluates test value, independent oracles,
+observable assertions, dependency seams, integration fidelity, determinism,
+isolation, readability, and the ability to catch the actual regression.
+The Roastmaster spawns it independently from the bundled `testing-roaster`
+prompt package, which resolves `testing` doctrine through its declared
+manifest.
 
 ## Repository roasters
 

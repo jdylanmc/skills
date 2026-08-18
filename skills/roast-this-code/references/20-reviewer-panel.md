@@ -8,10 +8,19 @@ The skill ships with three bundled default roasters:
 | --- | --- | --- |
 | `SOLID-ROASTER` | `solid-yagni-kiss-roaster` | SOLID, You Aren't Gonna Need It (YAGNI), Keep It Simple, Stupid (KISS), cohesion, coupling, and unnecessary abstraction |
 | `SECURITY-ROASTER` | `security-roaster` | Trust boundaries, authentication, authorization, validation, secrets, privacy, dependency risk, and secure defaults |
-| `TESTING-ROASTER` | `testing-roaster` | Quality assurance review of tests submitted with the change; recommends a risk-based test plan when no tests are present and nitpicks coverage and test quality when they are |
+| `TESTING-ROASTER` | `testing-roaster` | Equal council member reviewing changed behavior, submitted tests, observable assertions, dependency seams, integration fidelity, and testability anti-patterns; recommends a risk-based plan when tests are absent |
 
 The bundled panel is the expected default for most reviews. All three reports
 must be contract-valid before synthesis.
+
+No bundled roaster or doctrine has global precedence. The Roastmaster weighs
+packet-backed findings by consequence, confidence, and evidence rather than by
+roaster identity, doctrine, or angle.
+
+The Roastmaster spawns `TESTING-ROASTER` independently from the bundled
+`testing-roaster` prompt package. That roaster resolves `testing` doctrine
+through its declared manifest and reviews the same immutable evidence packet
+as the other equal council members.
 
 Bundled definitions live under:
 

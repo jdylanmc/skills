@@ -13,6 +13,9 @@ doctrine:
   - id: data
     path: data.doctrine.md
     sha256: bdc287409bc2cf0890e3e641118919f946732bd4319fe57bd99e6f80fb2bd05d
+  - id: testing
+    path: testing.doctrine.md
+    sha256: 02661877aa625b3b2bfd1af1c8733550fabe886e19ae82c2d873a5ce020688aa
 ---
 
 # Doctrine Manifest
