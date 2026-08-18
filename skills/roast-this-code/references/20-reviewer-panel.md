@@ -34,6 +34,7 @@ Each definition has:
 - `reasoning-effort` and `context-tier`;
 - `tools`;
 - relative `persona` and `directive` paths.
+- optional `doctrine-manifest` and `doctrine` IDs for bundled prompt packages.
 
 Use the explicit model when it is available. Otherwise select the first
 runtime-available model in the ordered `fallback-models` list. Every listed
@@ -47,6 +48,19 @@ Resolve `persona` and `directive` relative to `instructions.md`. Require all
 three files to be regular files under the same roaster directory. Do not merge
 persona and directive. Persona controls presentation. Directive controls
 analysis.
+
+Resolve bundled doctrine only through the exact `doctrine-manifest` path
+declared in `instructions.md`. Resolve that path relative to the instructions
+file; do not search parent directories or infer a repository root. Parse
+doctrine IDs, paths, and SHA-256 digests from the manifest. Require the manifest
+and doctrine files to be regular files, reject symlinks and path escapes, and
+verify every digest before loading.
+
+Load only the IDs declared by the bundled instructions and the selections named
+by the directive. Never load doctrine from the repository being reviewed. If
+the explicit manifest is unavailable or any required integrity check fails,
+skip doctrine, continue with the complete directive, and record that doctrine
+reinforcement was not loaded.
 
 The bundled roasters are prompt packages, not standalone repository agents.
 Load each persona and directive directly from this skill and launch a fresh

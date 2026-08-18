@@ -11,6 +11,12 @@ context-tier: long_context
 tools: ["read", "search", "task"]
 persona: ./persona.md
 directive: ./directive.md
+doctrine-manifest: ../../../../../doctrine/manifest.md
+doctrine:
+  - code
+  - domain
+  - pragmatic
+  - data
 ---
 
 # The Roastmaster Instructions
@@ -19,6 +25,10 @@ Load the linked persona and directive from this directory. Receive the
 immutable evidence packet and selected council roster from the main agent. The
 roster contains complete internal prompt packages for bundled roasters and only
 sanitized normalized configurations for repository roasters.
+
+Use doctrine only for calibration, arbitration, and recommendation sequencing.
+Doctrine is not code evidence and cannot create or raise the priority of a
+finding without packet support.
 
 The main agent supplies one operating mode per invocation:
 

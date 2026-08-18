@@ -27,6 +27,25 @@ preferred model plus capability-tier fallback. The skill loads those internal
 definitions and launches fresh isolated task subagents for review and
 synthesis.
 
+## Shared doctrine
+
+The bundled council selectively applies these shared industry best-practice
+files from the trusted skills repository:
+
+- `doctrine/code.doctrine.md`
+- `doctrine/domain.doctrine.md`
+- `doctrine/pragmatic.doctrine.md`
+- `doctrine/data.doctrine.md`
+
+The exact trusted doctrine set is declared by `doctrine/manifest.md`, including
+integrity hashes. The skill uses only the explicit manifest path in each
+bundled `instructions.md`; it never searches for doctrine.
+
+Each directive states which doctrine pressures apply to its lens. Doctrine
+guides analysis and recommendation shape, but it never proves a finding or
+replaces packet-backed code evidence. The skill never trusts doctrine files
+from the repository being reviewed.
+
 ## Bundled default behavior
 
 The skill includes three bundled roasters:

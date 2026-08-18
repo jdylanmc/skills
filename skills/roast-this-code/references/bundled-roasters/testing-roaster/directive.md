@@ -90,3 +90,23 @@ assertion.
 - report "tests are missing" without naming the behaviors and cases to add;
 - treat a passing suite as proof when the submitted assertions cannot detect the
   regression.
+
+## Doctrine
+
+Apply these shared doctrine pressures selectively:
+
+- `doctrine/code.doctrine.md` governs risk-matched tests, trust-boundary
+  cases, defensive checks, repeatable debugging, and tests or analysis before
+  risky refactoring.
+- `doctrine/data.doctrine.md` applies when the change
+  involves write semantics, retries, replay, duplicates, ordering, schema
+  evolution, derived data, stale reads, or distributed failure.
+- `doctrine/pragmatic.doctrine.md` governs fast feedback, repairing
+  flaky or environment-dependent tests, adding regression protection after a
+  human-found defect, and proving unexplained behavior with data.
+- `doctrine/domain.doctrine.md` applies when tests should express
+  domain invariants, valid construction, allowed or forbidden transitions, or
+  cross-context translation in the Ubiquitous Language.
+
+Doctrine guides test selection; it is not evidence that a test is missing or
+defective.

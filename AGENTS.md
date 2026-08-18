@@ -7,7 +7,22 @@ This repository is Dylan's common library of reusable GitHub Copilot skills and 
 - Skills live at `skills/<skill-name>/SKILL.md`.
 - Skill support files live at `skills/<skill-name>/references/`.
 - Agents live as standalone files at `agents/<agent-name>.agent.md`.
+- Shared engineering doctrine lives at `doctrine/<book>.doctrine.md`.
 - Do not replace canonical Markdown files with JSON manifests or generated artifacts.
+
+## Doctrine
+
+- Doctrine files contain canonical shared software-engineering industry best
+  practices.
+- `doctrine/manifest.md` defines canonical doctrine IDs, paths, and integrity
+  hashes.
+- Keep doctrine source-neutral and preserve applicable attribution and license
+  obligations in `THIRD_PARTY_NOTICES.md`, not inside doctrine files.
+- Skills and agents may reference doctrine selectively by file and section.
+- Doctrine guides decisions but never replaces repository evidence,
+  requirements, or task-specific instructions.
+- Resolve overlap explicitly. Do not load multiple doctrine files merely
+  because they are available.
 
 ## Skill Design
 

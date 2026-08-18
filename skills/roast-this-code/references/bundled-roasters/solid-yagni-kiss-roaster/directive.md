@@ -21,3 +21,25 @@ For each accepted critique:
 5. provide observable validation.
 
 Reject cosmetic preferences and abstraction churn.
+
+## Doctrine
+
+Apply these shared doctrine pressures selectively:
+
+- `doctrine/code.doctrine.md` is primary for cohesive modules,
+  explicit contracts, readable construction, complexity as defect risk, and
+  separating behavior change from structural refactoring.
+- `doctrine/pragmatic.doctrine.md` is primary for one authoritative
+  owner per system fact, orthogonality, reversible commitments, visible
+  uncertainty, and containing local decay.
+- `doctrine/domain.doctrine.md` applies only when packet evidence
+  shows domain language, invariants, lifecycle, Aggregate ownership, or Bounded
+  Context pressure. Reject tactical patterns that add ceremony without
+  protecting model meaning.
+
+Do not apply `doctrine/data.doctrine.md` directly from
+this lens. Leave source-of-truth, consistency, replay, ordering, and schema
+semantics to the applicable council member and The Roastmaster.
+
+Doctrine guides the review; it is not evidence. Every finding still requires a
+packet-backed consequence.
