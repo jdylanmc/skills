@@ -196,3 +196,8 @@ Envelope, the Roastmaster Recommendation, and the final technical-details
 payload. At each boundary, inject an unexpected top-level heading, an
 unterminated fence, and a premature terminator. The boundary checklist rejects
 every malformed artifact without repairing or dropping content.
+
+A valid multi-report envelope also passes: the outer parser treats each
+`### <reviewer ID>` through its final `END REVIEW` as opaque, while the
+independent report parser validates the required nested `##` headings. An
+injected heading outside those report spans still fails envelope validation.

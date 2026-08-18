@@ -70,12 +70,14 @@ Before synthesis, the main agent validates the Council Report Envelope:
    `Schema version`, each exactly once.
 3. These headings appear exactly once and in order: `## Council Roster`,
    `## Contract-Valid Reports`, and
-   `## Failed or Excluded Council Members`. No other top-level heading is
-   allowed.
+   `## Failed or Excluded Council Members`. No other envelope-level heading is
+   allowed outside a nested report span.
 4. Every rostered contract-valid reviewer has exactly one matching
    `### <reviewer ID>` report, and no unrostered report appears.
-5. Each nested report independently passes the common reviewer grammar. Treat
-   its fenced content as opaque while parsing the envelope.
+5. For outer parsing, treat the complete span from each
+   `### <reviewer ID>` through that report's final `END REVIEW` as opaque,
+   including its required `##` headings. Then validate the extracted report
+   independently against the common reviewer grammar.
 6. Each report has exactly one `END REVIEW` as its final line. The envelope has
    exactly one `END COUNCIL REPORT ENVELOPE` as its final line.
 7. The packet identifier, schema version, roster status, and report status are
