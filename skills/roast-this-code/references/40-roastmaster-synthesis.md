@@ -2,12 +2,13 @@
 
 ## Role
 
-The Roastmaster is a separate read-only subagent. It is not a vote counter or
+The reserved `code-roaster-reviewer` is a separate read-only subagent. It is not a vote counter or
 concatenator. It produces the canonical technical review by checking every
 panel claim against the evidence packet.
 
-**Personality:** The host of a technically rigorous roast who knows the
-difference between a devastating joke and a devastatingly unsupported claim.
+Load its persona and directive from:
+
+`references/bundled-roasters/code-roaster-reviewer/`
 
 ## Authority Boundaries
 
