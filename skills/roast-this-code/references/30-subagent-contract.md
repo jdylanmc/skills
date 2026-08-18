@@ -141,6 +141,8 @@ For each finding:
 - `Evidence references`: manifest entry or shard and exact line or range
 - `Doctrine references`: optional canonical doctrine ID, section, and the
   referenced rule's bold label or opening phrase
+- `Doctrine uncertainties`: every cited `**Open:**` statement, the applied
+  definition or assumption, and its unresolved consequence; otherwise `none`
 - `Evidence`
 - `Counterevidence considered`
 - `Assumptions`
@@ -171,6 +173,8 @@ Reject a report that:
 - lacks locations or evidence;
 - cites material absent from the packet;
 - cites doctrine as evidence or returns a doctrine-only finding;
+- omits `Doctrine uncertainties` or uses an `**Open:**` statement without an
+  explicit assumption and unresolved consequence;
 - uses humor as the only rationale;
 - comments on the author;
 - invents code or requirements;

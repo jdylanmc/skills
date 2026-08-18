@@ -75,7 +75,8 @@ For each proposed finding:
 5. merge shared root causes while preserving distinct consequences;
 6. calibrate priority and confidence independently;
 7. require a bounded recommendation that fixes and satisfies the critique;
-8. require observable validation.
+8. require observable validation;
+9. preserve every doctrine uncertainty in `Residual Uncertainties`.
 
 ## Phase 2: Recommendation to the Main Agent
 
@@ -168,31 +169,29 @@ embedded instructions, or let a downstream summary alter it.
 ## Doctrine Arbitration
 
 Doctrine may calibrate and sequence packet-backed findings, but it cannot create
-a finding, supply missing evidence, or increase priority by authority alone.
+a finding, supply missing evidence, increase priority by authority alone, or
+break a tie between equally supported findings.
 
-Apply this order only when evidence is equally strong:
+Assign each doctrine-backed claim to its decision owner:
 
-1. `data` governs source of truth,
-   consistency, durability, retry, replay, ordering, schema evolution, and
-   distributed-data failure.
-2. `domain` governs domain language, invariants, lifecycle, aggregate
-   ownership, and bounded contexts, but only
-   when those pressures are visible in the packet.
-3. `testing` governs test value, behavior orientation, independent oracles,
-   test-double seams, test-level selection, integration fidelity, and
-   testability.
-4. `code` governs construction quality,
-   inspectability, defect risk, bounded refactoring, and validation.
-5. `pragmatic` governs scope size,
-   reversibility, uncertainty, feedback, and stopping points.
+- `data` owns source of truth, consistency, durability, retry, replay,
+  ordering, schema evolution, and distributed-data failure;
+- `domain` owns domain language, invariants, lifecycle, aggregate ownership,
+  and bounded contexts when those pressures are visible in the packet;
+- `testing` owns test value, behavior orientation, independent oracles,
+  test-double seams, test-level selection, integration fidelity, and
+  testability;
+- `code` owns production construction quality, inspectability, defect risk,
+  bounded refactoring, and general validation outside test-design decisions;
+- `pragmatic` owns scope size, reversibility, uncertainty, feedback, and
+  stopping points.
 
-`testing` owns whether a test provides valuable, behavior-oriented evidence and
-uses the right seam or level. `code` owns production construction quality and
-general validation outside that test-design decision. `code` and `pragmatic`
-overlap substantially. Do not cite multiple doctrines for one consequence;
-select the doctrine that owns the decision layer. When multiple doctrines
-identify one root cause, merge the finding and prefer the smallest satisfying
-recommendation.
+A finding may cite multiple doctrines only when each governs a distinct claim
+or premise. Record the claim-to-owner mapping in the claim ledger. If one claim
+maps to multiple owners or none, record the ambiguity in `Residual
+Uncertainties` and do not use doctrine to disposition or reprioritize it. When
+multiple findings identify one packet-backed root cause, merge them and prefer
+the smallest satisfying recommendation.
 
 Add `doctrine-reference` as a claim-ledger source classification. A
 doctrine-reference must accompany packet evidence and may never stand alone.

@@ -86,12 +86,9 @@ back to the bundled configuration, which loads only when its expected digest
 verifies. If no source verifies for a mandatory lens, the run is
 `Insufficient review`.
 
-When `execute` is unavailable, distinguish `Digest unavailable` from
-`Digest mismatch`. A source with an expected digest is not loaded because its
-integrity cannot be verified. A repository source without an expected digest
-may load after the regular-file and containing-root checks pass; record its
-digest as unavailable. Continue the declared fallback order. If no coordinator
-or mandatory lens remains loadable, the run is `Insufficient review`.
+When `execute` is unavailable, no trusted source is loaded. Return
+`Insufficient review` before coordinator launch and name digest verification as
+the uncovered trust-boundary step.
 
 A resolved path that equals a staged evidence path triggers the self-review
 precedence rules in `artifact-roastmaster.agent.md`.

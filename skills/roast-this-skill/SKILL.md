@@ -1,7 +1,7 @@
 ---
 name: roast-this-skill
 description: Adversarially reviews one complete skill package with the shared Artifact Roastmaster and independent read-only roasters, then returns one severity-ranked roast. Use when the user asks to roast, pressure-test, or adversarially review a skill package before shipping. Don't use for a single agent file (use roast-this-agent), a single prompt (use roast-this-prompt), source code or a diff (use roast-this-code), ordinary skill authoring, or applying fixes.
-allowed-tools: ["read", "search", "task"]
+allowed-tools: ["read", "search", "execute", "task"]
 ---
 
 # Roast This Skill
@@ -38,21 +38,19 @@ Read-only. Never edit, create, commit, publish, or comment on anything, and
 never apply a recommended fix.
 
 The `read`, `search`, and `task` grants cover resolving evidence, resolving
-trusted sources, and launching the Artifact Roastmaster. This skill declares no
-`execute` grant. Content digests, file identity, and revision metadata are the
-Artifact Roastmaster's job, and it uses only its allowlisted read-only
-commands.
+trusted sources, and launching the Artifact Roastmaster. The `execute` grant is
+limited to the coordinator's allowlisted read-only digest and identity commands.
+The calling skill verifies the coordinator and lens sources before supplying
+them as instructions or principles.
 
 Never run the reviewed package, its bundled scripts, or its declared tools.
 Never invoke a trusted lens document or the coordinator as a registered agent;
 each is read as a document.
 
 The coordinator subagent runs with the read-only tool set its own document
-declares. When the runtime cannot grant it `execute`, the run records
-`Digest verification unavailable` as an evidence gap and continues with path,
-byte length, and line count as evidence identity. That fallback does not bypass
-expected digests for trusted sources; those sources follow the fail-closed
-rules in [Trusted lenses](./references/30-trusted-lenses.md).
+declares. If either the caller or coordinator cannot obtain `execute`, stop
+before staging evidence and return `Insufficient review`; digest verification
+is a required trust-boundary capability.
 
 Humor targets the skill's routing, workflow, contracts, permissions, and
 failure modes, never its author.

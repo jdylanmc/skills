@@ -164,5 +164,6 @@ precedence:
 Doctrine guides test selection; it is not evidence that a test is missing or
 defective.
 
-An `**Open:**` doctrine statement cannot back a finding unless the report names
-the applied definition and records the unresolved taxonomy as an evidence gap.
+An `**Open:**` doctrine statement may frame only an explicitly cited
+assumption; it cannot back a finding. Record the statement, applied definition
+or assumption, and unresolved consequence in `Doctrine uncertainties`.

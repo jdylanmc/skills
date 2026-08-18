@@ -70,6 +70,14 @@ Alter one doctrine file without updating its manifest digest. Every bundled
 prompt still loads its complete directive, no doctrine content is dispatched,
 and the council summary records the integrity failure.
 
+### Open doctrine uncertainty
+
+A test classification depends on the classical/London taxonomy marked
+`**Open:**` in testing doctrine. The testing roaster states its applied
+definition in `Doctrine uncertainties`, does not use the open statement as
+evidence, and the Roastmaster preserves the unresolved consequence in
+`Residual Uncertainties`.
+
 ### Malformed repository roaster
 
 A repository roaster requests an execution tool, links a persona outside the

@@ -44,6 +44,10 @@ Doctrine-consuming skills require the sibling `doctrine/` directory in the
 canonical repository layout. Copying only one roast skill is supported, but it
 degrades to `Doctrine status: unavailable`.
 
+For a repository installation, copy doctrine to `.github/doctrine/` beside
+`.github/skills/`. For a personal installation, copy it to
+`~/.agents/doctrine/` beside `~/.agents/skills/`.
+
 `ship-with-squadron` also requires the separately installed `/handoff` skill.
 This repository does not currently ship that external prerequisite.
 
