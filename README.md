@@ -8,6 +8,8 @@ This repository is a personal library of reusable GitHub Copilot skills and agen
 agents/
   prompt-coach.agent.md
   skill-coach.agent.md
+doctrine/
+  <id>.doctrine.md
 skills/
   <skill-name>/
     SKILL.md
@@ -18,6 +20,10 @@ skills/
 `SKILL.md` is the canonical entry point for every skill. Supporting instructions belong beside it under `references/` and are linked from the skill.
 
 Agents are standalone `.agent.md` files. Prompt Coach reviews single-prompt quality; Skill Coach reviews skill package and workflow quality — structure, routing, determinism, and safety. Use Skill Coach to gut-check new and revised skills.
+
+Doctrine files are shared software-engineering industry best practices. Skills
+and agents reference only the doctrine relevant to their job; doctrine does
+not replace code evidence or repository-specific requirements.
 
 ## Using a Skill
 
