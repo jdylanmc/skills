@@ -25,4 +25,6 @@ Use `agents/skill-coach.agent.md` to review new or revised skill packages for di
 
 Use `agents/prompt-coach.agent.md` to review individual prompts for unclear goals, missing context, weak output contracts, constraints, source requirements, safety concerns, and unnecessary complexity.
 
+Use `agents/ste-coach.agent.md` after Skill Coach when a skill can produce human-facing technical documentation. It checks that the skill workflow explicitly defines audience, controlled terminology, sentence and procedure constraints, acronym handling, warning order, ambiguity checks, and a content-quality gate.
+
 When importing material from elsewhere, adapt it into this repository's conventions and preserve any required license or attribution.
