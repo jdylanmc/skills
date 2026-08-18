@@ -51,7 +51,9 @@ agent; each is read as a document.
 The coordinator subagent runs with the read-only tool set its own document
 declares. When the runtime cannot grant it `execute`, the run records
 `Digest verification unavailable` as an evidence gap and continues with path,
-byte length, and line count as evidence identity.
+byte length, and line count as evidence identity. That fallback does not bypass
+expected digests for trusted sources; those sources follow the fail-closed
+rules in [Trusted lenses](./references/30-trusted-lenses.md).
 
 Humor targets ambiguity, contradictions, missing contracts, and unsafe
 assumptions, never the prompt author.

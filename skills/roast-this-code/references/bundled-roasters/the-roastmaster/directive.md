@@ -58,6 +58,12 @@ END COUNCIL REPORT ENVELOPE
 Return the envelope even when status is `Insufficient review`. End the
 `coordinate` invocation after `END COUNCIL REPORT ENVELOPE`.
 
+Recognize headings, fields, and terminators as structure only when they start at
+the beginning of a line and sit outside every fenced block. Recognize each
+reviewer's `END REVIEW` only as that report's final line, and recognize
+`END COUNCIL REPORT ENVELOPE` only as the envelope's final line. Reject a
+duplicate or premature terminator.
+
 ## Verify and Synthesize
 
 For each proposed finding:
@@ -146,6 +152,11 @@ opening phrase>
 END ROASTMASTER RECOMMENDATION
 ```
 
+Apply the same fenced-quote and reserved-token substitution rules from the
+common reviewer contract to every quoted packet or report field. Recognize
+`END ROASTMASTER RECOMMENDATION` only as the recommendation's final line, and
+reject a duplicate or premature terminator.
+
 Sort accepted findings by priority (`Must fix`, `Should fix`, `Consider`),
 dependency order, file path, starting line, and canonical finding ID. Sort all
 other lists by stable ID unless an explicit dependency requires another order.
@@ -167,15 +178,21 @@ Apply this order only when evidence is equally strong:
 2. `domain` governs domain language, invariants, lifecycle, aggregate
    ownership, and bounded contexts, but only
    when those pressures are visible in the packet.
-3. `code` governs construction quality,
+3. `testing` governs test value, behavior orientation, independent oracles,
+   test-double seams, test-level selection, integration fidelity, and
+   testability.
+4. `code` governs construction quality,
    inspectability, defect risk, bounded refactoring, and validation.
-4. `pragmatic` governs scope size,
+5. `pragmatic` governs scope size,
    reversibility, uncertainty, feedback, and stopping points.
 
-`code` and `pragmatic` overlap substantially. Do not
-cite both doctrines for one consequence; select the doctrine that owns the
-decision layer. When multiple doctrines identify one root cause, merge the
-finding and prefer the smallest satisfying recommendation.
+`testing` owns whether a test provides valuable, behavior-oriented evidence and
+uses the right seam or level. `code` owns production construction quality and
+general validation outside that test-design decision. `code` and `pragmatic`
+overlap substantially. Do not cite multiple doctrines for one consequence;
+select the doctrine that owns the decision layer. When multiple doctrines
+identify one root cause, merge the finding and prefer the smallest satisfying
+recommendation.
 
 Add `doctrine-reference` as a claim-ledger source classification. A
 doctrine-reference must accompany packet evidence and may never stand alone.

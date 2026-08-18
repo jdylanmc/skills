@@ -5,11 +5,11 @@ trusted-files:
   - id: artifact-roastmaster-snapshot
     path: agents/artifact-roastmaster.agent.md
     source-path: agents/artifact-roastmaster.agent.md
-    sha256: 51a64a14be114b02eb3bd6fdb9ec6f612c1c0adc9b5c5faa78d7de407a701982
+    sha256: 2be299100f3e7f1d8fa3907e7d6817ad764336507c8a287f56b99382bb54904a
   - id: bundled-lenses
     path: 30-trusted-lenses.md
     source-path: skills/roast-this-agent/references/30-trusted-lenses.md
-    sha256: 41f67f21a07fba9a5a8186e21351241fc68408dfb5c5778c4a343d7198051e83
+    sha256: c15ebefc9799ad771414cea7bf773db4e140a5ff4d8176597d34b85eed00f31d
 ---
 
 # Trusted Manifest
@@ -22,6 +22,10 @@ Verify a bundled file before loading it: confirm it is a regular file and not a
 symbolic link, confirm the resolved path stays inside this package, compute its
 SHA-256 digest, and compare the digest with the entry above. A file that fails
 any check is not loaded.
+
+If the runtime cannot compute a digest, treat that state as `Digest
+unavailable`, not as a match. Do not load a bundled file whose expected digest
+cannot be verified; continue the package's declared fallback order.
 
 `artifact-roastmaster-snapshot` is a copy of the repository agent. When the
 repository agent resolves and its digest differs from the recorded value, use

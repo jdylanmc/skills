@@ -14,8 +14,8 @@ search outside this list.
 2. `.github/agents/artifact-roastmaster.agent.md`, resolved from the declared
    repository root.
 3. `./agents/artifact-roastmaster.agent.md`, resolved relative to this file.
-   This bundled snapshot ships inside the package and is always present, so a
-   standalone install resolves the coordinator on its first run.
+   This bundled snapshot ships inside the package and is always present. A
+   standalone install loads it only when its expected digest can be verified.
 
 Read the resolved file as a document and supply its content as the instructions
 for a fresh task subagent with read-only tools. Never invoke it as a registered
@@ -82,8 +82,16 @@ Digest ownership:
 
 A failed check means the file is not loaded. Fall back to the next declared
 source and record the fallback. A repository lens file that fails a check falls
-back to the bundled configuration, which always resolves. If no source
-verifies for a mandatory lens, the run is `Insufficient review`.
+back to the bundled configuration, which loads only when its expected digest
+verifies. If no source verifies for a mandatory lens, the run is
+`Insufficient review`.
+
+When `execute` is unavailable, distinguish `Digest unavailable` from
+`Digest mismatch`. A source with an expected digest is not loaded because its
+integrity cannot be verified. A repository source without an expected digest
+may load after the regular-file and containing-root checks pass; record its
+digest as unavailable. Continue the declared fallback order. If no coordinator
+or mandatory lens remains loadable, the run is `Insufficient review`.
 
 A resolved path that equals a staged evidence path triggers the self-review
 precedence rules in `artifact-roastmaster.agent.md`.

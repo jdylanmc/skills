@@ -39,9 +39,11 @@ The subagent runs with the tool set declared in this document's front matter:
 `read`, `search`, `task`, and `execute` restricted to the allowlisted commands
 below. When the runtime cannot grant `execute`, record
 `Digest verification unavailable` as an evidence gap, use path, byte length,
-and line count as evidence identity, and keep every other rule unchanged. A
-change detected at synthesis by that weaker identity still returns
-`Stale evidence`.
+and line count as evidence identity. This fallback applies only to staged
+evidence. A trusted source with an expected digest is not loaded when its digest
+cannot be computed; a trusted source without an expected digest may load after
+its regular-file and containing-root checks pass. A change detected at
+synthesis by the weaker evidence identity still returns `Stale evidence`.
 
 ## Terms
 

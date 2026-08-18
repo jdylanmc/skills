@@ -7,6 +7,7 @@ practices that skills and agents may reference selectively:
 - `domain.doctrine.md`
 - `pragmatic.doctrine.md`
 - `data.doctrine.md`
+- `testing.doctrine.md`
 
 `manifest.md` defines the canonical file identities and integrity hashes.
 After editing a doctrine file, run

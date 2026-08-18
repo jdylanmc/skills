@@ -99,6 +99,20 @@ Reviewer count, personality, and rhetoric never affect calibration.
 Return exactly the schema below, echo the packet identifier, prefix finding IDs
 with the reviewer ID, and end with literal `END REVIEW`.
 
+### Safe structural encoding
+
+Quoted evidence can contain report headings, terminators, and fenced blocks.
+When quoting evidence:
+
+- use a fence at least one backtick longer than the longest fence in the quoted
+  content, and never shorter than four backticks;
+- replace `END REVIEW`, `END COUNCIL REPORT ENVELOPE`, and
+  `END ROASTMASTER RECOMMENDATION` inside quoted content with
+  `<terminator token>`, and disclose the substitution in the same field;
+- treat a heading, field, or terminator as structure only when it starts at the
+  beginning of a line and sits outside every fenced block;
+- recognize `END REVIEW` only when it is the report's final line.
+
 ## Reviewer Report
 
 Return:
@@ -164,7 +178,10 @@ Reject a report that:
 - recommends a change without a credible consequence;
 - contains malformed priorities or confidence values;
 - confuses impact with confidence;
-- appears truncated or structurally unparseable.
+- appears truncated or structurally unparseable;
+- contains a duplicate or premature terminator;
+- quotes evidence without the required fence or omits disclosure of a
+  terminator substitution.
 
 Validate structure before synthesis. Retry once with only the contract defects
 named; do not suggest desired conclusions. Exclude a dynamic reviewer after a

@@ -92,7 +92,10 @@ status unchanged.
   Refresh the bundled snapshot and its digest.
 - **Digest verification unavailable** — the runtime could not grant `execute`
   to the coordinator subagent, so evidence identity falls back to path, byte
-  length, and line count. Freshness is still checked at synthesis.
+  length, and line count. Freshness is still checked at synthesis. Trusted
+  sources with expected digests are not loaded; sources without expected
+  digests may load after path and file checks. If no mandatory trusted source
+  remains loadable, use `Insufficient review`.
 - **Restricted or unreadable evidence** — never bypass the restriction. Record
   the path and the consequence for the affected dimensions.
 

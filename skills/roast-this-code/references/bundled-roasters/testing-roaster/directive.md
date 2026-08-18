@@ -163,3 +163,6 @@ precedence:
 
 Doctrine guides test selection; it is not evidence that a test is missing or
 defective.
+
+An `**Open:**` doctrine statement cannot back a finding unless the report names
+the applied definition and records the unresolved taxonomy as an evidence gap.
