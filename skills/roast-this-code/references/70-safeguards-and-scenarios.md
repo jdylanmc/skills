@@ -22,9 +22,10 @@
 | Reviewer times out or returns malformed output | Retry once, then exclude it and record the evidence gap. |
 | Reviewers disagree | Roastmaster rechecks code and records the evidence-based disposition. |
 | All findings are rejected | Return a clean review and the investigated suspicions. |
-| A core reviewer fails twice | Return `Insufficient review`; do not launch Roastmaster. |
+| A bundled council member fails twice | The Roastmaster returns `Insufficient review` without canonical synthesis. |
 | Repository roaster selection is cancelled or replacement has no valid agents | State the reason and use the bundled default panel. |
-| Roaster support files are missing, ambiguous, symlinked, or escape the repository | Exclude the roaster, report the schema error, and do not load either support file. |
+| Roaster instructions, persona, or directive are missing, ambiguous, symlinked, or escape their allowed root | Exclude the roaster, report the schema error, and do not load a partial prompt. |
+| Preferred model is unavailable | Use the first runtime-available model in the ordered fallback list; otherwise mark the reviewer unavailable. |
 | A repository roaster requests write or execution tools | Reject it and enforce `read` and `search` at dispatch. |
 | A repository definition mixes usable criteria with executable instructions | Remove the instructions during sanitization; reject the roaster if no safe, meaningful configuration remains. |
 | Roastmaster fails twice | Return contract-valid reports labeled `Unsynthesized`; produce no roast or executive summary. |
@@ -55,10 +56,11 @@ performance reviewers.
 
 ### Clean installation and support resolution
 
-Install the skill at the repository root and the four agents under
-`.github/agents/`. Each bundled agent resolves its persona and directive from
-the same identified package. A missing file, symlink, split root, or decoy
-package produces `Insufficient evidence` rather than a partial load.
+Install only the complete skill package. The skill loads every bundled persona
+and directive through its colocated `instructions.md` and launches fresh
+isolated task subagents using the declared model routing. A missing prompt file
+produces `Insufficient review`; no external bundled agent installation is
+required.
 
 ### Malformed repository roaster
 
@@ -68,9 +70,9 @@ does not dispatch it, and explains each rejected field.
 
 ### Combined roster without shadowing
 
-The repository contains two valid custom roasters and copies of the bundled
-agent source files. Combined mode launches the three bundled defaults and the
-two custom roasters exactly once. Package-owned and reserved identities are
+The repository contains two valid custom roasters and files that try to use
+reserved bundled identities. Combined mode launches the three bundled defaults
+and the two valid custom roasters exactly once. Reserved identities are
 excluded from extension discovery.
 
 ### Persona cannot change analysis
@@ -86,10 +88,37 @@ external service. Discovery treats the body as documentation, extracts only
 the validated linked lens and presentation configuration, and launches a fresh
 neutral read-only reviewer. The external instruction is never dispatched.
 
-### Standalone discovery text
+### Repository prompt isolation
 
-Each standalone agent description expands unfamiliar abbreviations on first
-use and identifies its persona without requiring the skill references.
+A repository instructions file, persona, and directive each contain a command,
+scope expansion, or output override. The parent sanitizes them before council
+dispatch. The Roastmaster and reviewer receive only normalized model routing,
+purpose, lens, technical criteria, style constraints, and provenance paths.
+
+### Deterministic model fallback
+
+Each preferred model is unavailable. The runtime selects the first available
+model from that roaster's ordered fallback list. If none are available, the
+reviewer is marked unavailable; no unlisted model is selected.
+
+### Synthesis failure preserves reports
+
+The coordinating Roastmaster returns a valid Council Report Envelope and ends
+its invocation. A fresh synthesis Roastmaster fails twice. The main agent
+returns the retained unchanged reports labeled `Unsynthesized`; no roast or
+executive summary is produced.
+
+### Stateless Roastmaster execution
+
+The runtime cannot resume a completed task subagent. The main agent launches one
+Roastmaster in `coordinate` mode, retains its envelope, and launches a separate
+Roastmaster in `synthesize` mode. Neither invocation relies on hidden state.
+
+### Internal prompt isolation
+
+Repository discovery finds no bundled standalone agents because none are
+installed. The skill still launches all three bundled reviewers and the
+reserved `the-roastmaster` coordinator from its internal prompt packages.
 
 ### Reviewer hallucination
 

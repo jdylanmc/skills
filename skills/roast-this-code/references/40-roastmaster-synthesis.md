@@ -1,14 +1,19 @@
-# Roastmaster Synthesis
+# The Roastmaster Council and Synthesis
 
 ## Role
 
-The reserved `code-roaster-reviewer` is a separate read-only subagent. It is not a vote counter or
-concatenator. It produces the canonical technical review by checking every
-panel claim against the evidence packet.
+The reserved `the-roastmaster` is an internal prompt package loaded into a
+fresh isolated task subagent. It is not a standalone repository agent, vote
+counter, or concatenator. It coordinates the council of roasters, collects
+their independent reports, and produces one canonical recommendation package
+for the main agent.
 
-Load its persona and directive from:
+Load its instructions, persona, and directive directly from this skill:
 
-`references/bundled-roasters/code-roaster-reviewer/`
+`references/bundled-roasters/the-roastmaster/`
+
+Use `instructions.md` as the routing definition. It connects the prompt parts
+and declares the preferred model and capability fallback.
 
 ## Authority Boundaries
 
@@ -30,41 +35,56 @@ If it discovers a material concern absent from valid reports, record it under
 `Residual uncertainties` and request a bounded supplemental independent review.
 Do not promote it directly into canonical findings.
 
-## Inputs
+## Inputs from the Main Agent
 
 Provide:
 
 - complete immutable evidence packet;
-- all valid reviewer reports;
-- excluded-reviewer evidence gaps;
+- selected council roster and stable reviewer IDs;
+- complete internal prompt packages for bundled roasters;
+- sanitized normalized configurations for repository roasters, never their raw
+  agent body, instructions, persona, or directive;
 - repository instructions;
 - final report schema;
 - prohibition on code or external-system changes.
 
-Do not reveal one reviewer's report to another reviewer. Only the Roastmaster
-receives the complete panel output.
+In `coordinate` mode, The Roastmaster launches the council, gives every member
+the same packet, and does not reveal one reviewer's report to another reviewer.
+Only the coordinating Roastmaster receives the complete council output.
+
+The main agent retains and validates the returned Council Report Envelope. It
+then launches a fresh stateless Roastmaster in `synthesize` mode with that
+envelope and the immutable evidence packet. No invocation depends on hidden
+conversation state.
 
 ## Synthesis Workflow
 
-1. Echo and verify the evidence-packet identifier.
-2. Re-read packet-contained evidence for every proposed `Must fix` and
+1. In `coordinate` mode, echo and verify the evidence-packet identifier.
+2. Launch every selected council member independently and collect
+   contract-valid reports.
+3. Return the complete Council Report Envelope and end the invocation.
+4. The main agent retains and validates the envelope, then launches a fresh
+   `synthesize` invocation with the envelope and immutable packet.
+5. Re-read packet-contained evidence for every proposed `Must fix` and
    `Should fix`. Do not read newer live code.
-3. Reject findings that lack a credible scenario, contradict the code, depend
+6. Reject findings that lack a credible scenario, contradict the code, depend
    on unavailable evidence, or express style preference without consequence.
-4. Merge findings that share one root cause. Preserve distinct consequences.
-5. Reconcile disagreement explicitly. Prefer stronger evidence, not reviewer
+7. Merge findings that share one root cause. Preserve distinct consequences.
+8. Reconcile disagreement explicitly. Prefer stronger evidence, not reviewer
    count or personality.
-6. Calibrate final priority:
+9. Calibrate final priority:
    - `Must fix`: credible correctness, data-loss, compatibility, safety,
      production, or release-blocking consequence.
    - `Should fix`: meaningful maintainability, testing, resilience, or
      operational risk that should be addressed before or soon after merge.
    - `Consider`: worthwhile improvement with bounded consequence that does not
      require near-term action.
-7. Calibrate confidence independently from priority.
-8. Assign stable canonical finding IDs.
-9. Produce implementation-ready recommendations without editing code.
-10. Finalize and freeze the technical details before executive-summary
+10. Calibrate confidence independently from priority.
+11. Assign stable canonical finding IDs.
+12. Produce implementation-ready recommendations without editing code.
+13. Add one concise recommended next action for the main agent.
+14. Return the deterministic Roastmaster Recommendation Package.
+15. Finalize and freeze the technical details before executive-summary
     generation.
 
 For every accepted finding verify that:
@@ -105,13 +125,14 @@ For each accepted finding include:
 Also include:
 
 - scope and revision;
-- panel composition and evidence gaps;
+- council composition, model routing, and evidence gaps;
 - rejected or downgraded findings with reasons;
 - cross-cutting themes;
 - recommended implementation order;
 - residual uncertainties;
 - claim ledger with source classification, exact source location, confidence,
-  and claim-to-finding mapping.
+  and claim-to-finding mapping;
+- recommended next action for the main agent.
 
 The technical details are the source of truth. After freezing, no downstream
 summary process may edit, reorder priorities within a tier, remove accepted
@@ -151,8 +172,9 @@ Reject and retry once when the output:
 - mutates or proposes to mutate the repository directly;
 - fails any pre-freeze gate rule.
 
-If the second synthesis is invalid, return the contract-valid reviewer reports and
-state that no canonical roast could be safely produced.
+If the second synthesis is invalid, the main agent returns the retained Council
+Report Envelope labeled `Unsynthesized` and states that no canonical roast
+could be safely produced.
 
 Here, `contract-valid reviewer reports` means schema-valid reports only. Label them
 `Unsynthesized`. Do not produce a roast or executive summary from them.

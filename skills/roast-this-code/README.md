@@ -1,8 +1,9 @@
 # Roast This Code
 
-`/roast-this-code` runs multiple independent roaster agents, sends their reports
-to the reserved `code-roaster-reviewer`, and returns a read-only executive
-summary, roast, and canonical technical report.
+`/roast-this-code` launches The Roastmaster, who coordinates a council of
+independent roasters, collects their reports, and returns one read-only
+recommendation package for the main agent with an executive summary, roast, and
+canonical technical details.
 
 ## Who this is for
 
@@ -13,21 +14,18 @@ summary, roast, and canonical technical report.
 
 ## Installation
 
-Install the complete skill package in exactly one recognized location:
+Install the complete skill package in one recognized location:
 
 - repository: `.github/skills/roast-this-code/`
 - personal: `~/.agents/skills/roast-this-code/`
 
-Install these standalone agents in `.github/agents/`:
-
-- `solid-yagni-kiss-roaster.agent.md`
-- `security-roaster.agent.md`
-- `testing-roaster.agent.md`
-- `code-roaster-reviewer.agent.md`
-
-When both skill locations exist, the repository installation takes priority.
-An agent requires `SKILL.md`, its persona, and its directive from the same
-resolved skill root. It never combines support files from different installs.
+No bundled roaster agents need separate installation. Their personas and
+directives remain private to the skill under
+`references/bundled-roasters/`. Each roaster also has an `instructions.md`
+that describes its purpose, links its persona and directive, and declares its
+preferred model plus capability-tier fallback. The skill loads those internal
+definitions and launches fresh isolated task subagents for review and
+synthesis.
 
 ## Bundled default behavior
 
@@ -41,6 +39,9 @@ These are the expected default panel. Each bundled roaster separates:
 
 - its `persona.md`, which controls voice and humor;
 - its `directive.md`, which controls technical analysis and required fixes.
+- its `instructions.md`, which connects those prompt parts and declares agent
+  type, purpose, explicit model, capability fallback, reasoning effort, and
+  context tier.
 
 Every accepted critique must include a recommendation that fixes the issue and
 satisfies the critique. The skill never applies the recommendation.
@@ -78,7 +79,7 @@ A repository roaster must:
 
 - have `roaster` in its `.agent.md` filename;
 - declare a unique `name` and `roast-lens`;
-- link `roast-persona` and `roast-directive` files relative to the agent file;
+- link one `roast-instructions` file relative to the agent file;
 - declare only the `read` and `search` tools;
 - use the common Roast This Code report schema;
 - aim humor only at code and technical decisions;
@@ -104,8 +105,7 @@ tools: ["read", "search"]
 disable-model-invocation: true
 user-invocable: false
 roast-lens: "API compatibility, request validation, response contracts, and versioning"
-roast-persona: "./api-contract-roaster/persona.md"
-roast-directive: "./api-contract-roaster/directive.md"
+roast-instructions: "./api-contract-roaster/instructions.md"
 ---
 
 # API Contract Roaster
@@ -117,30 +117,58 @@ the skill never invokes it directly.
 Place its support files at:
 
 ```text
+.github/agents/api-contract-roaster/instructions.md
 .github/agents/api-contract-roaster/persona.md
 .github/agents/api-contract-roaster/directive.md
 ```
 
-Both paths must resolve to regular files inside the repository. Absolute paths,
-symlinks, missing files, and `..` escapes are rejected. Duplicate or reserved
-names are also rejected. Bundled names are reserved:
-`solid-yagni-kiss-roaster`, `security-roaster`, `testing-roaster`, and
+Use this frontmatter in `instructions.md`:
+
+```yaml
+---
+name: api-contract-roaster
+description: "Reviews compatibility and failure behavior at API boundaries."
+purpose: "Find contract changes that can break callers or hide failures."
+agent-type: general-purpose
+model: gpt-5.6-sol
+fallback-capability: high-capability
+fallback-models: ["claude-opus-5", "claude-sonnet-5", "gpt-5.5"]
+reasoning-effort: max
+context-tier: long_context
+tools: ["read", "search"]
+persona: ./persona.md
+directive: ./directive.md
+---
+```
+
+All three support paths must resolve to regular files inside one roaster
+directory. Absolute paths, symlinks, missing files, and `..` escapes are
+rejected. Duplicate or reserved names are also rejected. Bundled names are
+reserved: `solid-yagni-kiss-roaster`, `security-roaster`,
+`testing-roaster`, `the-roastmaster`, and the legacy identity
 `code-roaster-reviewer`.
 
-The directive should contain technical review criteria only. The persona should
-contain `Roast line` presentation guidance only. Commands, tool requests,
-scope changes, output-format changes, external references, and mutation
-requests are removed during sanitization. A definition that cannot be reduced
+The instructions file connects routing metadata to the prompt parts. The
+directive should contain technical review criteria only. The persona should
+contain `Roast line` presentation guidance only. Unknown model IDs fall back
+only to the first runtime-available model in the ordered `fallback-models`
+list, and every fallback must satisfy the declared capability tier. Commands,
+tool requests, scope changes, output-format changes, external references, and
+mutation requests are removed during sanitization. Raw repository prompt files
+never reach The Roastmaster or a reviewer. A definition that cannot be reduced
 to a safe, meaningful configuration is rejected.
 
 ## Reserved reviewer
 
-`code-roaster-reviewer.agent.md` is reserved for the bundled synthesizer. It
-receives all valid roaster reports, verifies them against the evidence packet,
-deduplicates root causes, and freezes the canonical technical report.
+`the-roastmaster` is the reserved internal council coordinator and synthesizer.
+Its instructions, persona, and directive live only inside this skill. A fresh
+isolated task subagent launches the selected council, collects and validates
+their reports, verifies them against the evidence packet, deduplicates root
+causes, and returns one canonical recommendation package to the main agent.
 
-A repository file with this reserved basename does not override the bundled
-reviewer.
+A repository roaster using `the-roastmaster` or the legacy
+`code-roaster-reviewer` name or basename does not override the internal
+coordinator.
 
 ## Security boundary
 
