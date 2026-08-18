@@ -87,7 +87,18 @@ and disclose that no independent STE review occurred.
 
 ## Completion
 
-The loop completes when:
+In `derived-summary` mode, completion requires:
+
+- every material summary statement maps to the supplied canonical claim IDs;
+- locked values and classifications are unchanged;
+- no new claim appears;
+- the final STE Coach review has no unresolved Blocker; and
+- the content-quality gate passes.
+
+Return the derived summary and traceability map directly to the calling skill.
+Do not require end-user confirmation.
+
+In interactive mode, the loop completes when:
 
 - the purpose, boundary, actors, components, and relevant flow are clear;
 - material dependencies and failure behavior are represented;

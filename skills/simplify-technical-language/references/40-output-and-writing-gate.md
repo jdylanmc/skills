@@ -1,5 +1,13 @@
 # Layered Output and Writing Gate
 
+## Derived-Summary Output
+
+In `derived-summary` mode, the caller's requested schema replaces the
+interactive layered format below. Use only the supplied canonical artifact,
+claim ledger, audience contract, locked terms, and traceability requirements.
+Return the requested derived explanation plus claim-to-source traceability. Do
+not add unrelated design sections.
+
 ## Final Layered Explanation
 
 Return these sections in order:

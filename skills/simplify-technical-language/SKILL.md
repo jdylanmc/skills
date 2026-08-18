@@ -48,6 +48,25 @@ Read and follow these files in order:
    review. Write a repository-local file only after an explicit request and an
    exact preview.
 
+## Composition Mode
+
+When another skill supplies a canonical technical artifact, complete evidence
+ledger, locked terms, target audience, output purpose, and traceability
+requirements, run in `derived-summary` mode:
+
+1. Treat the supplied canonical artifact as governing evidence.
+2. Skip interactive clarification when the packet is complete.
+3. Produce only the requested derived explanation.
+4. Preserve locked identifiers, priorities, confidence, counts, and claims.
+5. Run STE Coach execution monitoring and the content-quality gate.
+6. Return the derived explanation and claim-to-source traceability to the
+   calling skill.
+7. Do not request `Understanding confirmed`, write files, or alter the canonical
+   artifact.
+
+If the packet is incomplete or contradictory, return an evidence gap to the
+calling skill instead of asking the end user or inventing a resolution.
+
 Constraint: Explain the design; do not redesign it. Never replace exact
 identifiers, commands, API names, product names, or domain terms with invented
 plain-language substitutes. Never claim ASD-STE100 conformance. Never commit,
