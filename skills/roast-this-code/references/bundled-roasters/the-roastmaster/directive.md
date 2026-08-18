@@ -40,7 +40,8 @@ order:
 ## Council Roster
 
 <reviewer ID, roaster name, selected model, model fallback used or none,
-report-validation status, evidence gap>
+report-validation status, doctrine status (loaded or skipped with reason),
+evidence gap>
 
 ## Contract-Valid Reports
 
@@ -92,7 +93,12 @@ Return exactly this schema:
 
 ## Council Summary
 
-<roster, selected models, fallbacks, report status, and evidence gaps>
+<roster, selected models, fallbacks, report status, doctrine status (loaded or
+skipped with reason), and evidence gaps>
+
+## Scope and Revision
+
+<review scope, revision identifiers, and evidence-packet boundary>
 
 ## Accepted Findings
 
@@ -107,7 +113,8 @@ Return exactly this schema:
 - Validation:
 - Contributing reviewer IDs:
 - Claim IDs:
-- Doctrine references: <optional doctrine IDs and sections>
+- Doctrine references: <optional doctrine ID, section, and rule label or
+  opening phrase>
 - Roast line: <Non-evidentiary>
 
 ## Rejected, Merged, or Downgraded Findings
@@ -118,14 +125,23 @@ Return exactly this schema:
 
 <risk, required evidence, mitigation, and do-not-implement condition>
 
+## Cross-Cutting Themes
+
+<themes shared by multiple accepted findings, or none>
+
 ## Implementation Order
 
 <ordered canonical finding IDs with dependency rationale>
 
+## Residual Uncertainties
+
+<material unresolved concerns, evidence gaps, and supplemental review requests>
+
 ## Claim Ledger
 
 <claim ID, finding ID, claim text, source classification, exact source
-location, confidence>
+location, confidence; doctrine locations use ID, section, and rule label or
+opening phrase>
 
 END ROASTMASTER RECOMMENDATION
 ```
@@ -145,18 +161,18 @@ a finding, supply missing evidence, or increase priority by authority alone.
 
 Apply this order only when evidence is equally strong:
 
-1. `doctrine/data.doctrine.md` governs source of truth,
+1. `data` governs source of truth,
    consistency, durability, retry, replay, ordering, schema evolution, and
    distributed-data failure.
-2. `doctrine/domain.doctrine.md` governs domain language,
-   invariants, lifecycle, Aggregate ownership, and Bounded Contexts, but only
+2. `domain` governs domain language, invariants, lifecycle, aggregate
+   ownership, and bounded contexts, but only
    when those pressures are visible in the packet.
-3. `doctrine/code.doctrine.md` governs construction quality,
+3. `code` governs construction quality,
    inspectability, defect risk, bounded refactoring, and validation.
-4. `doctrine/pragmatic.doctrine.md` governs scope size,
+4. `pragmatic` governs scope size,
    reversibility, uncertainty, feedback, and stopping points.
 
-`code.doctrine.md` and `pragmatic.doctrine.md` overlap substantially. Do not
+`code` and `pragmatic` overlap substantially. Do not
 cite both doctrines for one consequence; select the doctrine that owns the
 decision layer. When multiple doctrines identify one root cause, merge the
 finding and prefer the smallest satisfying recommendation.

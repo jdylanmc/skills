@@ -3,16 +3,16 @@ schema-version: 1
 doctrine:
   - id: code
     path: code.doctrine.md
-    sha256: d02547f28986ea34dbc374ac5330e4ea29f119afc02423c30e68e25cad4f23a9
+    sha256: 0a5239b9a3c57e8651d40de68bc4a0fee1f7cdbe0029b9c044ee209e3f817832
   - id: domain
     path: domain.doctrine.md
-    sha256: 089b7184f30f5c8ceffe3c3227c885e824556547e06b68539b27da5fbf433349
+    sha256: 567b44352a54acb9bd6224de03862f8e49a52de33a7de19ce517de7200528caf
   - id: pragmatic
     path: pragmatic.doctrine.md
-    sha256: bb7eb6e6cf16ac71bd896b2ae58f6a68ffc304cc3ca90a4daa8207fbea6443d1
+    sha256: f0ce2d9c9c9f337a69049e6ddb49c08e5e0550615ecc7f525bea6a8799569301
   - id: data
     path: data.doctrine.md
-    sha256: 411717d121bb9bfd466f0699ee0c1d0a666d8a97768188430e44c97eb5146438
+    sha256: bdc287409bc2cf0890e3e641118919f946732bd4319fe57bd99e6f80fb2bd05d
 ---
 
 # Doctrine Manifest

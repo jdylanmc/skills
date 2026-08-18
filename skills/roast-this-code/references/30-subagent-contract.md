@@ -125,7 +125,8 @@ For each finding:
 - `Confidence rationale`
 - `Location`
 - `Evidence references`: manifest entry or shard and exact line or range
-- `Doctrine references`: optional canonical doctrine ID and section
+- `Doctrine references`: optional canonical doctrine ID, section, and the
+  referenced rule's bold label or opening phrase
 - `Evidence`
 - `Counterevidence considered`
 - `Assumptions`

@@ -14,10 +14,25 @@ canonical technical details.
 
 ## Installation
 
-Install the complete skill package in one recognized location:
+The canonical doctrine-enabled layout is this skills repository:
+
+```text
+doctrine/
+skills/roast-this-code/
+```
+
+The fixed manifest path in each bundled `instructions.md` is resolved from this
+layout without searching for a repository root.
+
+The skill package can also be copied to a recognized standalone location:
 
 - repository: `.github/skills/roast-this-code/`
 - personal: `~/.agents/skills/roast-this-code/`
+
+Standalone copies retain the complete review directives but do not load shared
+doctrine unless the installation preserves the canonical relative layout.
+Doctrine is optional reinforcement; its absence is recorded in the council
+summary rather than inferred from another location.
 
 No bundled roaster agents need separate installation. Their personas and
 directives remain private to the skill under
@@ -29,8 +44,8 @@ synthesis.
 
 ## Shared doctrine
 
-The bundled council selectively applies these shared industry best-practice
-files from the trusted skills repository:
+In the canonical repository layout, the bundled council selectively applies
+these shared industry best-practice files:
 
 - `doctrine/code.doctrine.md`
 - `doctrine/domain.doctrine.md`

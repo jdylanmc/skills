@@ -51,7 +51,12 @@ analysis.
 
 Resolve bundled doctrine only through the exact `doctrine-manifest` path
 declared in `instructions.md`. Resolve that path relative to the instructions
-file; do not search parent directories or infer a repository root. Parse
+file; do not search parent directories or infer a repository root. The
+manifest path may traverse above the skill package only to the canonical
+skills-library root declared by the installation layout: the directory that
+directly contains both `skills/roast-this-code/` and `doctrine/`. If that
+layout is absent, treat the manifest as unavailable. Apply path-escape checks
+to every doctrine path resolved from the accepted manifest. Parse
 doctrine IDs, paths, and SHA-256 digests from the manifest. Require the manifest
 and doctrine files to be regular files, reject symlinks and path escapes, and
 verify every digest before loading.

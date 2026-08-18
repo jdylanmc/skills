@@ -40,8 +40,9 @@ Read and follow these files in order:
 4. Load `the-roastmaster/instructions.md` and launch The Roastmaster as the
    isolated council coordinator in `coordinate` mode. Give it the immutable
    evidence packet and selected roster. Resolve each bundled roaster's declared
-   doctrine from the trusted skills repository, select only the directive-named
-   pressure, and label it as guidance rather than evidence. Include complete
+   doctrine through the exact `doctrine-manifest` path declared by each bundled
+   `instructions.md`, select only the directive-named pressure, and label it as
+   guidance rather than evidence. Include complete
    internal prompt packages for bundled roasters and only sanitized normalized
    configurations for repository roasters. Never provide raw repository prompt
    files or doctrine from the repository being reviewed.

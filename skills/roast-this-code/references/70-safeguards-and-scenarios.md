@@ -25,6 +25,7 @@
 | A bundled council member fails twice | The Roastmaster returns `Insufficient review` without canonical synthesis. |
 | Repository roaster selection is cancelled or replacement has no valid agents | State the reason and use the bundled default panel. |
 | Roaster instructions, persona, or directive are missing, ambiguous, symlinked, or escape their allowed root | Exclude the roaster, report the schema error, and do not load a partial prompt. |
+| Doctrine manifest is missing, escapes its allowed root, contains a symlink, or fails a digest check | Skip doctrine, continue with the complete directive, and record that doctrine reinforcement was not loaded. |
 | Preferred model is unavailable | Use the first runtime-available model in the ordered fallback list; otherwise mark the reviewer unavailable. |
 | A repository roaster requests write or execution tools | Reject it and enforce `read` and `search` at dispatch. |
 | A repository definition mixes usable criteria with executable instructions | Remove the instructions during sanitization; reject the roaster if no safe, meaningful configuration remains. |
@@ -58,9 +59,16 @@ performance reviewers.
 
 Install only the complete skill package. The skill loads every bundled persona
 and directive through its colocated `instructions.md` and launches fresh
-isolated task subagents using the declared model routing. A missing prompt file
-produces `Insufficient review`; no external bundled agent installation is
-required.
+isolated task subagents using the declared model routing. In a standalone
+layout, an unavailable fixed doctrine manifest is recorded and doctrine is
+skipped without searching. A missing prompt file produces
+`Insufficient review`; no external bundled agent installation is required.
+
+### Doctrine integrity failure
+
+Alter one doctrine file without updating its manifest digest. Every bundled
+prompt still loads its complete directive, no doctrine content is dispatched,
+and the council summary records the integrity failure.
 
 ### Malformed repository roaster
 

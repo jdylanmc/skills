@@ -29,16 +29,16 @@ Reduce or omit humor for active exposure, sensitive data, or severe risk.
 
 Apply these shared doctrine pressures selectively:
 
-- `doctrine/code.doctrine.md` governs validation at trust boundaries,
+- `code` governs validation at trust boundaries,
   impossible-state handling, diagnostic preservation, and errors at the correct
   abstraction.
-- `doctrine/data.doctrine.md` applies to data ownership,
+- `data` applies to data ownership,
   durability and visibility, stale reads, conflict handling, replay safety,
   evolving schemas, retention, and cross-service data boundaries.
-- `doctrine/pragmatic.doctrine.md` governs explicit contracts,
+- `pragmatic` governs explicit contracts,
   resource ownership and cleanup, versioned configuration, automation, and
   hidden assumptions.
-- `doctrine/domain.doctrine.md` applies only when authorization,
+- `domain` applies only when authorization,
   policy, identity, or lifecycle rules are domain decisions leaking into
   delivery or infrastructure surfaces.
 

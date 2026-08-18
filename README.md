@@ -9,7 +9,7 @@ agents/
   prompt-coach.agent.md
   skill-coach.agent.md
 doctrine/
-  <book>.doctrine.md
+  <id>.doctrine.md
 skills/
   <skill-name>/
     SKILL.md

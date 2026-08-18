@@ -125,13 +125,14 @@ For each accepted finding include:
 Also include:
 
 - scope and revision;
-- council composition, model routing, and evidence gaps;
+- council composition, model routing, doctrine-load status, and evidence gaps;
 - rejected or downgraded findings with reasons;
 - cross-cutting themes;
 - recommended implementation order;
 - residual uncertainties;
 - claim ledger with source classification, exact source location, confidence,
-  and claim-to-finding mapping;
+  and claim-to-finding mapping; doctrine locations use the canonical ID,
+  section, and the rule's bold label or opening phrase;
 - recommended next action for the main agent.
 
 The technical details are the source of truth. After freezing, no downstream
