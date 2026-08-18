@@ -147,8 +147,8 @@ skipped with reason), and evidence gaps>
 ## Claim Ledger
 
 <claim ID, finding ID, claim text, source classification, exact source
-location, confidence; doctrine locations use ID, section, and rule label or
-opening phrase>
+location, confidence, decision owner, ownership status; doctrine locations use
+ID, section, and rule label or opening phrase>
 
 END ROASTMASTER RECOMMENDATION
 ```
@@ -192,6 +192,12 @@ maps to multiple owners or none, record the ambiguity in `Residual
 Uncertainties` and do not use doctrine to disposition or reprioritize it. When
 multiple findings identify one packet-backed root cause, merge them and prefer
 the smallest satisfying recommendation.
+
+`Decision owner` is one of `data`, `domain`, `testing`, `code`, `pragmatic`, or
+`none`. `Ownership status` is `owned`, `ambiguous`, or `not applicable`.
+Doctrine-backed claims require `owned`; `ambiguous` claims must appear in
+`Residual Uncertainties`; claims with no doctrine reference use `none` and
+`not applicable`.
 
 Add `doctrine-reference` as a claim-ledger source classification. A
 doctrine-reference must accompany packet evidence and may never stand alone.

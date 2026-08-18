@@ -141,8 +141,8 @@ For each finding:
 - `Evidence references`: manifest entry or shard and exact line or range
 - `Doctrine references`: optional canonical doctrine ID, section, and the
   referenced rule's bold label or opening phrase
-- `Doctrine uncertainties`: every cited `**Open:**` statement, the applied
-  definition or assumption, and its unresolved consequence; otherwise `none`
+- `Doctrine uncertainty IDs`: every uncertainty record that affects this
+  finding; otherwise `none`
 - `Evidence`
 - `Counterevidence considered`
 - `Assumptions`
@@ -151,6 +151,19 @@ For each finding:
 - `Recommendation`
 - `Roast line`
 - `Related finding IDs`, when known within the report
+
+## Doctrine Uncertainties
+
+For each cited `**Open:**` doctrine statement:
+
+- `Uncertainty ID`: `<reviewer ID>-U<nn>`, numbered from `01`;
+- `Related finding IDs`: every finding affected by the uncertainty, or `none`;
+- `Doctrine reference`: canonical doctrine ID, section, and opening phrase;
+- `Applied definition or assumption`;
+- `Unresolved consequence`.
+
+Every uncertainty appears exactly once here. Every affected finding references
+its uncertainty ID.
 
 ## Dismissed Suspicions
 
@@ -173,8 +186,10 @@ Reject a report that:
 - lacks locations or evidence;
 - cites material absent from the packet;
 - cites doctrine as evidence or returns a doctrine-only finding;
-- omits `Doctrine uncertainties` or uses an `**Open:**` statement without an
-  explicit assumption and unresolved consequence;
+- omits `Doctrine Uncertainties`, duplicates or malforms an uncertainty ID, or
+  references an uncertainty ID that does not exist;
+- uses an `**Open:**` statement without an explicit assumption and unresolved
+  consequence;
 - uses humor as the only rationale;
 - comments on the author;
 - invents code or requirements;

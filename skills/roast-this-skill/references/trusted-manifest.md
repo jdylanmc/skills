@@ -5,7 +5,7 @@ trusted-files:
   - id: artifact-roastmaster-snapshot
     path: agents/artifact-roastmaster.agent.md
     source-path: agents/artifact-roastmaster.agent.md
-    sha256: 6fc21c4ed4d56a9e24d5d067f86ebc4060bac6e6a30f9cafcc4354e955f84826
+    sha256: 79b6b059d9d6d0a1c8024b8ce15f08d916fbd4c9e280d0795891cd5e8c7ef478
   - id: bundled-lenses
     path: 30-trusted-lenses.md
     source-path: skills/roast-this-skill/references/30-trusted-lenses.md

@@ -57,6 +57,46 @@ then launches a fresh stateless Roastmaster in `synthesize` mode with that
 envelope and the immutable evidence packet. No invocation depends on hidden
 conversation state.
 
+## Parent Boundary Validation
+
+Use the schemas in the common reviewer contract and The Roastmaster directive
+as the canonical grammar. Count structure only at line start and outside every
+fenced block.
+
+Before synthesis, the main agent validates the Council Report Envelope:
+
+1. The first line is `# Council Report Envelope`.
+2. The field block contains only `Status`, `Evidence-packet identifier`, and
+   `Schema version`, each exactly once.
+3. These headings appear exactly once and in order: `## Council Roster`,
+   `## Contract-Valid Reports`, and
+   `## Failed or Excluded Council Members`. No other top-level heading is
+   allowed.
+4. Every rostered contract-valid reviewer has exactly one matching
+   `### <reviewer ID>` report, and no unrostered report appears.
+5. Each nested report independently passes the common reviewer grammar. Treat
+   its fenced content as opaque while parsing the envelope.
+6. Each report has exactly one `END REVIEW` as its final line. The envelope has
+   exactly one `END COUNCIL REPORT ENVELOPE` as its final line.
+7. The packet identifier, schema version, roster status, and report status are
+   mutually consistent.
+
+Before freezing technical details, the main agent validates the Roastmaster
+Recommendation:
+
+1. The first line is `# Roastmaster Recommendation`.
+2. Its field block contains only the four fields declared by the directive,
+   each exactly once.
+3. Every directive-declared `##` heading appears exactly once and in order; no
+   unexpected top-level heading appears.
+4. Every accepted finding has the complete declared field set.
+5. Every claim ID, decision owner, ownership status, doctrine uncertainty ID,
+   reviewer ID, and finding ID resolves exactly once.
+6. `END ROASTMASTER RECOMMENDATION` is the single final terminator.
+
+Reject and retry once when either boundary fails. Never repair, infer, or
+silently drop malformed nested content.
+
 ## Synthesis Workflow
 
 1. In `coordinate` mode, echo and verify the evidence-packet identifier.
@@ -131,8 +171,9 @@ Also include:
 - recommended implementation order;
 - residual uncertainties;
 - claim ledger with source classification, exact source location, confidence,
-  and claim-to-finding mapping; doctrine locations use the canonical ID,
-  section, and the rule's bold label or opening phrase;
+  claim-to-finding mapping, decision owner, and ownership status; doctrine
+  locations use the canonical ID, section, and the rule's bold label or opening
+  phrase;
 - recommended next action for the main agent.
 
 The technical details are the source of truth. After freezing, no downstream
@@ -150,8 +191,12 @@ Before freezing:
    conditions.
 5. Verify implementation order respects dependencies.
 6. Verify terminology, abbreviations, locations, identifiers, and claim ledger.
-7. Verify roast lines are non-evidentiary and person-safe.
-8. Verify the packet identifier and completeness marker.
+7. Verify every doctrine uncertainty ID appears in `Residual Uncertainties`
+   with its reviewer and related finding IDs.
+8. Verify each doctrine-backed claim has one decision owner, or an `ambiguous`
+   ownership status preserved in `Residual Uncertainties`.
+9. Verify roast lines are non-evidentiary and person-safe.
+10. Verify the packet identifier and completeness marker.
 
 Assign canonical IDs deterministically by priority tier, dependency order, file
 path, and starting line. Preserve panel finding IDs as traceability only.

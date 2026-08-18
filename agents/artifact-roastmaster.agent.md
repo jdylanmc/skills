@@ -145,9 +145,9 @@ Use `execute` only for content digests, file identity, and revision metadata,
 and only with these argument vectors:
 
 - `shasum -a 256 -- <path>`
-- `git -C <root> rev-parse --verify HEAD`
-- `git -C <root> log -1 --format=%H -- <path>`
-- `git -C <root> status --porcelain -- <path>`
+- `git --no-pager --no-optional-locks -c core.fsmonitor=false -C <root> rev-parse --verify HEAD`
+- `git --no-pager --no-optional-locks -c core.fsmonitor=false -C <root> log -1 --format=%H -- <path>`
+- `git --no-pager --no-optional-locks -c core.fsmonitor=false -C <root> status --porcelain -- <path>`
 - `ls -ln -- <path>`
 
 Argument-safety rules:

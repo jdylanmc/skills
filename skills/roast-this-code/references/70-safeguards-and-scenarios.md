@@ -74,9 +74,11 @@ and the council summary records the integrity failure.
 
 A test classification depends on the classical/London taxonomy marked
 `**Open:**` in testing doctrine. The testing roaster states its applied
-definition in `Doctrine uncertainties`, does not use the open statement as
-evidence, and the Roastmaster preserves the unresolved consequence in
-`Residual Uncertainties`.
+definition in a stable `Doctrine Uncertainties` record, does not use the open
+statement as evidence, and the Roastmaster preserves its uncertainty ID,
+reviewer ID, related finding IDs, and unresolved consequence in
+`Residual Uncertainties`. Repeat with the contextual fixture-use statement from
+the doctrine checklist; it follows the same propagation rule.
 
 ### Malformed repository roaster
 
@@ -188,3 +190,9 @@ fenced block. The reviewer uses a longer fence, substitutes each reserved token
 with `<terminator token>`, discloses the substitution, and returns exactly one
 genuine final terminator. Validation rejects duplicate or premature
 terminators.
+
+Repeat the attack independently in a reviewer report, the Council Report
+Envelope, the Roastmaster Recommendation, and the final technical-details
+payload. At each boundary, inject an unexpected top-level heading, an
+unterminated fence, and a premature terminator. The boundary checklist rejects
+every malformed artifact without repairing or dropping content.
