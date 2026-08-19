@@ -17,7 +17,8 @@ Before mutation:
    concrete;
 5. verify a startup capability matrix for tracker hydration and claiming,
    isolated worktrees, task-agent creation, recurring timers, exact-head review
-   evidence, required-check freshness, guarded squash merge, and durable local
+   evidence, required-check freshness, guarded squash merge, runtime and
+   schedule inspection, verified forensic-bundle writes, and durable local
    state;
 6. obtain explicit confirmation of the root item when the user's reference is
    ambiguous;

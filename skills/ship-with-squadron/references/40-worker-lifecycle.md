@@ -18,7 +18,9 @@ Give every worker:
 - the prohibition on merging, self-approval, policy bypass, and sibling work.
 
 The worker must acknowledge the packet, verify the worktree, and emit
-`WORKER_STARTED` before editing.
+`WORKER_STARTED` before editing. The Coordinator persists the worker runtime
+identifier, launch request, acknowledgement, and `WORKER_STARTED` event before
+counting the worker as active.
 
 Before launch, the Coordinator validates the packet against one fresh ledger
 and provider snapshot. Reject a packet with a stale ticket or base revision,
@@ -39,7 +41,8 @@ The worker:
 4. reviews the diff for scope and secrets;
 5. commits and pushes;
 6. opens one non-draft pull request linked to the ticket;
-7. records the pull-request head and implementation evidence.
+7. records the pull-request head and implementation evidence;
+8. closes the implementation phase attempt with its exact outcome.
 
 The pull request must exist by the implementation deadline. A draft, local
 branch, unpushed commit, or unverified partial implementation does not satisfy
@@ -52,6 +55,14 @@ Deadline: two hours from worker start.
 Invoke the installed `/roast-this-code` skill against the exact pull-request
 head. Do not replace it with an ordinary review or a hand-written reviewer
 prompt.
+
+Before invocation, allocate a new Roast phase attempt and persist
+`ROAST_REQUESTED` with the ticket, pull request, exact source head, target
+head, worker runtime identifier, and request timestamp. Persist
+`ROAST_STARTED` only after the official workflow reports that execution began.
+As it returns progress, persist the review fields defined in the forensic
+evidence reference. Never reduce missing progress to a generic `ROASTING`
+state.
 
 The worker consumes the Roast recommendation:
 
@@ -67,6 +78,12 @@ After any correction push:
 2. rerun targeted validation;
 3. invoke Roast This Code against the new exact head;
 4. continue until no blocking finding remains.
+
+Close each Roast attempt with one review outcome. Record
+`CONSENSUS_REACHED` only when the official Roastmaster returns a canonical
+recommendation. Use `DISAGREEMENT`, `INCOMPLETE`, or `FAILED` when applicable;
+do not infer consensus from elapsed time, reviewer count, or worker silence.
+Track later invalidation in the separate evidence-validity field.
 
 The initial Roast gate must pass by the two-hour deadline. Reviewer
 unavailability, invalid evidence, unresolved disagreement, or an uncorrected
@@ -109,6 +126,7 @@ while active. Include:
 - active and wall-clock elapsed time;
 - remaining milestone and total budget;
 - validation, Roast, check, and review summary;
+- current phase-attempt ID and last durable phase event;
 - blocker signature;
 - next action.
 

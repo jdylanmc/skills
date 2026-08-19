@@ -16,6 +16,9 @@
   policy.
 - Never interpret idle capacity, an empty ready frontier, or a quiet
   Coordinator as root completion.
+- Never infer review disagreement from a missing Roast recommendation.
+- Never terminate or replace an unhealthy actor before attempting the required
+  freeze bundle.
 
 ## Error Handling
 
@@ -32,6 +35,8 @@
 | Worker misses a deadline | Trigger immediate handoff, terminate the worker, and apply the two-slice recovery contract. |
 | Worker merges | Stop the worker, preserve evidence, reconcile the provider, and escalate the integrity failure. |
 | Coordinator becomes unhealthy | Freeze claims and merges, then recover it from durable state. |
+| Forensic evidence is partial or conflicting | Preserve every source, mark omissions or conflicts explicitly, and avoid unsupported causal claims. |
+| Freeze bundle cannot be verified | Record the failure, block destructive cleanup, and recover only from independently verified provider and ledger state. |
 | Roast and Shepherd disagree on the head | Invalidate both combined readiness and rebuild fresh evidence. |
 | Required human approval is missing | Continue Shepherd waiting within budget or return the blocker; never fabricate approval. |
 | Provider data is partial or stale | Fail closed and return `EXTERNAL_BLOCKER`. |
@@ -63,6 +68,64 @@ smaller children, and never resumes the original worker.
 Given unresolved `Must fix` findings at two hours, the worker times out even
 when checks pass. Mechanical success cannot replace the exact-head Roast gate.
 
+### Roast never started
+
+Given a pull request opens and the Coordinator freezes before the official
+Roast invocation begins, a verified invocation lookup reports that it did not
+start and the freeze bundle records `NOT_STARTED`. If the lookup is
+unavailable, the outcome is `UNKNOWN`. A later post-mortem does not attribute
+either condition to reviewer disagreement.
+
+### Roast disagreement
+
+Given the official workflow explicitly returns unresolved reviewer or
+Roastmaster disagreement, the attempt records `DISAGREEMENT`, the supplied
+reason, participant progress counts, and no canonical recommendation. The
+post-mortem can distinguish this from missing or failed reviewers.
+
+### Roast incomplete
+
+Given one or more required reviewers fail or time out before synthesis and the
+official workflow then terminates without required evidence, the attempt
+records `INCOMPLETE`, exact participant progress counts, and the last progress
+timestamp. While the official workflow remains active, the outcome is
+`IN_PROGRESS`. Neither condition records `DISAGREEMENT`.
+
+### Roast in progress
+
+Given the official workflow started, reports current progress, and has no
+official terminal outcome, the attempt records `IN_PROGRESS`. If a caller
+deadline stops the phase attempt, the review outcome remains `IN_PROGRESS` and
+the failure class becomes `DEADLINE_REACHED`. This records that the caller
+stopped waiting without inventing an official review result or disagreement.
+
+### Roast workflow failure
+
+Given the official Roast workflow terminates with an execution error before a
+recommendation, the attempt records outcome `FAILED` and failure class
+`WORKFLOW_FAILED`. An individual reviewer failure records `INCOMPLETE` instead
+when the workflow continues and later terminates without required evidence.
+
+### Roast invalidation
+
+Given a canonical recommendation followed by a source-head change, the outcome
+remains `CONSENSUS_REACHED` and evidence validity becomes `INVALIDATED`. The
+old evidence cannot pass the merge gate.
+
+### Actor and orchestration loss
+
+Given one worker becomes unreachable while the Coordinator remains live, the
+failure class is `ACTOR_UNREACHABLE`. Given runtime evidence confirms the
+Coordinator ended and no more specific cause exists, it is
+`ORCHESTRATION_LOST`. Silence without confirming runtime evidence is
+`UNKNOWN`.
+
+### Conflicting forensic sources
+
+Given ledger, runtime, and provider snapshots disagree about whether Roast
+started, the bundle is `CONFLICTING` and review outcome is `UNKNOWN`. The
+report names each conflict and makes no consensus claim.
+
 ### Shepherd mutation
 
 Given a Roast recommendation that passed its gate followed by a Shepherd
@@ -86,8 +149,16 @@ children. The timed-out worker does not resume.
 ### Coordinator crash
 
 Given a lost Coordinator conversation with four live workers, the Primary
-freezes new claims, reconstructs state from the ledger and providers, launches
-one replacement Coordinator, and avoids duplicate workers.
+freezes new claims, captures a verified freeze bundle, reconstructs state from
+the ledger and providers, launches one replacement Coordinator, and avoids
+duplicate workers.
+
+### Provider-led reconstruction
+
+Given the ledger says `CLAIMED` while the provider has a non-draft pull request,
+the recovery snapshot records the conflict and reconstructs the `PR_OPEN`
+phase. It does not claim Roast, Shepherd, or merge progress without their
+specific evidence.
 
 ### Stale approval
 

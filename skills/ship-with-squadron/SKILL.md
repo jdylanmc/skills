@@ -31,7 +31,8 @@ Read and follow these files in order:
 5. [Review and merge gate](./references/50-review-and-merge-gate.md)
 6. [Timeout handoff and recursive splitting](./references/60-timeout-handoff-and-splitting.md)
 7. [Health, reporting, and recovery](./references/70-health-reporting-and-recovery.md)
-8. [Safeguards, errors, and scenario tests](./references/90-safeguards-and-scenarios.md)
+8. [Forensic evidence and post-mortem readiness](./references/75-forensic-evidence.md)
+9. [Safeguards, errors, and scenario tests](./references/90-safeguards-and-scenarios.md)
 
 ## Human-Facing Output Contract
 
@@ -78,7 +79,11 @@ read independently; never invent an expansion.
    squash merge after the full merge gate passes.
 8. After every merge, timeout, split, external change, or terminal worker
    result, recompute the root graph and refill the ready frontier.
-9. Stop only when the root outcome and every required descendant are complete,
+9. Keep the forensic evidence contract current at every phase boundary. Before
+   terminating or replacing an unhealthy actor, capture the required freeze
+   bundle so a later review can distinguish orchestration loss, review
+   disagreement, provider waiting, and policy failure.
+10. Stop only when the root outcome and every required descendant are complete,
    or when an explicit human decision or external blocker makes further safe
    progress impossible.
 

@@ -12,6 +12,12 @@ Roast approval is valid only when:
 - no source file, target revision, repository instruction, or relevant
   contract changed after packet capture.
 
+The durable review outcome must be `CONSENSUS_REACHED` and evidence validity
+must be `CURRENT`. Every other value fails closed. Preserve both fields and
+their evidence identifiers so a post-mortem can distinguish a strict
+recommendation that became stale from a review workflow that never produced
+one.
+
 Any pull-request head change invalidates the entire gate. Reviewer count,
 worker confidence, previous approval, or elapsed time cannot substitute for a
 fresh exact-head package.

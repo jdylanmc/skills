@@ -16,6 +16,8 @@ Required files:
 - `events.jsonl`: append-only transition and heartbeat events;
 - `handoffs/<ticket-key>.md`: human-readable timeout handoffs;
 - `snapshots/<timestamp>.json`: bounded reconciliation checkpoints.
+- `forensics/<timestamp>/`: bounded freeze evidence bundles defined in the
+  forensic evidence reference.
 
 Write atomically through a temporary sibling file and rename. After every
 write, reread and schema-check the result. The append-only event log is the
@@ -33,6 +35,8 @@ Record:
 - startup capability matrix, role-enforcement mode, and human run/merge
   authorization;
 - Primary and Coordinator runtime identifiers and heartbeat timestamps;
+- recurring schedule identifiers, last successful tick, next expected tick,
+  and observed runtime status;
 - graph digest and last provider reconciliation marker.
 
 For every ticket record:
@@ -43,9 +47,13 @@ For every ticket record:
 - claim owner, generation, attempt, branch, worktree, and base revision;
 - implementation, initial-Roast, and total deadlines;
 - last heartbeat, active-time counters, and suspension intervals;
+- worker runtime identifier, launch-request timestamp, `WORKER_STARTED`
+  timestamp, and termination reason;
 - pull-request ID, URL, source and target revisions;
 - validation summary;
-- Roast evidence-packet ID, recommendation status, reviewed head, and
+- ordered phase-attempt records for implementation, Roast, Shepherd, and merge;
+- Roast invocation ID, evidence-packet ID, review-progress state,
+  evidence-validity state, recommendation status, reviewed head, and
   unresolved `Must fix` findings;
 - Shepherd terminal outcome and guarded snapshot marker;
 - merge authorization actor, expected head, merge commit, and timestamp;
@@ -88,13 +96,16 @@ Append events for:
 - worker launched, heartbeat, suspended, resumed, or terminated;
 - implementation completed;
 - pull request opened or head changed;
-- Roast started, invalidated, approved, or rejected;
+- phase attempt started, advanced, completed, failed, or abandoned;
+- Roast requested, started, reviewer progress changed, synthesis started,
+  consensus classified, invalidated, approved, or rejected;
 - Shepherd started or returned a terminal outcome;
 - deadline reached;
 - handoff accepted;
 - split children created and wired;
 - merge authorized, attempted, succeeded, or failed;
 - external provider mutation detected.
+- freeze suspected, freeze bundle captured, or forensic evidence incomplete.
 
 Use wall-clock timestamps with offsets and monotonic elapsed durations where
 the runtime exposes them. Never derive active implementation time solely from
@@ -103,6 +114,9 @@ the difference between start and finish timestamps.
 ## Transition Rules
 
 - Claim with a provider-fresh compare-and-set operation when supported.
+- A claim does not count as an active worker until `WORKER_STARTED` is durable.
+  If launch acknowledgement is missing, report the claim as unacknowledged
+  rather than inferring that implementation started.
 - A worker can mutate only its claimed ticket record.
 - Any pull-request head change invalidates prior Roast approval, validation
   tied to the old head, and merge authorization.

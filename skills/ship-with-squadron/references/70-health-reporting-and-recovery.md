@@ -12,7 +12,8 @@ At each tick:
 2. request a fresh concise Coordinator snapshot when it is reachable;
 3. reconcile snapshot identity with the ledger;
 4. publish the executive report;
-5. record the report timestamp.
+5. record the report timestamp, schedule identifier, tick start and finish,
+   and next expected tick.
 
 If recurring scheduling is unavailable, state the degradation before launching
 workers and publish on every material transition. Do not promise one-minute
@@ -52,6 +53,10 @@ Coordinator health:
 - `UNHEALTHY`: five consecutive reports lack a fresh heartbeat, the task
   failed, or ledger writes cannot be verified.
 
+Do not preserve `HEALTHY` from the last stored value when its supporting
+heartbeat or schedule tick is stale. Health is a fresh derived observation,
+not a durable assertion.
+
 Worker health:
 
 - `ACTIVE`: heartbeat within five minutes, or within the active Shepherd
@@ -71,12 +76,15 @@ When the Coordinator becomes unhealthy:
 
 1. stop new claims and merges;
 2. preserve active workers and prevent duplicate launches;
-3. inspect the last valid ledger and append-only events;
-4. query live tracker, branch, pull-request, checks, and merge state;
-5. terminate the failed Coordinator when the runtime permits;
-6. launch one replacement Coordinator with the same run ID;
-7. require it to reconcile every ticket before scheduling;
-8. resume the one-minute reports with a recovery marker.
+3. capture the freeze bundle from the forensic evidence reference;
+4. inspect the last valid ledger and append-only events;
+5. query live tracker, branch, pull-request, checks, and merge state;
+6. classify every active phase from evidence, using `UNKNOWN` where evidence
+   is missing instead of guessing;
+7. terminate the failed Coordinator when the runtime permits;
+8. launch one replacement Coordinator with the same run ID;
+9. require it to reconcile every ticket before scheduling;
+10. resume the one-minute reports with a recovery marker.
 
 The Primary may perform this recovery because it owns executive continuity. It
 must not take over ticket implementation.
