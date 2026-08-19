@@ -54,7 +54,9 @@ Coordinator health:
 
 Worker health:
 
-- `ACTIVE`: heartbeat within five minutes;
+- `ACTIVE`: heartbeat within five minutes, or within the active Shepherd
+  observation interval plus one minute while delegated monitoring is the
+  worker's current phase;
 - `AT_RISK`: heartbeat stale or a milestone has less than 15 minutes
   remaining with an unresolved blocker;
 - `TIMED_OUT`: a deadline passed;

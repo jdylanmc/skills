@@ -48,8 +48,8 @@ Keep independently consumed outputs fit for their reader:
 Preserve provider identifiers, branch names, revisions, commands, check names,
 and composed-skill terminal outcomes exactly. Use `Roast recommendation` for
 the canonical Roastmaster result, `exact-head Roast gate` for this package's
-authorization condition, and `Shepherd readiness` for the official Shepherd
-terminal contract. Define unfamiliar abbreviations in every output that can be
+authorization condition, and `SHIP_READY_MONITORING` for Shepherd's nonterminal readiness state. Define
+unfamiliar abbreviations in every output that can be
 read independently; never invent an expansion.
 
 ## Core Workflow
@@ -70,10 +70,10 @@ read independently; never invent an expansion.
    six-hour total budget: one hour to implement and open a pull request, one
    additional hour to complete the initial `/roast-this-code` correction loop,
    and four additional hours to `/shepherd` the pull request.
-6. Keep workers assigned after merge readiness so they can react to invalidated
+6. Keep workers assigned after `SHIP_READY_MONITORING` so they can react to invalidated
    evidence until the pull request merges or the first applicable deadline
-   fires. Workers never merge. On timeout, they return the structured handoff
-   and terminate.
+   fires. Workers never merge. On timeout, they stop and drain the Shepherd
+   schedule, return the structured handoff, and terminate.
 7. Let only the user, Primary, or Coordinator perform an exact-head-protected
    squash merge after the full merge gate passes.
 8. After every merge, timeout, split, external change, or terminal worker

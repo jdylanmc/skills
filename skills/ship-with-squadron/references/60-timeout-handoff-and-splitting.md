@@ -13,19 +13,26 @@ clock when available. Machine suspension and provider waiting remain visible
 wall-clock events and do not silently extend the budget. Only the user may
 grant an explicit extension, and the ledger must record it.
 
-Timeout applies immediately when:
+Timeout applies at the next observation opportunity when:
 
 - no non-draft pull request exists at one hour;
 - the initial exact-head Roast gate has not passed at two hours;
 - the pull request has not merged by six hours.
 
-At six hours, even a merge-ready but unmerged pull request times out because
-the delivery did not ship within its allocation.
+Enforcement latency is bounded by the active Shepherd observation interval:
+at most five minutes in ship-ready monitoring and at most one minute while a
+resolvable blocker or required pending signal is active.
+
+At six hours, even an unmerged pull request that satisfies Shepherd readiness
+times out because the delivery did not ship within its allocation.
 
 ## Immediate Worker Handoff
 
 When a deadline fires, the worker stops implementation, correction, polling,
-and shepherding. It must not perform "one last fix."
+and shepherding. It must not perform "one last fix." If Shepherd owns a
+schedule, stop it and verify runtime drain before returning the handoff. If
+drain cannot be proven, return `EXTERNAL_BLOCKER` with the schedule identifier
+and do not launch a replacement worker against that pull request.
 
 Invoke the installed `/handoff` skill using its canonical sections. Also
 return the machine-readable timeout envelope below. If Handoff becomes
@@ -90,10 +97,11 @@ The Coordinator:
 2. snapshots or preserves unfinished work without merging it;
 3. marks the attempt `TIMED_OUT`;
 4. identifies the remaining independently deliverable outcome;
-5. if the exact head is still merge-ready, performs the guarded merge rather
-   than duplicating completed implementation;
-6. otherwise decomposes the remaining outcome into exactly two coherent
-   tracer-bullet slices;
+5. if the exact-head merge gate still passes, performs the guarded merge
+   rather than duplicating completed implementation;
+6. otherwise verifies that every prior Shepherd schedule is stopped and
+   drained, then decomposes the remaining outcome into exactly two
+   independently deliverable end-to-end slices;
 7. gives each child independent acceptance criteria and validation;
 8. wires native parent and dependency relationships;
 9. marks the original ticket `SUPERSEDED` only after both children exist and

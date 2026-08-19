@@ -1,118 +1,142 @@
 # Provider State Adapters
 
 Normalize provider data into one canonical snapshot. Do not infer a passing
-state from a missing field, a summary string, or a partially retrieved page.
+state from a missing field, summary string, ambiguous native value, or partial
+page.
 
 ## Consistency Guard
 
-Provider queries are not atomic. Build every snapshot as a guarded epoch:
+Provider queries are not atomic. Use a provider revision that demonstrably
+covers policies, results, reviews, votes, and threads. When no such revision
+exists, collect and reread stable revision or pagination tokens for each
+required collection.
 
-1. Read the pull request's source commit, target commit, state, and provider
-   update marker.
+Build every snapshot as a guarded epoch:
+
+1. Read source commit, target commit, lifecycle state, draft status, and every
+   available provider and collection revision.
 2. Retrieve every required page of policies, checks, reviews, votes, and
    threads.
 3. Associate each result with the captured source commit when the provider
-   exposes that association. A result for another commit is `STALE`.
-4. Reread the source commit, target commit, state, and update marker.
-5. Discard the snapshot if any guard value changed while it was assembled.
+   exposes that association. Another commit is `STALE`.
+4. Reread every guard and collection revision.
+5. Discard the snapshot when any revision changed, pagination was not
+   snapshot-consistent, or consistency cannot be proven.
 
-During `SHIP_READY_MONITORING`, also retain the prior guarded snapshot's source
-commit, target commit, provider update marker, review identifiers, thread
-identifiers, and required-result identifiers. Compare them only after the new
-epoch passes the consistency guard. A detected change invalidates the prior
-readiness decision and requires full blocker classification; it is not proof
-that the change is safe or unsafe by itself.
+During monitoring, compare prior identifiers only after the new epoch passes
+the guard. A change invalidates prior readiness and requires full
+classification; it proves neither safety nor failure by itself.
 
-Pagination, authorization gaps, unsupported policy shapes, absent required
-state, and results whose commit association cannot be established are
-`UNKNOWN`, never successful. A snapshot containing required `UNKNOWN` state
-cannot satisfy the ship-ready contract.
+Pagination gaps, authorization gaps, unsupported policy shapes, absent
+required state, unrecognized native values, and results whose commit
+association cannot be established are `UNKNOWN`, never successful. Required
+`UNKNOWN` state cannot satisfy readiness.
 
-## Canonical States
+## Canonical Snapshot
 
-Normalize provider values into:
+Keep lifecycle and draft status separate:
 
-- pull request: `OPEN`, `DRAFT`, `CLOSED`, or `MERGED`;
+- lifecycle: `OPEN`, `CLOSED`, or `MERGED`;
+- draft status: `DRAFT` or `READY_FOR_REVIEW`;
 - mergeability: `MERGEABLE`, `CONFLICTING`, `BLOCKED`, or `UNKNOWN`;
-- required result: `PENDING`, `PASS`, `FAIL`, `CANCELLED`, `STALE`, or
-  `UNKNOWN`;
+- required result: `PENDING`, `PASS`, `FAIL`, `CANCELLED`, `SKIPPED`, `STALE`,
+  or `UNKNOWN`;
 - review: `APPROVED`, `CHANGES_REQUESTED`, `PENDING`, `DISMISSED`, or
   `UNKNOWN`;
 - thread: `ACTIONABLE`, `ADDRESSED`, `OUTDATED`, `ADVISORY`, or `UNKNOWN`.
 
+`SKIPPED` is successful only when the active provider rule explicitly accepts
+that skipped result for the captured commit. Otherwise it is blocking; when
+acceptability cannot be proven, normalize it to `UNKNOWN`.
+
 An actionable thread requests a concrete change, correction, answer, or proof
 that still applies to the captured source commit. Bot feedback is advisory
-unless a required policy, required reviewer, or repository instruction makes it
-blocking. Outdated code-position threads are not automatically addressed:
-inspect whether their concern still applies.
+unless an active required rule or repository instruction makes it blocking.
+An outdated code position does not prove that its concern was addressed.
 
-## GitHub Adapter
+## GitHub Mapping
 
-Use authenticated GitHub pull-request, checks, branch-rule or ruleset, review,
-and review-thread data. Retrieve all paginated review threads. Determine
-required checks from active target-branch protection or rulesets, not from
-familiar job names. Preserve the provider's association between check runs or
-statuses and the captured source commit.
+Use authenticated pull-request, checks, target-branch protection or rulesets,
+reviews, deployments, merge queue, and all paginated review-thread data.
 
-Treat merge queues, required conversation resolution, required target updates,
-required deployments, and approval invalidation as readiness inputs when the
-active rules require them. If the authenticated identity cannot inspect the
-applicable rule or required-check state, fail closed.
+| Native evidence | Canonical value |
+| --- | --- |
+| `state=OPEN` | lifecycle `OPEN` |
+| `state=CLOSED`, `merged=false` | lifecycle `CLOSED` |
+| `merged=true` or `state=MERGED` | lifecycle `MERGED` |
+| `isDraft=true` | draft `DRAFT` |
+| `isDraft=false` | draft `READY_FOR_REVIEW` |
+| mergeable clean/mergeable | `MERGEABLE` |
+| conflicting/dirty | `CONFLICTING` |
+| blocked by an active rule | `BLOCKED` |
+| expected, queued, pending, waiting, requested, or in progress | `PENDING` |
+| successful, neutral, or skipped only when the active rule accepts it | `PASS` |
+| failed, error, timed out, or action required | `FAIL` |
+| cancelled | `CANCELLED` |
+| skipped with provider-policy acceptance proven | `SKIPPED` |
+| result associated with another head commit | `STALE` |
+| approved review still effective for the head | `APPROVED` |
+| effective changes-requested review | `CHANGES_REQUESTED` |
+| dismissed review | `DISMISSED` |
 
-## Azure DevOps Adapter
+Every unlisted or contradictory value is `UNKNOWN`. Determine required checks
+from active rules, not familiar job names. Treat required conversation
+resolution, target updates, deployments, queues, and approval invalidation as
+readiness inputs when active rules require them.
+
+## Azure DevOps Mapping
 
 Use authenticated pull-request metadata, current source and target commits,
-blocking policy configurations and evaluations, reviewer votes, statuses, and
-all paginated threads. Recognize only enabled, applicable blocking policies as
-required; retain optional policies as advisory evidence.
+applicable policy configurations and evaluations, reviewer votes, statuses,
+iterations, and all paginated threads.
 
-Map effective reviewer votes using current Azure DevOps semantics rather than
-assuming every non-positive vote is equivalent. Requested changes remain
-blocking until the effective vote or policy state changes. Tie build and status
-policy evaluations to the current pull-request iteration or source commit when
-that evidence is available. If a blocking evaluation cannot be proven current,
-normalize it to `UNKNOWN`.
+| Native evidence | Canonical value |
+| --- | --- |
+| active pull request | lifecycle `OPEN` |
+| abandoned pull request | lifecycle `CLOSED` |
+| completed pull request | lifecycle `MERGED` |
+| draft flag set | draft `DRAFT` |
+| draft flag clear | draft `READY_FOR_REVIEW` |
+| no conflicts and no blocking update requirement | `MERGEABLE` |
+| provider reports conflicts | `CONFLICTING` |
+| active blocking policy prevents completion | `BLOCKED` |
+| applicable policy queued, running, waiting, or not yet evaluated | `PENDING` |
+| applicable policy approved or succeeded for current iteration | `PASS` |
+| applicable policy rejected, failed, or broken | `FAIL` |
+| applicable policy cancelled | `CANCELLED` |
+| skipped with policy acceptance proven | `SKIPPED` |
+| evaluation tied to another iteration or source commit | `STALE` |
+| effective vote approves | `APPROVED` |
+| effective vote rejects or waits for author | `CHANGES_REQUESTED` |
+| required reviewer has not cast an effective vote | `PENDING` |
+
+Every unlisted or contradictory value is `UNKNOWN`. Recognize only enabled,
+applicable blocking policies as required. Preserve optional policies as
+advisory. Never assume all non-positive votes are equivalent; if current vote
+semantics cannot be proven, use `UNKNOWN`.
 
 ## Mutation Support
 
-Before posting a review reply, resolving a thread, asking a focused human
-decision question, or returning an authoritative monitoring transition or
-terminal outcome, apply the human-facing content gate:
+Before a review reply, thread resolution, focused question, monitoring
+transition, or terminal report, apply this content gate:
 
 1. Verify every claim against the final guarded snapshot or cited repository
    evidence.
 2. Preserve exact identifiers, commands, values, provider labels, and
    qualifiers.
-3. Preserve canonical state labels and explain them in plain language.
-4. State the repository, pull-request ID, source ref, commit, actor, condition,
-   and observable result when they are needed to avoid ambiguity.
-5. Confirm prerequisites, warnings, verification, and recovery information are
-   present when the reader must act.
-6. Separate the outcome, supporting evidence, remaining risk, and next action.
-7. Reject unsupported claims, unclear references, unexplained placeholders,
-   and conclusions based on stale or incomplete evidence.
+3. Preserve canonical labels and explain them in plain language.
+4. State repository, pull request, source ref, commit, actor, condition, and
+   observable result when needed.
+5. Include prerequisites, warnings, verification, and recovery information.
+6. Separate outcome, evidence, remaining risk, and next action.
+7. Reject stale, incomplete, unsupported, ambiguous, or placeholder content.
 
-Do not publish the text or resolve the thread when this gate fails.
+Before changing code, confirm that provider, repository, source ref, source
+commit, canonical schedule, and mutation lease still match the guarded epoch.
+Adapters may rerun a failed required check, reply with factual evidence, or
+resolve a thread only after the concern is directly addressed and no reviewer
+judgment remains.
 
-A focused question must identify the exact pull request, blocked decision,
-relevant evidence, constraints, unresolved alternatives, and response needed.
-Do not prefer an alternative unless repository evidence supports it, and never
-collapse alternatives that materially differ in product behavior,
-architecture, security posture, or conflict intent.
-
-Before changing code, confirm the provider, repository, and source ref are still
-the ones captured by the guarded epoch. Provider adapters may:
-
-- rerun a failed required check through a supported provider operation;
-- reply to a review thread with a factual explanation or pushed commit;
-- resolve a thread only after the pushed change or explanation directly
-  addresses it and no reviewer judgment remains outstanding.
-
-Never dismiss a review, alter a reviewer vote, mark a required result
-successful, disable a policy, or resolve a contradictory or decision-bearing
-human thread.
-
-Provider-reported `MERGED` is the only successful completion signal. A merge
-button becoming available, an accepted or approved review, an enabled merge
-queue, or a merge commit appearing locally does not substitute for the pull
-request state changing to `MERGED`.
+Never dismiss a review, alter a vote, mark a required result successful,
+disable policy, or resolve a contradictory or decision-bearing thread.
+Provider-reported `MERGED` is the only successful completion signal.

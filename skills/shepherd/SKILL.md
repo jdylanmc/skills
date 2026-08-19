@@ -1,6 +1,6 @@
 ---
 name: shepherd
-description: Autonomously shepherds exactly one already-open GitHub or Azure DevOps pull request on its writable source branch through human merge by fixing required checks and review feedback, committing and pushing verified changes, performing guarded rebases, and monitoring ship-ready state every minute until the provider reports it merged. Use only when the user explicitly delegates mutating pull-request ownership and continuous monitoring. Do not use for status-only watching, opening or merging pull requests, one-time review, unsupported hosts, or branches the agent cannot update.
+description: Autonomously shepherds exactly one already-open GitHub or Azure DevOps pull request on its writable source branch through human merge by fixing required checks and review feedback, committing and pushing verified changes, performing guarded rebases, and adaptively monitoring ship-ready state until the provider reports it merged. Use only when the user explicitly delegates bounded source-branch mutation and continuous monitoring. Do not use for status-only watching, opening or merging pull requests, one-time review, unsupported hosts, or branches the agent cannot update.
 allowed-tools: ["read", "search", "execute", "edit", "manage_schedule"]
 ---
 
@@ -9,18 +9,24 @@ allowed-tools: ["read", "search", "execute", "edit", "manage_schedule"]
 Own one existing pull request after it opens and keep working through human
 merge. Detect the hosting platform from the repository remote, derive readiness
 from that platform's live policies and review state, reconcile every
-invalidated result after each push, and monitor a ship-ready pull request every
-minute until the provider reports it merged.
+invalidated result after each push, and monitor a ship-ready pull request until
+the provider reports it merged.
 
 ## Required References
 
-Read and follow these files in order:
+Load references by phase. Read the first two before provider access. Read the
+others before performing the action they govern:
 
 1. [Provider detection and pull-request resolution](./references/10-provider-and-pr-resolution.md)
 2. [Provider state adapters](./references/15-provider-state-adapters.md)
-3. [Shepherding loop](./references/20-shepherding-loop.md)
-4. [Rebase, push, and safety policy](./references/30-rebase-and-safety.md)
-5. [Readiness, errors, and scenario tests](./references/40-readiness-and-scenarios.md)
+3. Before claiming or monitoring:
+   [Shepherding loop](./references/20-shepherding-loop.md)
+4. Before validation, editing, rebasing, committing, pushing, or provider
+   mutation:
+   [Rebase, push, and safety policy](./references/30-rebase-and-safety.md)
+5. Before a readiness transition, human-facing output, recovery, or unusual
+   state:
+   [Readiness, errors, and scenario tests](./references/40-readiness-and-scenarios.md)
 
 ## Human-Facing Outputs
 
@@ -48,11 +54,12 @@ never invent an expansion.
 
 1. Confirm the repository is clean enough to work safely, detect GitHub or
    Azure DevOps from the selected remote, and resolve the target pull request
-   from a supplied URL or number or from the current branch. Verify durable
-   one-minute scheduling is available, bind one exclusive monitor record to
-   the immutable provider, repository, and pull-request identifiers, and
-   confirm that the invocation delegates source-branch mutation and indefinite
-   monitoring for that exact pull request.
+   from a supplied URL or number or from the current branch. Verify the
+   scheduling runtime satisfies the monitor conformance gate, claim one
+   provider-wide schedule marker for the immutable provider, repository, and
+   pull-request identifiers, and confirm the monitoring delegation and exact
+   mutation lease for that pull request. Accept a caller-supplied lease or
+   self-issue the six-hour default.
 2. Capture a consistency-guarded live state snapshot: source and target commits, mergeability,
    required policies and checks, approvals, requested changes, unresolved
    review threads, and branch protection or update requirements.
@@ -62,14 +69,15 @@ never invent an expansion.
    updated from the target branch. Push rewritten history only through the
    guarded lease procedure in the safety reference.
 5. Investigate actionable failures and review feedback, inspect relevant code,
-   make the smallest complete fix, and run the repository's existing targeted
-   validation before committing and pushing.
+   make the smallest complete fix, and validate it under the execution boundary
+   in the safety reference before committing and pushing.
 6. After every push or remote state change, discard the stale snapshot and
    rebuild it. Continue while a required signal is pending or a resolvable
    blocker remains.
 7. When the readiness contract is satisfied, enter
-   `SHIP_READY_MONITORING`; do not return success or end the run. Every minute,
-   rebuild the guarded provider snapshot and scan for new feedback, check or
+   `SHIP_READY_MONITORING`; do not return success or end the run. Prefer
+   provider-native observation. Otherwise use the configured polling policy,
+   rebuilding the guarded provider snapshot to scan for new feedback, check or
    policy failures, source or target movement, approval invalidation, and
    rebase requirements.
 8. If monitoring finds a blocker, leave `SHIP_READY_MONITORING`, apply the
@@ -86,18 +94,25 @@ dismiss a review, fabricate approval, bypass a required check, edit unrelated
 work, or operate against an unsupported host. The broad execution capability
 is limited to repository reads, existing validation, isolated source-branch
 edits and commits, guarded pushes, permitted check reruns, evidence-based
-review replies or thread resolution, and one-minute provider monitoring.
+review replies or thread resolution, and provider monitoring.
 
 ## Tool Posture
 
-`manage_schedule` is required because indefinite one-minute monitoring must
-survive the end of an individual conversational turn. Use it only for the one
-monitor bound to the resolved pull request, persist its schedule identifier in
-the monitor record, and disarm it on every terminal outcome. Until a fresh
-snapshot proves a blocker, scheduled ticks perform authenticated provider reads
-and monitor-record updates only. Re-enter mutation tools only after confirming
-the immutable pull-request identity, writable source ref, and current guarded
+`manage_schedule` is required because monitoring must survive the end of an
+individual conversational turn. The schedule service, not a clone-local file,
+is the ownership authority. Use one immutable marker for the resolved pull
+request, reject duplicate or ambiguous ownership, and disarm the schedule on
+every terminal outcome. Monitoring may remain active until merge, but mutation
+authority always has an explicit expiry and allowed-action set. Until a fresh
+snapshot proves a blocker and the mutation lease is current, scheduled ticks
+perform provider reads only. Re-enter mutation tools only after confirming the
+canonical schedule, immutable pull-request identity, writable source ref,
+effective provider and Git principals, current lease, and current guarded
 epoch.
+
+`execute` is required for authenticated provider command-line interface
+queries, Git operations, and repository-defined validation. Keep those uses
+inside the provider, mutation, and credential-isolation boundaries above.
 
 ---
 
