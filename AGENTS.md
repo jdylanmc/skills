@@ -46,3 +46,8 @@ Use `agents/prompt-coach.agent.md` to review individual prompts for unclear goal
 Use `agents/ste-coach.agent.md` after Skill Coach when a skill can produce human-facing technical documentation. It checks that the skill workflow explicitly defines audience, controlled terminology, sentence and procedure constraints, acronym handling, warning order, ambiguity checks, and a content-quality gate.
 
 When importing material from elsewhere, adapt it into this repository's conventions and preserve any required license or attribution.
+
+## Machine-local instructions
+
+Read and follow `.user/instructions.md` when it is present. The `.user/`
+directory is git-ignored and must never be committed.

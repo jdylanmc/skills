@@ -1,0 +1,2 @@
+# .user/ holds machine-local agent instructions that are never committed.
+.user/
