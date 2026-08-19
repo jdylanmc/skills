@@ -16,10 +16,17 @@ Provider queries are not atomic. Build every snapshot as a guarded epoch:
 4. Reread the source commit, target commit, state, and update marker.
 5. Discard the snapshot if any guard value changed while it was assembled.
 
+During `SHIP_READY_MONITORING`, also retain the prior guarded snapshot's source
+commit, target commit, provider update marker, review identifiers, thread
+identifiers, and required-result identifiers. Compare them only after the new
+epoch passes the consistency guard. A detected change invalidates the prior
+readiness decision and requires full blocker classification; it is not proof
+that the change is safe or unsafe by itself.
+
 Pagination, authorization gaps, unsupported policy shapes, absent required
 state, and results whose commit association cannot be established are
 `UNKNOWN`, never successful. A snapshot containing required `UNKNOWN` state
-cannot produce `MERGE_READY`.
+cannot satisfy the ship-ready contract.
 
 ## Canonical States
 
@@ -68,7 +75,8 @@ normalize it to `UNKNOWN`.
 
 ## Mutation Support
 
-Before posting a review reply, resolving a thread, or returning an authoritative
+Before posting a review reply, resolving a thread, asking a focused human
+decision question, or returning an authoritative monitoring transition or
 terminal outcome, apply the human-facing content gate:
 
 1. Verify every claim against the final guarded snapshot or cited repository
@@ -86,6 +94,12 @@ terminal outcome, apply the human-facing content gate:
 
 Do not publish the text or resolve the thread when this gate fails.
 
+A focused question must identify the exact pull request, blocked decision,
+relevant evidence, constraints, unresolved alternatives, and response needed.
+Do not prefer an alternative unless repository evidence supports it, and never
+collapse alternatives that materially differ in product behavior,
+architecture, security posture, or conflict intent.
+
 Before changing code, confirm the provider, repository, and source ref are still
 the ones captured by the guarded epoch. Provider adapters may:
 
@@ -97,3 +111,8 @@ the ones captured by the guarded epoch. Provider adapters may:
 Never dismiss a review, alter a reviewer vote, mark a required result
 successful, disable a policy, or resolve a contradictory or decision-bearing
 human thread.
+
+Provider-reported `MERGED` is the only successful completion signal. A merge
+button becoming available, an accepted or approved review, an enabled merge
+queue, or a merge commit appearing locally does not substitute for the pull
+request state changing to `MERGED`.
