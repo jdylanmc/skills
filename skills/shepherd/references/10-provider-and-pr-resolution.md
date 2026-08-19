@@ -28,6 +28,11 @@ Confirm the provider CLI is installed and authenticated before continuing:
 - GitHub: `gh`
 - Azure DevOps: `az` with the Azure DevOps extension
 
+Resolve and record the effective authenticated provider principal and the Git
+credential principal used for pushes. If either principal cannot be identified,
+return `EXTERNAL_BLOCKER` before accepting mutation authority. A later
+principal change invalidates the current mutation lease.
+
 Fail clearly for any other host. Do not guess that a Git-compatible host uses
 GitHub or Azure DevOps pull-request semantics.
 
@@ -52,5 +57,6 @@ Record stable identifiers separately from display names:
 - pull-request ID and URL;
 - exact source repository, branch, and commit;
 - exact target repository, branch, and commit.
+- effective provider and Git principals.
 
 Never select a pull request by title similarity.

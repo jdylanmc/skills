@@ -141,7 +141,7 @@ run-integrity failure.
 
 Resolve and read the installed entry points for:
 
-- `breakdown-to-tickets`, for its tracer-bullet and dependency vocabulary;
+- `breakdown-to-tickets`, for its end-to-end slice and dependency vocabulary;
 - `roast-this-code`, for immutable evidence and Roastmaster contracts;
 - `shepherd`, for one-pull-request ownership and readiness;
 - `handoff`, for its five-section handoff discipline.

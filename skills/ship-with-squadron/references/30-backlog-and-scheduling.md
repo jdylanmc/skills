@@ -31,7 +31,8 @@ A ticket is ready only when:
 - running it concurrently will not create an uncoordinated shared-contract or
   same-file conflict.
 
-Prefer tracer-bullet slices that deliver independently verifiable behavior.
+Prefer independently deliverable end-to-end slices that prove behavior across
+the required layers.
 Schedule contract-establishing work before consumers. Serialize overlapping
 schema, migration, generated-file, public-interface, and wide-refactor work
 unless the ticket graph explicitly provides an expand-contract lane.

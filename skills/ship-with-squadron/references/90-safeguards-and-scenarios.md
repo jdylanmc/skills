@@ -65,9 +65,9 @@ when checks pass. Mechanical success cannot replace the exact-head Roast gate.
 
 ### Shepherd mutation
 
-Given a merge-ready Roast package followed by a Shepherd correction push, the
-old Roast approval becomes stale. The worker reruns Roast on the new head
-before returning `MERGE_READY`.
+Given a Roast recommendation that passed its gate followed by a Shepherd
+correction push, the old Roast approval becomes stale. The worker reruns Roast
+on the new head before returning `MERGE_READY`.
 
 ### Merge-ready invalidation
 

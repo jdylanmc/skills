@@ -53,7 +53,7 @@ Invoke the installed `/roast-this-code` skill against the exact pull-request
 head. Do not replace it with an ordinary review or a hand-written reviewer
 prompt.
 
-The worker consumes the canonical Roastmaster Recommendation Package:
+The worker consumes the Roast recommendation:
 
 - every `Must fix` blocks progress;
 - every `Should fix` requires implementation or a recorded evidence-based
@@ -77,8 +77,9 @@ blocking finding does not pause the deadline.
 Deadline: six hours from worker start.
 
 Invoke the installed `/shepherd` skill on the already-open pull request with
-the remaining total budget. Preserve Shepherd's one-pull-request scope and
-terminal outcomes.
+the remaining total budget. Pass the worker's six-hour total deadline as
+Shepherd's caller deadline. Preserve Shepherd's one-pull-request scope,
+operating states, and terminal outcomes.
 
 The worker:
 
