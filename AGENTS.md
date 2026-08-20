@@ -6,6 +6,8 @@ This repository is Dylan's common library of reusable GitHub Copilot skills and 
 
 - Skills live at `skills/<skill-name>/SKILL.md`.
 - Skill support files live at `skills/<skill-name>/references/`.
+- Non-routable shared bases live at `skills/_base/<base-name>/BASE.md`; their deterministic support files may live in `scripts/` and `tests/` subdirectories of the same base package.
+- A `_base` package never contains `SKILL.md` and is never routed to, listed as a skill, or invoked directly.
 - Agents live as standalone files at `agents/<agent-name>.agent.md`.
 - Shared engineering doctrine lives at `doctrine/<id>.doctrine.md`.
 - Do not replace canonical Markdown files with JSON manifests or generated artifacts.

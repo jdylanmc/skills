@@ -13,6 +13,11 @@ agents/
 doctrine/
   <id>.doctrine.md
 skills/
+  _base/
+    <base-name>/
+      BASE.md
+      scripts/
+      tests/
   <skill-name>/
     SKILL.md
     references/
@@ -20,6 +25,12 @@ skills/
 ```
 
 `SKILL.md` is the canonical entry point for every skill. Supporting instructions belong beside it under `references/` and are linked from the skill.
+
+Non-routable shared instruction bases live under `skills/_base/<base-name>/`
+and use `BASE.md`, never `SKILL.md`. A base is read by the skills that depend
+on it. It is never routed to, listed as a skill, or invoked directly. Its
+deterministic support files may live in `scripts/` and `tests/` subdirectories
+of the same base package.
 
 Agents are standalone `.agent.md` files. Prompt Coach reviews single-prompt
 quality; Skill Coach reviews skill package and workflow quality; Simplified
@@ -37,6 +48,15 @@ Copy a skill package to one of Copilot's recognized locations:
 
 - Personal: `~/.agents/skills/<skill-name>/`
 - Repository: `.github/skills/<skill-name>/`
+
+When a copied skill depends on a shared base, copy the `_base/` directory once
+beside the installed skills:
+
+- Personal: `~/.agents/skills/_base/`
+- Repository: `.github/skills/_base/`
+
+Do not expose `_base` entries as routable skills. If a required base is missing
+at runtime, the consuming skill's own documented degradation behavior applies.
 
 Copy an agent file to `.github/agents/` when it should be available in a repository.
 
