@@ -19,6 +19,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
+import { closureFor, validateRepository } from './validate-skill-graph.mjs';
+
 const execFileAsync = promisify(execFile);
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -290,10 +292,7 @@ test('the log path convention documented for consumers is what consumers can use
   assert.ok(fs.existsSync(logPath));
 });
 
-test('Ship with Squadron composes Chronicle through a complete dependency closure', async () => {
-  const { validateRepository, closureFor } = await import(
-    path.join(REPOSITORY_ROOT, 'scripts', 'validate-skill-graph.mjs')
-  );
+test('Ship with Squadron composes Chronicle through a complete dependency closure', () => {
   const result = validateRepository(REPOSITORY_ROOT);
   const closure = closureFor(result, 'ship-with-squadron/SKILL.md');
 
