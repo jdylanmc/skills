@@ -100,8 +100,8 @@ test('a root skill records one event with injected attribution', (t) => {
   assert.equal(records[0].run_id, RUN_ID);
   assert.equal(records[0].root_skill, ROOT_SKILL);
   assert.equal(records[0].skill, ROOT_SKILL);
-  assert.equal(records[0].schema_version, 1);
-  assert.equal(records[0].sequence, 1);
+  assert.equal(records[0].schema_version, 2);
+  assert.equal('sequence' in records[0], false, 'no writer-assigned sequence is persisted');
   assert.ok(Date.parse(records[0].timestamp) > 0);
 });
 
@@ -186,15 +186,14 @@ test('ordinary concurrent writers all land in the log and remain readable', asyn
     Array.from({ length: writers }, (_, index) => `worker-${index}`).sort(),
   );
 
-  // Ordering is internal. A concurrent run may record a sequence that
-  // disagrees with log position; replay must surface that rather than hide it,
-  // and must still return every record.
+  // Replay assigns order from log position, so ordinary concurrency is clean
+  // rather than merely tolerated.
   const replay = runCommand(REPLAY, [logPath, '--log-id', 'concurrent']);
   assert.equal(replay.code, 0, replay.stderr);
   const state = JSON.parse(replay.stdout);
   assert.equal(state.event_count, writers);
-  assert.ok(state.defects.every((defect) => defect.type === 'sequence_anomaly'));
-  assert.equal(state.complete, state.defects.length === 0);
+  assert.deepEqual(state.defects, [], 'concurrency must not manufacture defects');
+  assert.equal(state.complete, true);
 });
 
 test('an unusable log is reported and the caller can continue', (t) => {
@@ -355,11 +354,13 @@ test('run recording pairs exactly one intent and one outcome per ticket', () => 
     .split('\n')
     .filter((line) => line.startsWith('| ') && !line.includes('---') && !line.includes('| Phase |'));
 
-  const afterTicketRows = rows.filter((row) => row.includes('`after`') && row.includes('the ticket key'));
-  const beforeTicketRows = rows.filter((row) => row.includes('`before`') && row.includes('the ticket key'));
+  const afterRows = rows.filter((row) => row.includes('`after`') && row.includes('the attempt ID'));
+  const beforeRows = rows.filter((row) => row.includes('`before`') && row.includes('the attempt ID'));
 
-  assert.equal(beforeTicketRows.length, 1, 'a ticket must record exactly one intent');
-  assert.equal(afterTicketRows.length, 1, 'a ticket must record exactly one outcome');
+  assert.equal(beforeRows.length, 1, 'an attempt must record exactly one intent');
+  assert.equal(afterRows.length, 1, 'an attempt must record exactly one outcome');
+  // Retries must stay distinguishable, so the identifier is attempt-qualified.
+  assert.match(recording, /attempt ID is `<ticket-key>\.<attempt>`/);
 });
 
 test('consumer instructions expose no Chronicle storage or platform mechanics', () => {

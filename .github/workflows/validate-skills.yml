@@ -38,3 +38,4 @@ jobs:
           scripts/validate-skill-graph.test.mjs
           scripts/conformance.test.mjs
           skills/_base/chronicler/tests/chronicler.test.mjs
+          skills/_base/chronicler/tests/adversarial.test.mjs

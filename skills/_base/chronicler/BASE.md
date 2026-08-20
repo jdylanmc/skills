@@ -52,8 +52,12 @@ Exit `0` means the event was recorded. Any non-zero exit prints a stable
 failure category on standard error. Report that category, mark evidence
 incomplete, and continue delivery. Check availability with `--probe`.
 
-Chronicler supplies the schema version, timestamp, recorded sequence, and
-validation. Callers never construct the persisted record.
+`--log` must be an absolute `.jsonl` path. Chronicler refuses a symbolic link,
+a non-regular file, or a non-empty file that is not already a Skill Run Log, so
+a mistyped path fails instead of corrupting an unrelated file.
+
+Chronicler supplies the schema version, timestamp, and validation. Callers
+never construct the persisted record.
 
 ## What to Emit
 
@@ -84,8 +88,12 @@ out of published output.
 From the repository root, run:
 
 ```text
-node --test skills/_base/chronicler/tests/chronicler.test.mjs
+node --test skills/_base/chronicler/tests/chronicler.test.mjs skills/_base/chronicler/tests/adversarial.test.mjs
 ```
+
+The adversarial suite covers torn records, unsafe log targets, semantically
+corrupt histories, concurrent writers, and malformed bytes. Keep it passing:
+every defect it covers once shipped unnoticed.
 
 ## Boundary
 

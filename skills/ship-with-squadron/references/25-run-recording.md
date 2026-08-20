@@ -33,22 +33,29 @@ Emit only meaningful lifecycle boundaries:
 | Moment | Phase | Operation |
 | --- | --- | --- |
 | Run authorized and started | `before` | the run ID |
-| Ticket claimed | `before` | the ticket key |
-| Worker delegated a ticket | `observation` | the ticket key |
-| Initial Roast recommendation, and any later recommendation that clears the exact-head gate | `observation` | the ticket key |
-| Shepherd returned a terminal outcome | `observation` | the ticket key |
-| Ticket reached a terminal state | `after` | the ticket key |
+| Ticket claimed | `before` | the attempt ID |
+| Worker delegated a ticket | `observation` | the attempt ID |
+| Initial Roast recommendation, and any later recommendation that clears the exact-head gate | `observation` | the attempt ID |
+| Shepherd returned a terminal outcome | `observation` | the attempt ID |
+| Ticket attempt reached a terminal state | `after` | the attempt ID |
 | Externally observed degradation | `observation` | none |
 | Run finished | `after` | the run ID |
 
-Record exactly one `before` and one `after` per ticket key. The `after` event
-carries the terminal state as its outcome, such as `MERGED`, `TIMED_OUT`, or
-`CANCELLED`, and a confirmed merge is part of that single terminal record
-rather than a second one. Pairing intent with exactly one outcome is what makes
-a frozen run diagnosable, because replay reports a claim that never completed.
+An attempt ID is `<ticket-key>.<attempt>`, using the attempt counter already
+held in control state, for example `AB-17.1`. A ticket that times out and is
+replaced therefore records `AB-17.1` and `AB-17.2` as separate pairs, so
+recovery history stays visible instead of being flattened into one
+contradictory pair.
+
+Record exactly one `before` and one `after` per attempt ID. The `after` event
+carries the attempt's terminal state as its outcome, such as `MERGED`,
+`TIMED_OUT`, or `CANCELLED`, and a confirmed merge is part of that single
+terminal record rather than a second one. Pairing intent with exactly one
+outcome is what makes a frozen run diagnosable, because replay reports an
+attempt that never completed.
 
 An `observation` never opens or closes an operation, so the intermediate rows
-above group under a ticket without disturbing that pairing. Do not record a
+above group under an attempt without disturbing that pairing. Do not record a
 Roast recommendation for every correction loop; record the first one and any
 that clears the exact-head gate.
 

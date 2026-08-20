@@ -101,8 +101,8 @@ export function run(argv, streams = process) {
   }
 
   try {
-    const event = emitEvent(parsed.input, parsed.context);
-    streams.stdout.write(`${JSON.stringify({ recorded: true, sequence: event.sequence })}\n`);
+    emitEvent(parsed.input, parsed.context);
+    streams.stdout.write(`${JSON.stringify({ recorded: true })}\n`);
     return 0;
   } catch (error) {
     const code = error instanceof ChronicleError ? error.code : 'append_failed';

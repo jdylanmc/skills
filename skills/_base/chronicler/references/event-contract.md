@@ -25,8 +25,7 @@ digit. Summaries carry no control characters.
 
 ## Fields Chronicler Supplies
 
-Chronicler adds `schema_version`, `sequence`, and `timestamp`. A caller never
-sets them.
+Chronicler adds `schema_version` and `timestamp`. A caller never sets them.
 
 `run_id`, `root_skill`, and `skill` come from the run context rather than from
 per-event caller judgement: the root skill fixes `run_id` and `root_skill` once
@@ -40,13 +39,23 @@ constructs the persisted record directly.
 
 - An identifier such as an event, skill, operation, or outcome name is limited
   to 100 UTF-8 bytes.
-- A summary is limited to 500 UTF-8 bytes.
+- A summary is limited to 500 UTF-8 bytes and carries no control characters,
+  including tabs and line breaks.
 - An evidence reference is limited to 200 UTF-8 bytes, and at most 10 are kept.
 - A complete event is limited to 4096 UTF-8 bytes.
 
-Chronicler truncates an over-long summary or evidence reference on a character
+Chronicler truncates an over-long summary or evidence reference on a codepoint
 boundary and marks the event `truncated`. It rejects an over-long identifier
 outright, because a name is a caller mistake rather than overflowing content.
+Replay revalidates every bound, so a record edited outside Chronicler is
+reported rather than trusted.
+
+## Log Target
+
+`--log` must name an absolute `.jsonl` path. Chronicler refuses to write
+through a symbolic link, to anything that is not a regular file, or to a
+non-empty file whose first line is not a Chronicle record. A mistyped path
+fails instead of appending to an unrelated file.
 
 ## Excluded Content
 
@@ -63,6 +72,9 @@ interrupted run diagnosable.
 
 ## Ordering
 
-`sequence` is recorded by the writer and is best effort. Physical log order is
-authoritative during replay. Chronicler provides no cross-writer global
-ordering guarantee, and callers must not depend on one.
+Records carry no writer-assigned sequence. Physical log position is the only
+ordering, and replay assigns a sequence from it. Chronicler provides no
+cross-writer global ordering guarantee, and callers must not depend on one.
+
+Because position is assigned on read rather than raced on write, ordinary
+concurrent writers produce a clean log.

@@ -122,7 +122,7 @@ Before declaring completion:
 2. perform a fresh provider reconciliation;
 3. prove backlog exhaustion under the scheduling contract;
 4. verify no open worker pull request or timeout split remains;
-5. write the terminal snapshot;
+5. write the terminal control state;
 6. disarm the one-minute schedule;
 7. report shipped scope, merge list, unresolved advisory risks, total worker
    attempts, timeout splits, and final root state.
