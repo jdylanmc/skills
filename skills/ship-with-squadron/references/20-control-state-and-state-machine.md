@@ -1,4 +1,18 @@
-# Run Ledger and State Machine
+---
+includes: []
+requires-skills: []
+---
+
+# Squadron Control State and State Machine
+
+Squadron Control State is the only mutable store this skill may consult to
+decide whether a claim, a deadline, or a merge is safe. It holds current state,
+never history.
+
+The Skill Run Log is separate, best effort, and evidence only. A recording
+failure degrades evidence and delivery continues. A control-state failure
+freezes claims and merges. Never authorize a claim or a merge from the Skill
+Run Log, and never treat control state as a historical record.
 
 ## Durable Location
 
@@ -8,20 +22,20 @@ Resolve `git rev-parse --git-common-dir` and store local run state under:
 
 This keeps orchestration state durable across conversation loss and worktrees
 without adding product files to the repository. Never store credentials,
-tokens, raw secret-bearing logs, or private review content in the ledger.
+tokens, raw secret-bearing logs, or private review content in control state.
 
 Required files:
 
-- `ledger.json`: canonical current state;
-- `events.jsonl`: append-only transition and heartbeat events;
-- `handoffs/<ticket-key>.md`: human-readable timeout handoffs;
-- `snapshots/<timestamp>.json`: bounded reconciliation checkpoints.
+- `control.json`: canonical current state;
+- `handoffs/<ticket-key>.md`: human-readable timeout handoffs.
 
 Write atomically through a temporary sibling file and rename. After every
-write, reread and schema-check the result. The append-only event log is the
-recovery source when a current-state write is interrupted.
+write, reread and schema-check the result. When a write is interrupted,
+rebuild from the last verified `control.json` plus a fresh provider
+reconciliation. Live provider state is authoritative for anything control
+state cannot prove.
 
-## Ledger Identity
+## Control-State Identity
 
 Record:
 
@@ -33,7 +47,8 @@ Record:
 - startup capability matrix, role-enforcement mode, and human run/merge
   authorization;
 - Primary and Coordinator runtime identifiers and heartbeat timestamps;
-- graph digest and last provider reconciliation marker.
+- graph digest and last provider reconciliation marker;
+- the run context passed to Chronicle: run ID, root skill, and log path.
 
 For every ticket record:
 
@@ -50,6 +65,10 @@ For every ticket record:
 - Shepherd terminal outcome and guarded snapshot marker;
 - merge authorization actor, expected head, merge commit, and timestamp;
 - timeout handoff path and replacement child keys.
+
+Use wall-clock timestamps with offsets and monotonic elapsed durations where
+the runtime exposes them. Never derive active implementation time solely from
+the difference between start and finish timestamps.
 
 ## Ticket States
 
@@ -77,29 +96,6 @@ Use only these states:
 
 Fleet idleness is an observation, not a ticket or run terminal state.
 
-## Required Events
-
-Append events for:
-
-- run started, resumed, paused, stopped, or completed;
-- Coordinator launched, heartbeat, stale, failed, or replaced;
-- graph reconciled or changed;
-- ticket claimed or released;
-- worker launched, heartbeat, suspended, resumed, or terminated;
-- implementation completed;
-- pull request opened or head changed;
-- Roast started, invalidated, approved, or rejected;
-- Shepherd started or returned a terminal outcome;
-- deadline reached;
-- handoff accepted;
-- split children created and wired;
-- merge authorized, attempted, succeeded, or failed;
-- external provider mutation detected.
-
-Use wall-clock timestamps with offsets and monotonic elapsed durations where
-the runtime exposes them. Never derive active implementation time solely from
-the difference between start and finish timestamps.
-
 ## Transition Rules
 
 - Claim with a provider-fresh compare-and-set operation when supported.
@@ -118,5 +114,16 @@ the difference between start and finish timestamps.
   human-decision blocker.
 - Run completion requires a fresh root-graph reconciliation.
 
-Reject impossible or skipped transitions and rebuild from events plus live
-provider state.
+Reject impossible or skipped transitions and rebuild from control state plus
+live provider state.
+
+## Control-State Failure
+
+If `control.json` cannot be read, written, or schema-checked:
+
+1. stop claiming tickets and stop every merge;
+2. report the failure to the user with the affected run and ticket keys;
+3. resume only after control state is rebuilt and reconciled with the provider.
+
+This is the opposite of a Chronicle recording failure, which never blocks
+delivery.

@@ -19,6 +19,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
+import { closureFor, validateRepository } from './validate-skill-graph.mjs';
+
 const execFileAsync = promisify(execFile);
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -288,4 +290,89 @@ test('the log path convention documented for consumers is what consumers can use
   assert.equal(path.basename(path.dirname(logPath)), '.skill-log');
   assert.match(path.basename(logPath), /^ship-with-squadron\.\d{4}-\d{2}-\d{2}\..+\.jsonl$/);
   assert.ok(fs.existsSync(logPath));
+});
+
+test('Ship with Squadron composes Chronicle through a complete dependency closure', () => {
+  const result = validateRepository(REPOSITORY_ROOT);
+  const closure = closureFor(result, 'ship-with-squadron/SKILL.md');
+
+  assert.ok(closure.includes('_base/chronicler/BASE.md'), 'the consumer must reach the Chronicle base');
+  assert.ok(closure.includes('ship-with-squadron/references/25-run-recording.md'));
+  assert.ok(
+    result.routableSkills.includes('ship-with-squadron'),
+    'the consumer stays routable while its base does not',
+  );
+});
+
+test('Squadron Control State holds current state only, not a duplicate history', () => {
+  const controlState = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references/20-control-state-and-state-machine.md'),
+    'utf8',
+  );
+
+  assert.match(controlState, /`control\.json`/);
+  assert.doesNotMatch(controlState, /events\.jsonl|snapshots\//);
+});
+
+function sectionBody(contents, heading) {
+  const lines = contents.split('\n');
+  const start = lines.findIndex((line) => line.trim() === heading);
+  assert.notEqual(start, -1, `expected a ${heading} section`);
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((line) => /^## /.test(line));
+  return (end === -1 ? rest : rest.slice(0, end)).join('\n');
+}
+
+test('control-state failure and recording failure keep opposite delivery semantics', () => {
+  const controlState = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references/20-control-state-and-state-machine.md'),
+    'utf8',
+  );
+  const recording = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references/25-run-recording.md'),
+    'utf8',
+  );
+
+  // Structural, not prose matching: the control-state failure procedure must
+  // stop delivery, and the recording failure procedure must continue it.
+  const controlFailure = sectionBody(controlState, '## Control-State Failure');
+  assert.match(controlFailure, /\bstop\b/i);
+  assert.doesNotMatch(controlFailure, /\bcontinue claiming\b/i);
+
+  const recordingFailure = sectionBody(recording, '## Recording Failure');
+  assert.match(recordingFailure, /\bcontinue\b/i);
+  assert.doesNotMatch(recordingFailure, /\bblock\w* delivery\b/i);
+
+  assert.match(sectionBody(recording, '## Boundary'), /never authorizes/i);
+});
+
+test('run recording pairs exactly one intent and one outcome per ticket', () => {
+  const recording = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references/25-run-recording.md'),
+    'utf8',
+  );
+  const rows = recording
+    .split('\n')
+    .filter((line) => line.startsWith('| ') && !line.includes('---') && !line.includes('| Phase |'));
+
+  const afterTicketRows = rows.filter((row) => row.includes('`after`') && row.includes('the ticket key'));
+  const beforeTicketRows = rows.filter((row) => row.includes('`before`') && row.includes('the ticket key'));
+
+  assert.equal(beforeTicketRows.length, 1, 'a ticket must record exactly one intent');
+  assert.equal(afterTicketRows.length, 1, 'a ticket must record exactly one outcome');
+});
+
+test('consumer instructions expose no Chronicle storage or platform mechanics', () => {
+  const consumerFiles = [
+    path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/SKILL.md'),
+    ...fs
+      .readdirSync(path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references'))
+      .map((name) => path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references', name)),
+  ];
+
+  const forbidden = /fsync|O_APPEND|power.?loss|disaster recovery|native append|stream_closed|parent_stream|hash chain|retention engine/i;
+  for (const file of consumerFiles) {
+    const contents = fs.readFileSync(file, 'utf8');
+    assert.doesNotMatch(contents, forbidden, `${path.basename(file)} must not expose recording internals`);
+  }
 });

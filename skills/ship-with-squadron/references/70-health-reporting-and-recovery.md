@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Health, Reporting, and Recovery
 
 ## One-Minute Executive Loop
@@ -8,9 +13,9 @@ or workers to post directly to the user conversation.
 
 At each tick:
 
-1. read the latest durable ledger;
+1. read the latest durable control state;
 2. request a fresh concise Coordinator snapshot when it is reachable;
-3. reconcile snapshot identity with the ledger;
+3. reconcile snapshot identity with control state;
 4. publish the executive report;
 5. record the report timestamp.
 
@@ -50,7 +55,7 @@ Coordinator health:
   recorded;
 - `DEGRADED`: two consecutive one-minute reports lack a fresh heartbeat;
 - `UNHEALTHY`: five consecutive reports lack a fresh heartbeat, the task
-  failed, or ledger writes cannot be verified.
+  failed, or control-state writes cannot be verified.
 
 Worker health:
 
@@ -71,7 +76,7 @@ When the Coordinator becomes unhealthy:
 
 1. stop new claims and merges;
 2. preserve active workers and prevent duplicate launches;
-3. inspect the last valid ledger and append-only events;
+3. inspect the last valid control state;
 4. query live tracker, branch, pull-request, checks, and merge state;
 5. terminate the failed Coordinator when the runtime permits;
 6. launch one replacement Coordinator with the same run ID;
