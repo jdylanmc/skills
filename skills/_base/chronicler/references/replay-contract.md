@@ -31,11 +31,13 @@ An anchor is the physical line of the record in the selected log, written
 | Type | Meaning |
 | --- | --- |
 | `malformed_record` | The line is not valid JSON. |
-| `invalid_record` | The record does not satisfy the event schema. |
+| `invalid_record` | The record does not satisfy the event schema or its bounds. |
 | `blank_record` | A blank line appears inside the log. |
 | `foreign_run` | The record belongs to a different run. |
-| `sequence_anomaly` | The recorded sequence disagrees with the log position, indicating concurrent writers or a lost record. |
+| `run_identity_drift` | The run identifier matches but the root skill changed. |
 | `duplicate_operation_start` | An operation records intent more than once. |
+| `duplicate_operation_outcome` | An operation records an outcome more than once. |
+| `operation_out_of_order` | An operation records intent after its outcome. |
 | `incomplete_operation` | An operation records intent with no outcome. |
 | `unmatched_outcome` | An operation records an outcome with no intent. |
 | `no_usable_records` | The log holds no usable event. |

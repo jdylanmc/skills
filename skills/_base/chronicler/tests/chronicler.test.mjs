@@ -42,18 +42,18 @@ function captureStreams() {
   };
 }
 
-test('injects attribution, sequence, timestamp, and schema for the caller', (t) => {
+test('injects attribution, timestamp, and schema for the caller', (t) => {
   const context = contextFor(workspace(t));
   const event = emitEvent(
     { event: 'run', phase: 'before', summary: 'Start the delivery run.' },
     context,
   );
 
-  assert.equal(event.schema_version, 1);
+  assert.equal(event.schema_version, 2);
   assert.equal(event.run_id, context.run_id);
   assert.equal(event.root_skill, 'ship-with-squadron');
   assert.equal(event.skill, 'ship-with-squadron');
-  assert.equal(event.sequence, 1);
+  assert.equal('sequence' in event, false, 'no writer-assigned sequence is persisted');
   assert.match(event.timestamp, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   assert.equal(event.event, 'run');
   assert.equal(event.phase, 'before');
@@ -151,7 +151,6 @@ test('rejects an identifier that is not bounded', () => {
     () => buildEvent(
       { event: 'e'.repeat(MAX_IDENTIFIER_BYTES + 1), phase: 'observation', summary: 'ok' },
       { run_id: 'r1', root_skill: 's1' },
-      1,
     ),
     /event must not exceed 100 bytes/,
   );
@@ -169,7 +168,6 @@ test('a worst-case bounded event stays inside the total event limit', () => {
       evidence: Array.from({ length: MAX_EVIDENCE_ITEMS * 2 }, () => 'z'.repeat(400)),
     },
     { run_id: 'r'.repeat(MAX_IDENTIFIER_BYTES), root_skill: 'b'.repeat(MAX_IDENTIFIER_BYTES) },
-    1,
   );
 
   assert.equal(event.truncated, true);
@@ -252,7 +250,7 @@ test('keeps valid records usable after a malformed record and never repairs it',
   const context = contextFor(workspace(t));
   emitEvent({ event: 'run', phase: 'before', summary: 'Run starts.' }, context);
   fs.appendFileSync(context.log_path, '{ this is not json\n');
-  fs.appendFileSync(context.log_path, `${JSON.stringify({ schema_version: 1, run_id: 'x' })}\n`);
+  fs.appendFileSync(context.log_path, `${JSON.stringify({ schema_version: 99, run_id: 'x' })}\n`);
   emitEvent({ event: 'run', phase: 'after', summary: 'Run ends.', outcome: 'succeeded' }, context);
 
   const state = replayLog(context.log_path);
@@ -283,7 +281,7 @@ test('reports a record that belongs to a different run', (t) => {
   );
 });
 
-test('reports a sequence that disagrees with the log position', (t) => {
+test('rejects a record that carries a writer-assigned sequence', (t) => {
   const context = contextFor(workspace(t));
   emitEvent({ event: 'run', phase: 'before', summary: 'Run starts.' }, context);
   const first = JSON.parse(fs.readFileSync(context.log_path, 'utf8').trim());
@@ -292,8 +290,10 @@ test('reports a sequence that disagrees with the log position', (t) => {
   const state = replayLog(context.log_path);
   assert.deepEqual(
     state.defects.map((defect) => [defect.type, defect.anchor]),
-    [['sequence_anomaly', 'L2']],
+    [['invalid_record', 'L2']],
   );
+  // Replay assigns position, so the surviving record is still sequence 1.
+  assert.deepEqual(state.events.map((event) => event.sequence), [1]);
 });
 
 test('reports an empty log rather than inventing state', (t) => {
@@ -333,7 +333,7 @@ test('emit and replay commands round-trip through the documented entry points', 
   );
 
   assert.equal(emitCode, 0, emitStreams.errors());
-  assert.deepEqual(JSON.parse(emitStreams.output()), { recorded: true, sequence: 1 });
+  assert.deepEqual(JSON.parse(emitStreams.output()), { recorded: true });
 
   const replayStreams = captureStreams();
   const replayCode = runReplay([context.log_path, '--log-id', 'selected-run'], replayStreams);

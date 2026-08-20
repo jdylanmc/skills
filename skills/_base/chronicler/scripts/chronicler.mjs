@@ -13,7 +13,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
+export const SUPPORTED_SCHEMA_VERSIONS = [1, 2];
 export const MAX_SUMMARY_BYTES = 500;
 export const MAX_REFERENCE_BYTES = 200;
 export const MAX_IDENTIFIER_BYTES = 100;
@@ -23,7 +24,7 @@ export const MAX_EVENT_BYTES = 4096;
 export const PHASES = ['before', 'after', 'observation'];
 
 const IDENTIFIER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
-const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F]/;
 
 const EVENT_FIELDS = [
   'schema_version',
@@ -41,6 +42,12 @@ const EVENT_FIELDS = [
   'truncated',
 ];
 
+/** What a caller may supply per event. Anything else is a caller mistake. */
+const CALLER_FIELDS = ['skill', 'event', 'phase', 'summary', 'operation', 'outcome', 'evidence'];
+
+/** What the inherited run context may carry. */
+const CONTEXT_FIELDS = ['run_id', 'root_skill', 'log_path'];
+
 export class ChronicleError extends Error {
   constructor(code, message) {
     super(message);
@@ -57,17 +64,31 @@ function byteLength(value) {
   return Buffer.byteLength(value, 'utf8');
 }
 
-/** Truncates on a UTF-8 boundary so a persisted event is never malformed. */
+/** Truncates on a UTF-8 codepoint boundary so a persisted event is never malformed. */
 function boundText(value, maxBytes) {
-  if (byteLength(value) <= maxBytes) {
+  const buffer = Buffer.from(value, 'utf8');
+  if (buffer.length <= maxBytes) {
     return { text: value, truncated: false };
   }
-  const buffer = Buffer.from(value, 'utf8').subarray(0, maxBytes);
-  let text = buffer.toString('utf8');
-  if (text.endsWith('\uFFFD')) {
-    text = text.slice(0, -1);
+
+  let end = maxBytes;
+  while (end > 0 && (buffer[end] & 0xC0) === 0x80) {
+    end -= 1;
   }
-  return { text, truncated: true };
+  const lead = buffer[end];
+  let width = 1;
+  if ((lead & 0xE0) === 0xC0) {
+    width = 2;
+  } else if ((lead & 0xF0) === 0xE0) {
+    width = 3;
+  } else if ((lead & 0xF8) === 0xF0) {
+    width = 4;
+  }
+  if (end + width <= maxBytes) {
+    end += width;
+  }
+
+  return { text: buffer.subarray(0, end).toString('utf8'), truncated: true };
 }
 
 function requireIdentifier(value, field) {
@@ -92,15 +113,27 @@ function requireCleanText(value, field) {
 
 /**
  * Builds the persisted event from caller input plus inherited run context.
- * `sequence` is supplied by the writer and is best effort; replay treats line
- * order as authoritative.
+ * The record carries no writer-assigned sequence: physical log position is the
+ * only ordering, and replay assigns it. That removes an unwinnable race
+ * between concurrent writers.
  */
-export function buildEvent(input, context, sequence, now = new Date()) {
+export function buildEvent(input, context, now = new Date()) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     fail('invalid_input', 'event input must be an object');
   }
   if (!context || typeof context !== 'object' || Array.isArray(context)) {
     fail('invalid_input', 'run context must be an object');
+  }
+
+  for (const field of Object.keys(input)) {
+    if (!CALLER_FIELDS.includes(field)) {
+      fail('invalid_input', `unknown event field: ${field}`);
+    }
+  }
+  for (const field of Object.keys(context)) {
+    if (!CONTEXT_FIELDS.includes(field)) {
+      fail('invalid_input', `unknown run-context field: ${field}`);
+    }
   }
 
   const runId = requireIdentifier(context.run_id, 'run_id');
@@ -121,7 +154,6 @@ export function buildEvent(input, context, sequence, now = new Date()) {
     run_id: runId,
     root_skill: rootSkill,
     skill,
-    sequence,
     timestamp: now.toISOString(),
     event: eventName,
     phase: input.phase,
@@ -168,7 +200,7 @@ export function buildEvent(input, context, sequence, now = new Date()) {
   return event;
 }
 
-/** Validates a persisted event read back from a log. */
+/** Validates a persisted event read back from a log, including its bounds. */
 export function validateEvent(event) {
   if (!event || typeof event !== 'object' || Array.isArray(event)) {
     return 'record is not an object';
@@ -178,12 +210,28 @@ export function validateEvent(event) {
       return `unknown field: ${field}`;
     }
   }
-  if (event.schema_version !== SCHEMA_VERSION) {
+  if (!SUPPORTED_SCHEMA_VERSIONS.includes(event.schema_version)) {
     return `unsupported schema_version: ${String(event.schema_version)}`;
+  }
+  if (event.schema_version >= 2 && 'sequence' in event) {
+    return 'sequence is not recorded from schema version 2';
   }
   for (const field of ['run_id', 'root_skill', 'skill', 'event']) {
     if (typeof event[field] !== 'string' || !IDENTIFIER_PATTERN.test(event[field])) {
       return `invalid ${field}`;
+    }
+    if (byteLength(event[field]) > MAX_IDENTIFIER_BYTES) {
+      return `${field} exceeds ${MAX_IDENTIFIER_BYTES} bytes`;
+    }
+  }
+  for (const field of ['operation', 'outcome']) {
+    if (field in event) {
+      if (typeof event[field] !== 'string' || !IDENTIFIER_PATTERN.test(event[field])) {
+        return `invalid ${field}`;
+      }
+      if (byteLength(event[field]) > MAX_IDENTIFIER_BYTES) {
+        return `${field} exceeds ${MAX_IDENTIFIER_BYTES} bytes`;
+      }
     }
   }
   if (!PHASES.includes(event.phase)) {
@@ -192,30 +240,115 @@ export function validateEvent(event) {
   if (typeof event.summary !== 'string' || event.summary.length === 0) {
     return 'invalid summary';
   }
-  if (!Number.isSafeInteger(event.sequence) || event.sequence < 1) {
-    return 'invalid sequence';
+  if (byteLength(event.summary) > MAX_SUMMARY_BYTES) {
+    return `summary exceeds ${MAX_SUMMARY_BYTES} bytes`;
+  }
+  if (CONTROL_CHARACTER_PATTERN.test(event.summary)) {
+    return 'summary contains control characters';
   }
   if (typeof event.timestamp !== 'string' || Number.isNaN(Date.parse(event.timestamp))) {
     return 'invalid timestamp';
   }
-  if ('evidence' in event
-    && (!Array.isArray(event.evidence) || !event.evidence.every((item) => typeof item === 'string'))) {
-    return 'invalid evidence';
+  if ('evidence' in event) {
+    if (!Array.isArray(event.evidence) || !event.evidence.every((item) => typeof item === 'string')) {
+      return 'invalid evidence';
+    }
+    if (event.evidence.length > MAX_EVIDENCE_ITEMS) {
+      return `evidence exceeds ${MAX_EVIDENCE_ITEMS} references`;
+    }
+    if (event.evidence.some((item) => byteLength(item) > MAX_REFERENCE_BYTES)) {
+      return `an evidence reference exceeds ${MAX_REFERENCE_BYTES} bytes`;
+    }
+  }
+  if ('truncated' in event && event.truncated !== true) {
+    return 'invalid truncated flag';
+  }
+  if (byteLength(JSON.stringify(event)) > MAX_EVENT_BYTES) {
+    return `record exceeds ${MAX_EVENT_BYTES} bytes`;
   }
   return null;
 }
 
-function countRecords(logPath) {
-  let contents;
+/**
+ * Rejects a target that is not a Skill Run Log, so a mistyped path cannot
+ * append to an unrelated file or write through a symbolic link.
+ */
+function assertUsableLogTarget(logPath) {
+  if (!logPath.endsWith('.jsonl')) {
+    fail('invalid_input', 'log_path must name a .jsonl Skill Run Log');
+  }
+
+  let stats;
   try {
-    contents = fs.readFileSync(logPath, 'utf8');
+    stats = fs.lstatSync(logPath);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      return 0;
+      return;
+    }
+    fail('log_unavailable', `cannot inspect the Skill Run Log: ${error.message}`);
+  }
+
+  if (stats.isSymbolicLink()) {
+    fail('invalid_input', 'log_path must not be a symbolic link');
+  }
+  if (!stats.isFile()) {
+    fail('invalid_input', 'log_path must be a regular file');
+  }
+  if (stats.size === 0) {
+    return;
+  }
+
+  let head;
+  try {
+    const handle = fs.openSync(logPath, 'r');
+    try {
+      const buffer = Buffer.alloc(Math.min(stats.size, MAX_EVENT_BYTES));
+      const read = fs.readSync(handle, buffer, 0, buffer.length, 0);
+      head = buffer.subarray(0, read).toString('utf8');
+    } finally {
+      fs.closeSync(handle);
+    }
+  } catch (error) {
+    fail('log_unavailable', `cannot read the Skill Run Log: ${error.message}`);
+  }
+
+  const firstLine = head.split('\n', 1)[0].trim();
+  let parsed = null;
+  try {
+    parsed = JSON.parse(firstLine);
+  } catch {
+    parsed = null;
+  }
+  if (!parsed
+    || typeof parsed !== 'object'
+    || Array.isArray(parsed)
+    || !SUPPORTED_SCHEMA_VERSIONS.includes(parsed.schema_version)) {
+    fail('invalid_input', 'log_path is not a Skill Run Log');
+  }
+}
+
+/** True when the log exists, is not empty, and does not end with a newline. */
+function needsSeparator(logPath) {
+  let handle;
+  try {
+    handle = fs.openSync(logPath, 'r');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return false;
     }
     throw error;
   }
-  return contents.split('\n').filter((line) => line.trim().length > 0).length;
+  try {
+    const { size } = fs.fstatSync(handle);
+    if (size === 0) {
+      return false;
+    }
+    const buffer = Buffer.alloc(1);
+    fs.readSync(handle, buffer, 0, 1, size - 1);
+    return buffer[0] !== 0x0A;
+  } finally {
+    fs.closeSync(handle);
+  }
 }
 
 /**
@@ -231,20 +364,23 @@ export function emitEvent(input, context, options = {}) {
 
   // Validate caller input before touching the filesystem, so a rejected event
   // leaves no directory or file behind.
-  buildEvent(input, context, 1, options.now);
+  const event = buildEvent(input, context, options.now);
 
-  let sequence;
+  assertUsableLogTarget(logPath);
+
+  let separator;
   try {
     fs.mkdirSync(path.dirname(logPath), { recursive: true });
-    sequence = countRecords(logPath) + 1;
+    // A previous writer that stopped mid-record leaves no trailing newline.
+    // Without this separator the next append would concatenate onto that torn
+    // line and destroy both records while still reporting success.
+    separator = needsSeparator(logPath) ? '\n' : '';
   } catch (error) {
     fail('log_unavailable', `cannot prepare the Skill Run Log: ${error.message}`);
   }
 
-  const event = buildEvent(input, context, sequence, options.now);
-
   try {
-    fs.appendFileSync(logPath, `${JSON.stringify(event)}\n`, { encoding: 'utf8' });
+    fs.appendFileSync(logPath, `${separator}${JSON.stringify(event)}\n`, { encoding: 'utf8' });
   } catch (error) {
     fail('append_failed', `cannot append to the Skill Run Log: ${error.message}`);
   }
@@ -312,20 +448,18 @@ export function replayLog(logPath, options = {}) {
         detail: `record belongs to run ${parsed.run_id}, not ${runId}`,
       });
       return;
-    }
-
-    events.push({ ...parsed, anchor, line: index + 1 });
-  });
-
-  events.forEach((event, index) => {
-    if (event.sequence !== index + 1) {
+    } else if (parsed.root_skill !== rootSkill) {
       defects.push({
-        type: 'sequence_anomaly',
-        anchor: event.anchor,
-        detail: `recorded sequence ${event.sequence} does not match log position ${index + 1};`
-          + ' concurrent writers or a lost record',
+        type: 'run_identity_drift',
+        anchor,
+        detail: `run ${runId} changes root skill from ${rootSkill} to ${parsed.root_skill}`,
       });
+      return;
     }
+
+    const { sequence: _legacySequence, ...record } = parsed;
+    // Physical log position is the only ordering, and it backs the L anchors.
+    events.push({ ...record, sequence: events.length + 1, anchor, line: index + 1 });
   });
 
   const operations = new Map();
@@ -349,11 +483,25 @@ export function replayLog(logPath, options = {}) {
           anchor: event.anchor,
           detail: `operation ${event.operation} starts more than once`,
         });
+      } else if (entry.completed !== null) {
+        defects.push({
+          type: 'operation_out_of_order',
+          anchor: event.anchor,
+          detail: `operation ${event.operation} records intent after its outcome at ${entry.completed}`,
+        });
       }
       entry.started = entry.started ?? event.anchor;
     } else if (event.phase === 'after') {
-      entry.completed = event.anchor;
-      entry.outcome = event.outcome ?? null;
+      if (entry.completed !== null) {
+        defects.push({
+          type: 'duplicate_operation_outcome',
+          anchor: event.anchor,
+          detail: `operation ${event.operation} records an outcome more than once`,
+        });
+      } else {
+        entry.completed = event.anchor;
+        entry.outcome = event.outcome ?? null;
+      }
     }
     operations.set(event.operation, entry);
   }
