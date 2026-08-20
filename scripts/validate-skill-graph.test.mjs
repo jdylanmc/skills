@@ -342,3 +342,99 @@ test('closureFor is deterministic, deduplicates fan-in, and tolerates an unknown
   assert.deepEqual(closureFor(result, 'example/SKILL.md'), closure);
   assert.deepEqual(closureFor(result, 'example/missing.md'), ['example/missing.md']);
 });
+
+/**
+ * Level namespace enforcement.
+ *
+ * The composition level is derived from the path, so these tests attack the
+ * gap between what a file claims and where it actually lives. Every case here
+ * is a way the model could be violated while every other check stayed green.
+ */
+
+function unit(level, includes, body, extra = '') {
+  return `---\nname: u\nlevel: ${level}\n${extra}includes: ${JSON.stringify(includes)}\nrequires-skills: []\n---\n\n${body}`;
+}
+
+test('accepts a molecule composing atoms in their level namespaces', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': unit('atom', [], '# Alpha\n'),
+    'skills/_base/_atoms/alpha.mjs': 'export const alpha = 1;\n',
+    'skills/_base/_atoms/alpha.test.mjs': '// seam test\n',
+    'skills/_base/_molecules/combo.md': unit(
+      'molecule',
+      ['_base/_atoms/alpha.md'],
+      '# Combo\n\n## Required References\n\n1. [Alpha](../_atoms/alpha.md)\n',
+    ),
+  });
+  const result = validateRepository(root);
+  assert.deepEqual(closureFor(result, '_base/_molecules/combo.md'), [
+    '_base/_molecules/combo.md',
+    '_base/_atoms/alpha.md',
+  ]);
+});
+
+test('rejects a unit whose declared level contradicts its namespace', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': unit('molecule', [], '# Alpha\n'),
+  });
+  assert.throws(() => validateRepository(root), /level must be atom to match its namespace/);
+});
+
+test('rejects a unit in a level namespace that declares no level', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': participating([], '# Alpha\n'),
+  });
+  assert.throws(() => validateRepository(root), /level must be atom to match its namespace; found none/);
+});
+
+test('rejects an atom that references another unit', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': unit(
+      'atom',
+      ['_base/_atoms/beta.md'],
+      '# Alpha\n\n## Required References\n\n1. [Beta](./beta.md)\n',
+    ),
+    'skills/_base/_atoms/beta.md': unit('atom', [], '# Beta\n'),
+  });
+  assert.throws(() => validateRepository(root), /an atom references no other unit/);
+});
+
+test('rejects a level declared outside a level namespace', (t) => {
+  const root = fixture(t, {
+    'skills/example/SKILL.md': unit('atom', [], '# Example\n'),
+  });
+  assert.throws(() => validateRepository(root), /does not live in a level namespace/);
+});
+
+test('rejects requires-skills inside a level namespace', (t) => {
+  const root = fixture(t, {
+    'skills/other/SKILL.md': participating([], '# Other\n'),
+    'skills/_base/_atoms/alpha.md':
+      '---\nname: u\nlevel: atom\nincludes: []\nrequires-skills: [{"id":"other","source":"local","required":true}]\n---\n\n# Alpha\n',
+  });
+  assert.throws(() => validateRepository(root), /must not declare requires-skills/);
+});
+
+test('rejects a support file with no matching unit in its level namespace', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': unit('atom', [], '# Alpha\n'),
+    'skills/_base/_atoms/orphan.mjs': 'export const orphan = 1;\n',
+  });
+  assert.throws(() => validateRepository(root), /has no matching orphan.md unit/);
+});
+
+test('accepts a suffixed support file that names its unit', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_molecules/combo.md': unit('molecule', [], '# Combo\n'),
+    'skills/_base/_molecules/combo.adversarial.test.mjs': '// hostile input\n',
+  });
+  assert.doesNotThrow(() => validateRepository(root));
+});
+
+test('rejects a subdirectory inside a level namespace', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': unit('atom', [], '# Alpha\n'),
+    'skills/_base/_atoms/nested/deep.md': unit('atom', [], '# Deep\n'),
+  });
+  assert.throws(() => validateRepository(root), /a level namespace is flat/);
+});

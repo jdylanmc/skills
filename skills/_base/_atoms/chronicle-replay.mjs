@@ -10,9 +10,9 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { replayLog, ChronicleError } from './chronicler.mjs';
+import { replayLog, ChronicleError } from '../_molecules/chronicler.mjs';
 
-const USAGE = 'Usage: replay-log.mjs <selected-log-path> [--log-id <opaque-id>]';
+const USAGE = 'Usage: chronicle-replay.mjs <selected-log-path> [--log-id <opaque-id>]';
 
 export function parseArguments(argv) {
   if (argv.includes('--probe')) {

@@ -23,10 +23,10 @@ import {
   MAX_SUMMARY_BYTES,
   emitEvent,
   replayLog,
-} from '../scripts/chronicler.mjs';
+} from './chronicler.mjs';
 
 const execFileAsync = promisify(execFile);
-const EMIT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'scripts', 'emit-event.mjs');
+const EMIT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '_atoms', 'chronicle-append.mjs');
 
 function workspace(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'chronicle-adversarial-'));

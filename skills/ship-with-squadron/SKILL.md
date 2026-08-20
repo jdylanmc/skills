@@ -2,7 +2,7 @@
 name: ship-with-squadron
 description: Orchestrates a durable, coordinator-led implementation fleet from one root GitHub or Azure DevOps work item until its dependency-aware backlog is shipped. Use when Discovery Loop or Breakdown to Tickets has produced an approved root outcome and the user wants aggressive parallel implementation, exact-head adversarial review, pull-request shepherding, guarded squash merges, timeout handoffs, and executive fleet reporting. Do not use for discovery, ticket drafting, one pull request, status-only monitoring, or work without an approved tracker-backed backlog.
 allowed-tools: ["*"]
-includes: ["_base/chronicler/BASE.md","ship-with-squadron/references/10-roles-and-prerequisites.md","ship-with-squadron/references/20-control-state-and-state-machine.md","ship-with-squadron/references/25-run-recording.md","ship-with-squadron/references/30-backlog-and-scheduling.md","ship-with-squadron/references/40-worker-lifecycle.md","ship-with-squadron/references/50-review-and-merge-gate.md","ship-with-squadron/references/60-timeout-handoff-and-splitting.md","ship-with-squadron/references/70-health-reporting-and-recovery.md","ship-with-squadron/references/90-safeguards-and-scenarios.md"]
+includes: ["_base/_molecules/chronicler.md","ship-with-squadron/references/10-roles-and-prerequisites.md","ship-with-squadron/references/20-control-state-and-state-machine.md","ship-with-squadron/references/25-run-recording.md","ship-with-squadron/references/30-backlog-and-scheduling.md","ship-with-squadron/references/40-worker-lifecycle.md","ship-with-squadron/references/50-review-and-merge-gate.md","ship-with-squadron/references/60-timeout-handoff-and-splitting.md","ship-with-squadron/references/70-health-reporting-and-recovery.md","ship-with-squadron/references/90-safeguards-and-scenarios.md"]
 requires-skills: [{"id":"handoff","source":"external","required":true},{"id":"roast-this-code","source":"local","required":true},{"id":"shepherd","source":"local","required":true}]
 ---
 
@@ -35,7 +35,7 @@ Read and follow these files in order:
 7. [Timeout handoff and recursive splitting](./references/60-timeout-handoff-and-splitting.md)
 8. [Health, reporting, and recovery](./references/70-health-reporting-and-recovery.md)
 9. [Safeguards, errors, and scenario tests](./references/90-safeguards-and-scenarios.md)
-10. [Chronicle recording base](../_base/chronicler/BASE.md)
+10. [Chronicler recording molecule](../_base/_molecules/chronicler.md)
 
 ## Human-Facing Output Contract
 

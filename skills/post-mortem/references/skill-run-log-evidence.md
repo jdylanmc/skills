@@ -9,7 +9,7 @@ A Skill Run Log is an optional, operator-selected evidence source. It never
 replaces session evidence and never widens this skill into repository or
 history analysis.
 
-Follow the Chronicle base replay contract for the command surface and the
+Follow the Chronicle replay atom contract for the command surface and the
 defect vocabulary.
 
 ## Selection

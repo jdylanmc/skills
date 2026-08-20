@@ -9,7 +9,7 @@ Record a bounded Skill Run Log so an interrupted run can be diagnosed and so
 Post-Mortem has cited evidence. Recording is best effort and never gates
 delivery.
 
-Follow the Chronicle base contract for the command surface and event fields.
+Follow the Chronicle append atom contract for the command surface and event fields.
 
 ## Root Context
 
@@ -72,7 +72,7 @@ A non-zero exit from the emit command is not a delivery failure:
 3. continue claiming, implementing, reviewing, and merging.
 
 Never retry in a loop, never block a worker on recording, and never let a
-missing Chronicle base stop the run. If the base is absent, report it as
+missing Chronicler molecule stop the run. If it is absent, report it as
 missing evidence infrastructure and continue.
 
 ## Boundary

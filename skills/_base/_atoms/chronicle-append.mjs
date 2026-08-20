@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { emitEvent, ChronicleError } from './chronicler.mjs';
+import { emitEvent, ChronicleError } from '../_molecules/chronicler.mjs';
 
 const FLAGS = new Map([
   ['--log', 'log_path'],
@@ -24,7 +24,7 @@ const FLAGS = new Map([
   ['--outcome', 'outcome'],
 ]);
 
-const USAGE = `Usage: emit-event.mjs --log <path> --run <id> --root-skill <name> \\
+const USAGE = `Usage: chronicle-append.mjs --log <path> --run <id> --root-skill <name> \\
   --event <name> --phase <before|after|observation> --summary <text> \\
   [--skill <name>] [--operation <id>] [--outcome <id>] [--evidence <ref>]...`;
 
