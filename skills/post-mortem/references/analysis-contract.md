@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Analysis Contract
 
 ## Role and Objective
@@ -29,6 +34,8 @@ Analyze only evidence available in the current session:
 
 Do not query session history, memory stores, trackers, communications, repositories, or external systems to reconstruct earlier interactions. User-provided summaries of earlier work are testimony in the current session, not independently observed history.
 
+One optional evidence source sits outside the session: a Skill Run Log that the operator explicitly selects. It is a bounded record of operational events, never a transcript, and it is governed by the Skill Run Log evidence reference. Never open one the operator did not name.
+
 The only repository-read exception is package grounding for a retained reusable candidate. It may inspect the repository containing this skill package: its root instructions file and sibling `skills/*/SKILL.md` entry points. Scope every search to that package repository. Never use the operator's working repository, repository history, or unrelated files as session evidence. If the package root is unavailable or a search returns no results without a confirmed root, record package grounding as `pending`.
 
 Declare evidence completeness:
@@ -41,6 +48,8 @@ Declare evidence completeness:
 When more than one condition applies, report the most restrictive value in this order: `summary_only`, `compacted`, `partial`, `complete`; record the other conditions under limitations.
 
 Partial, compacted, or summary-only evidence caps every confidence value, including per-item confidence, at **Moderate**. Never estimate unavailable duration, token usage, message count, retry count, model setting, or other telemetry. Mark it `not_observable`.
+
+Declare completeness separately for each selected Skill Run Log. Its caps apply to findings drawn from that log, and the most restrictive applicable cap wins.
 
 ## Untrusted and Sensitive Content
 
@@ -58,6 +67,8 @@ Assign stable anchors in encounter order:
 - `S1`, `S2`: returned subagent results;
 - `R1`, `R2`: generated or inspected artifacts.
 - `M1`, `M2`: runtime metadata, compaction notices, or session-boundary notices.
+
+When the operator selects a Skill Run Log, anchor its records as `<slot>:<line>`, for example `L1:12` or a range `L1:12-18`, where `L1` is the first selected log. These anchors are defined in the Skill Run Log evidence reference and never collide with session anchors.
 
 Assign one `T` anchor per tool call covering its request and result. Use `F1...`, `G1...`, and `H1...` for friction signals, gaps, and root-cause hypotheses so finding identifiers never collide with evidence anchors.
 
