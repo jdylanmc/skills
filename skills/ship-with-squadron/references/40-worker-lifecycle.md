@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Worker Lifecycle and Composed Skills
 
 ## Worker Launch Packet
@@ -11,7 +16,9 @@ Give every worker:
 - allowed scope and explicit exclusions;
 - existing test, build, lint, and formatting commands;
 - implementation, initial-Roast, and total deadlines;
-- Coordinator contact and ledger ticket key;
+- Coordinator contact and control-state ticket key;
+- the Chronicle run context, `run_id`, `root_skill`, and absolute `log_path`,
+  forwarded unchanged to every composed skill that records;
 - paths to the official Roast This Code, Shepherd, and Handoff entry
   points;
 - heartbeat and terminal-envelope schemas;
@@ -20,7 +27,7 @@ Give every worker:
 The worker must acknowledge the packet, verify the worktree, and emit
 `WORKER_STARTED` before editing.
 
-Before launch, the Coordinator validates the packet against one fresh ledger
+Before launch, the Coordinator validates the packet against one fresh control-state
 and provider snapshot. Reject a packet with a stale ticket or base revision,
 wrong repository, conflicting deadlines, unresolved placeholder, unverified
 command, missing exclusion, or unrecorded ownership. Before editing, the

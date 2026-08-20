@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Backlog Hydration and Scheduling
 
 ## Build the Graph
@@ -81,7 +86,7 @@ Before launch:
 6. launch the worker with the exact ticket and no sibling scope.
 
 If provider-native claiming is unavailable, use the repository's documented
-fallback plus the ledger's compare-and-set transition. Never create two
+fallback plus the control-state compare-and-set transition. Never create two
 workers for one ticket.
 
 ## Backlog Exhaustion

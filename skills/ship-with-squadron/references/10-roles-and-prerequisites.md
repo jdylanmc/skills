@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Roles, Authority, and Prerequisites
 
 ## Accepted Input
@@ -43,7 +48,7 @@ The Primary:
 - reports health, capacity, current assignments, pull-request gates,
   completed scope, remaining frontier, blockers, and next action;
 - may execute a guarded merge after independently checking the merge gate;
-- relaunches a failed Coordinator from the durable ledger;
+- relaunches a failed Coordinator from durable control state;
 - stops, pauses, or redirects the run when the user instructs it.
 
 The Primary must not implement backlog tickets, shepherd a worker's pull
@@ -52,7 +57,7 @@ Coordinator is healthy, all worker control routes through it.
 
 Primary capability profile:
 
-- read the ledger and provider state;
+- read control state and provider state;
 - communicate with the Coordinator and user;
 - manage the recurring status schedule;
 - recover the Coordinator;
@@ -64,13 +69,13 @@ for the Primary outside Coordinator recovery or the guarded merge procedure.
 ## Coordinator
 
 Launch one long-lived, high-capability Coordinator task agent. Give it the root
-item, repository and provider identity, run-ledger path, concurrency limit,
+item, repository and provider identity, control-state path, concurrency limit,
 deadlines, composed-skill paths, merge authority, and this complete package.
 
 The Coordinator:
 
 - is the sole scheduler and worker supervisor;
-- maintains the live dependency graph and durable ledger;
+- maintains the live dependency graph and durable control state;
 - decides which tickets can run in parallel and which must remain serial;
 - keeps up to six workers active while the ready frontier has capacity;
 - receives worker heartbeats, terminal envelopes, and timeout handoffs;
@@ -83,7 +88,7 @@ does not replace the Primary's user-facing reporting role.
 
 Coordinator capability profile:
 
-- read and mutate the ledger and tracker graph;
+- read and mutate control state and the tracker graph;
 - create isolated branches, worktrees, and task agents;
 - communicate with the Primary and workers;
 - accept handoffs and publish recovery children;
@@ -134,7 +139,7 @@ administration authority.
 | Split a timed-out ticket | No | No | Yes | Handoff only |
 
 If runtime permissions cannot enforce this matrix, enforce it in prompts,
-ledger transitions, and merge checks. Treat a worker merge attempt as a
+control-state transitions, and merge checks. Treat a worker merge attempt as a
 run-integrity failure.
 
 ## Composed Skill Prerequisites

@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Timeout Handoff and Recursive Splitting
 
 ## Deadline Semantics
@@ -11,7 +16,7 @@ Set all deadlines when the worker starts:
 The Coordinator, not the worker, is the deadline authority. Use a monotonic
 clock when available. Machine suspension and provider waiting remain visible
 wall-clock events and do not silently extend the budget. Only the user may
-grant an explicit extension, and the ledger must record it.
+grant an explicit extension, and control state must record it.
 
 Timeout applies at the next observation opportunity when:
 
@@ -85,7 +90,7 @@ Record:
 - provider revisions;
 - completed outcome;
 - remaining outcome;
-- evidence and feedback ledger;
+- evidence and feedback record;
 - recommended split seam;
 - preservation requirements.
 
