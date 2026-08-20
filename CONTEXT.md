@@ -40,3 +40,29 @@ disappearance.
 Bounded Skill Run Log evidence that Post-Mortem can use to identify reusable
 capability, evaluator, or workflow improvements. It excludes internal reasoning
 and unbounded transcripts.
+
+### Skill composition
+
+**Atom**
+
+The smallest unit of skill composition: one single operation as judged from the
+caller's point of view, expressed as a single Markdown file whose frontmatter is
+consistent across all atoms. An atom references no other unit of composition;
+anything that references another unit is not an atom.
+
+Discouraged aliases: `primitive`, `ingredient`
+
+**Molecule**
+
+A unit of skill composition that composes two or more atoms or molecules by
+reference to produce one bounded outcome, expressed as a single Markdown file.
+A molecule declares what it composes; what it may use and what consumes it are
+derived from that declaration rather than authored.
+
+**Skill**
+
+The only unit of skill composition that may be invoked directly, by a router or
+by a person: the contract the agent understands. A skill composes molecules and
+atoms rather than restating what a shared unit already defines.
+
+Discouraged aliases: `organism`
