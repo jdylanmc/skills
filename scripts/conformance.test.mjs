@@ -376,3 +376,87 @@ test('consumer instructions expose no Chronicle storage or platform mechanics', 
     assert.doesNotMatch(contents, forbidden, `${path.basename(file)} must not expose recording internals`);
   }
 });
+
+test('Post-Mortem composes Chronicle and keeps its selected-log evidence reference', () => {
+  const result = validateRepository(REPOSITORY_ROOT);
+  const closure = closureFor(result, 'post-mortem/SKILL.md');
+
+  assert.ok(closure.includes('_base/chronicler/BASE.md'));
+  assert.ok(closure.includes('post-mortem/references/skill-run-log-evidence.md'));
+  assert.ok(result.routableSkills.includes('post-mortem'));
+});
+
+test('Post-Mortem log anchors cannot collide with its session anchors', () => {
+  const contract = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/post-mortem/references/analysis-contract.md'),
+    'utf8',
+  );
+  const evidence = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/post-mortem/references/skill-run-log-evidence.md'),
+    'utf8',
+  );
+
+  // Session anchors already claim R for artifacts, so a log anchor must be
+  // qualified rather than reusing a bare session letter.
+  assert.match(contract, /`R1`, `R2`: generated or inspected artifacts/);
+  assert.match(evidence, /`L1:12`/);
+  assert.match(contract, /`L1:12`/);
+});
+
+test('Post-Mortem stays read-only and bounded to operator-selected runs', () => {
+  const skill = fs.readFileSync(path.join(REPOSITORY_ROOT, 'skills/post-mortem/SKILL.md'), 'utf8');
+  const evidence = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/post-mortem/references/skill-run-log-evidence.md'),
+    'utf8',
+  );
+
+  const allowed = /^allowed-tools: (\[.*\])$/m.exec(skill);
+  assert.ok(allowed, 'the skill must declare allowed tools');
+  assert.deepEqual(JSON.parse(allowed[1]), ['read', 'search', 'execute']);
+  assert.doesNotMatch(skill, /"edit"|"task"|"\*"/);
+
+  assert.match(sectionBody(evidence, '## Boundary'), /read only/i);
+  assert.match(sectionBody(evidence, '## Selection'), /exactly one run by default/i);
+});
+
+test('Post-Mortem may reach OBSERVED only across independent selected runs', () => {
+  const output = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/post-mortem/references/output-and-evaluation.md'),
+    'utf8',
+  );
+  const evidence = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/post-mortem/references/skill-run-log-evidence.md'),
+    'utf8',
+  );
+
+  // The gate is "two or more independent selected runs". Matching the bare
+  // word "independent" would pass even if the gate were deleted, because the
+  // surrounding prose already uses it.
+  const lifecycle = sectionBody(output, '## Reinforcement Lifecycle');
+  assert.match(lifecycle, /two or more independent Skill Run Logs/i);
+  assert.match(lifecycle, /can never mark a candidate `VALIDATED` or `PROMOTED`/i);
+
+  const recurrence = sectionBody(evidence, '## Recurrence');
+  assert.match(recurrence, /Two or more independently selected runs/i);
+  assert.match(recurrence, /Repetition inside one run is not recurrence/i);
+
+  // The required output schema must permit the state the lifecycle allows.
+  assert.match(output, /status: PROPOSED \| OBSERVED/);
+
+  const regression = sectionBody(output, '## Regression Evaluation');
+  assert.match(regression, /single selected Skill Run Log[^\n]*`PROPOSED`/i);
+  assert.match(regression, /two attempts at the same work/i);
+});
+
+test('Post-Mortem never offers log evidence merely because the session is incomplete', () => {
+  const skill = fs.readFileSync(path.join(REPOSITORY_ROOT, 'skills/post-mortem/SKILL.md'), 'utf8');
+  const evidence = fs.readFileSync(
+    path.join(REPOSITORY_ROOT, 'skills/post-mortem/references/skill-run-log-evidence.md'),
+    'utf8',
+  );
+
+  assert.match(skill, /Never offer this source merely because session evidence is incomplete/i);
+  assert.match(sectionBody(evidence, '## Selection'), /Never offer it unprompted/i);
+  assert.match(sectionBody(evidence, '## Selection'), /Never search the filesystem for logs/i);
+  assert.match(sectionBody(evidence, '## Replay'), /no usable event/i);
+});
