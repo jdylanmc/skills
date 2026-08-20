@@ -37,5 +37,7 @@ jobs:
           node --test
           scripts/validate-skill-graph.test.mjs
           scripts/conformance.test.mjs
-          skills/_base/chronicler/tests/chronicler.test.mjs
-          skills/_base/chronicler/tests/adversarial.test.mjs
+          skills/_base/_molecules/chronicler.test.mjs
+          skills/_base/_molecules/chronicler.adversarial.test.mjs
+          skills/_base/_atoms/chronicle-append.test.mjs
+          skills/_base/_atoms/chronicle-replay.test.mjs

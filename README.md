@@ -14,10 +14,14 @@ doctrine/
   <id>.doctrine.md
 skills/
   _base/
-    <base-name>/
-      BASE.md
-      scripts/
-      tests/
+    _atoms/
+      <atom-name>.md
+      <atom-name>.mjs
+      <atom-name>.test.mjs
+    _molecules/
+      <molecule-name>.md
+      <molecule-name>.mjs
+      <molecule-name>.test.mjs
   <skill-name>/
     SKILL.md
     references/
@@ -26,11 +30,26 @@ skills/
 
 `SKILL.md` is the canonical entry point for every skill. Supporting instructions belong beside it under `references/` and are linked from the skill.
 
-Non-routable shared instruction bases live under `skills/_base/<base-name>/`
-and use `BASE.md`, never `SKILL.md`. A base is read by the skills that depend
-on it. It is never routed to, listed as a skill, or invoked directly. Its
-deterministic support files may live in `scripts/` and `tests/` subdirectories
-of the same base package.
+Non-routable shared units live under `skills/_base/` in level namespaces. A unit
+is exactly one Markdown file, and its composition level is derived from its
+path: `_atoms/` holds atoms and `_molecules/` holds molecules.
+
+An **atom** is one single operation judged from the caller's point of view. It
+references no other unit and declares `includes: []`. A **molecule** composes
+two or more atoms or molecules by reference to produce one bounded outcome. A
+**skill** is the only unit that may be invoked directly: the contract the agent
+understands.
+
+A level namespace is flat and contains only regular files, never symbolic links.
+A support file beside a unit is named after that unit, so `chronicler.mjs` and
+`chronicler.adversarial.test.mjs` both belong to `chronicler.md`, and a unit may
+include only its own local support files. Unit composition and code dependency
+are separate graphs: the unit graph runs strictly downward and is enforced,
+while a unit's local script may import another unit's script so that shared
+implementation is written once.
+
+Nothing under `_base` uses `SKILL.md`. These units are read by the skills that
+compose them and are never routed to, listed as a skill, or invoked directly.
 
 ## Dependency Mirror
 
@@ -83,13 +102,13 @@ Copy a skill package to one of Copilot's recognized locations:
 - Personal: `~/.agents/skills/<skill-name>/`
 - Repository: `.github/skills/<skill-name>/`
 
-When a copied skill depends on a shared base, copy the `_base/` directory once
+When a copied skill composes a shared unit, copy the `_base/` directory once
 beside the installed skills:
 
 - Personal: `~/.agents/skills/_base/`
 - Repository: `.github/skills/_base/`
 
-Do not expose `_base` entries as routable skills. If a required base is missing
+Do not expose `_base` entries as routable skills. If a required unit is missing
 at runtime, the consuming skill's own documented degradation behavior applies.
 
 Copy an agent file to `.github/agents/` when it should be available in a repository.

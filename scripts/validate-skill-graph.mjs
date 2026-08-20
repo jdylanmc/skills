@@ -51,9 +51,71 @@ function readFrontmatter(rawContent, file) {
 
   return {
     body: content.slice(end + 5),
+    name: fields.get('name') ?? null,
+    description: fields.get('description') ?? null,
+    level: fields.get('level') ?? null,
     includes: parseJsonField('includes', null),
     requiresSkills: parseJsonField('requires-skills', []),
   };
+}
+
+/**
+ * Level namespaces under `_base`. A unit's composition level is derived from
+ * its path, so the filesystem is the authority and the `level` field is a
+ * cross-check rather than a claim the graph has to trust.
+ */
+const LEVEL_NAMESPACES = new Map([
+  ['_base/_atoms/', 'atom'],
+  ['_base/_molecules/', 'molecule'],
+]);
+
+function levelNamespaceOf(relativeFile) {
+  for (const [prefix, level] of LEVEL_NAMESPACES) {
+    if (relativeFile.startsWith(prefix)) {
+      return { prefix, level };
+    }
+  }
+  return null;
+}
+
+/**
+ * A unit is exactly one Markdown file, so a level namespace is flat: no
+ * subdirectories, and every non-Markdown file must be named after the unit it
+ * belongs to. `chronicler.adversarial.test.mjs` belongs to `chronicler.md`
+ * because the first dot-separated segment is the unit name.
+ */
+function unitNameOf(baseName) {
+  return baseName.split('.')[0];
+}
+
+function validateLevelNamespaces(skillsRoot, validatedUnits) {
+  for (const [prefix] of LEVEL_NAMESPACES) {
+    const directory = path.join(skillsRoot, ...prefix.split('/').filter(Boolean));
+    if (!fs.existsSync(directory)) {
+      continue;
+    }
+    const units = validatedUnits.get(prefix) ?? new Set();
+
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const location = `${prefix}${entry.name}`;
+      if (entry.isSymbolicLink()) {
+        throw new Error(`${location}: a level namespace must not contain a symbolic link`);
+      }
+      if (entry.isDirectory()) {
+        throw new Error(`${location}: a level namespace is flat; a unit is a single Markdown file`);
+      }
+      if (!entry.isFile()) {
+        throw new Error(`${location}: a level namespace contains only regular files`);
+      }
+      if (entry.name.endsWith('.md')) {
+        continue;
+      }
+      const unit = unitNameOf(entry.name);
+      if (!units.has(unit)) {
+        throw new Error(`${location}: support file has no matching ${unit}.md unit in the same level namespace`);
+      }
+    }
+  }
 }
 
 function normalizeLinkTarget(raw) {
@@ -205,11 +267,18 @@ export function validateRepository(repositoryRoot) {
   );
   const graph = new Map();
   const participating = new Set();
+  const validatedUnits = new Map();
 
   for (const file of markdownFiles) {
     const relativeFile = toPosix(path.relative(skillsRoot, file));
     const parsed = readFrontmatter(fs.readFileSync(file, 'utf8'), relativeFile);
+    const namespace = levelNamespaceOf(relativeFile);
     if (!parsed || parsed.includes === null) {
+      if (namespace) {
+        throw new Error(
+          `${relativeFile}: a file in a level namespace must be a unit declaring frontmatter with includes`,
+        );
+      }
       continue;
     }
     if (!Array.isArray(parsed.includes) || !parsed.includes.every((item) => typeof item === 'string')) {
@@ -217,6 +286,63 @@ export function validateRepository(repositoryRoot) {
     }
     if (!Array.isArray(parsed.requiresSkills)) {
       throw new Error(`${relativeFile}: requires-skills must be a JSON array`);
+    }
+
+    const namespaceLevel = namespace;
+    if (namespaceLevel) {
+      const stem = relativeFile.slice(namespaceLevel.prefix.length, -3);
+      if (!stem || stem.includes('/')) {
+        throw new Error(`${relativeFile}: a unit file name must be a non-empty unit name`);
+      }
+      if (!parsed.name) {
+        throw new Error(`${relativeFile}: a unit must declare name`);
+      }
+      if (!parsed.description) {
+        throw new Error(`${relativeFile}: a unit must declare description`);
+      }
+      if (parsed.name !== stem) {
+        throw new Error(`${relativeFile}: name ${parsed.name} must match the unit file name ${stem}`);
+      }
+      if (parsed.level !== namespaceLevel.level) {
+        throw new Error(
+          `${relativeFile}: level must be ${namespaceLevel.level} to match its namespace; found ${parsed.level ?? 'none'}`,
+        );
+      }
+      if (parsed.requiresSkills.length) {
+        throw new Error(`${relativeFile}: a ${namespaceLevel.level} must not declare requires-skills`);
+      }
+      if (namespaceLevel.level === 'atom' && parsed.includes.length) {
+        throw new Error(`${relativeFile}: an atom references no other unit, so includes must be empty`);
+      }
+      if (namespaceLevel.level === 'molecule') {
+        const composed = parsed.includes.filter((target) => target.endsWith('.md'));
+        if (composed.length < 2) {
+          throw new Error(
+            `${relativeFile}: a molecule composes two or more units; found ${composed.length}`,
+          );
+        }
+        for (const target of parsed.includes) {
+          if (target.endsWith('.md')) {
+            if (!levelNamespaceOf(target)) {
+              throw new Error(
+                `${relativeFile}: a molecule composes only atoms and molecules; ${target} is not in a level namespace`,
+              );
+            }
+          } else if (!target.startsWith(`${namespaceLevel.prefix}${stem}.`)) {
+            throw new Error(
+              `${relativeFile}: a unit may include only its own local support files; found ${target}`,
+            );
+          }
+        }
+      }
+      if (!validatedUnits.has(namespaceLevel.prefix)) {
+        validatedUnits.set(namespaceLevel.prefix, new Set());
+      }
+      validatedUnits.get(namespaceLevel.prefix).add(stem);
+    } else if (parsed.level !== null) {
+      throw new Error(
+        `${relativeFile}: declares level ${parsed.level} but does not live in a level namespace`,
+      );
     }
 
     const markdownIncludes = requiredLinks(parsed.body, relativeFile)
@@ -278,6 +404,8 @@ export function validateRepository(repositoryRoot) {
   if (baseSkillEntries.length) {
     throw new Error(`_base must not contain routable SKILL.md files: ${baseSkillEntries.join(', ')}`);
   }
+
+  validateLevelNamespaces(skillsRoot, validatedUnits);
 
   return {
     graph,

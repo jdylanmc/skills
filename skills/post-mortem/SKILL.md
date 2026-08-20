@@ -2,7 +2,7 @@
 name: post-mortem
 description: Produces a read-only, evidence-anchored post-mortem of the current agent session to identify friction, execution gaps, and bounded learning candidates. It can also replay a Skill Run Log the operator explicitly names. Invoke when the operator asks to post-mortem, retrospect on, or extract lessons from the current interaction, or to analyze a named recorded run. Do not invoke for incident or outage reviews, team retrospectives, unsolicited cross-session analytics, code review, or automatic skill, memory, or instruction changes.
 allowed-tools: ["read", "search", "execute"]
-includes: ["_base/chronicler/BASE.md","post-mortem/references/analysis-contract.md","post-mortem/references/output-and-evaluation.md","post-mortem/references/skill-run-log-evidence.md"]
+includes: ["_base/_molecules/chronicler.md","post-mortem/references/analysis-contract.md","post-mortem/references/output-and-evaluation.md","post-mortem/references/skill-run-log-evidence.md"]
 requires-skills: []
 ---
 
@@ -19,7 +19,7 @@ Read and follow these files in order:
 1. [Analysis contract](./references/analysis-contract.md)
 2. [Skill Run Log evidence](./references/skill-run-log-evidence.md)
 3. [Output, reinforcement, and evaluation](./references/output-and-evaluation.md)
-4. [Chronicle recording base](../_base/chronicler/BASE.md)
+4. [Chronicler recording molecule](../_base/_molecules/chronicler.md)
 
 ## Core Workflow
 

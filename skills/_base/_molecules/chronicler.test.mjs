@@ -13,9 +13,9 @@ import {
   buildEvent,
   emitEvent,
   replayLog,
-} from '../scripts/chronicler.mjs';
-import { run as runEmit } from '../scripts/emit-event.mjs';
-import { run as runReplay } from '../scripts/replay-log.mjs';
+} from './chronicler.mjs';
+import { run as runEmit } from '../_atoms/chronicle-append.mjs';
+import { run as runReplay } from '../_atoms/chronicle-replay.mjs';
 
 function workspace(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'chronicle-'));
@@ -345,50 +345,6 @@ test('emit and replay commands round-trip through the documented entry points', 
   assert.deepEqual(state.events[0].evidence, ['PR-42']);
 });
 
-test('the emit command reports usage and recording failures on standard error', (t) => {
-  const context = contextFor(workspace(t));
-
-  const missing = captureStreams();
-  assert.equal(runEmit(['--log', context.log_path], missing), 1);
-  assert.match(missing.errors(), /usage: missing required argument/);
-
-  const unknown = captureStreams();
-  assert.equal(runEmit(['--nope', 'x'], unknown), 1);
-  assert.match(unknown.errors(), /unknown argument: --nope/);
-
-  const invalid = captureStreams();
-  assert.equal(
-    runEmit(
-      [
-        '--log', context.log_path,
-        '--run', context.run_id,
-        '--root-skill', context.root_skill,
-        '--event', 'run',
-        '--phase', 'nowhere',
-        '--summary', 'Bad phase.',
-      ],
-      invalid,
-    ),
-    1,
-  );
-  assert.match(invalid.errors(), /invalid_input: phase must be one of/);
-
-  const probe = captureStreams();
-  assert.equal(runEmit(['--probe'], probe), 0);
-  assert.match(probe.output(), /chronicle: available/);
-});
-
-test('the replay command reports an unreadable selection on standard error', (t) => {
-  const root = workspace(t);
-  const streams = captureStreams();
-  assert.equal(runReplay([path.join(root, 'missing.jsonl')], streams), 1);
-  assert.match(streams.errors(), /log_unavailable:/);
-
-  const usage = captureStreams();
-  assert.equal(runReplay([], usage), 1);
-  assert.match(usage.errors(), /a selected log path is required/);
-});
-
 test('reports an operation that records intent more than once', (t) => {
   const context = contextFor(workspace(t));
   emitEvent({ event: 'ticket', phase: 'before', summary: 'Claim ticket 3.', operation: 'ticket-3' }, context);
@@ -453,17 +409,4 @@ test('an invalid event leaves no log directory behind', (t) => {
     ChronicleError,
   );
   assert.equal(fs.existsSync(path.dirname(logPath)), false);
-});
-
-test('the emit command rejects a flag used as a value', (t) => {
-  const context = contextFor(workspace(t));
-  const streams = captureStreams();
-  assert.equal(
-    runEmit(
-      ['--log', context.log_path, '--run', context.run_id, '--root-skill', context.root_skill, '--summary', '--event'],
-      streams,
-    ),
-    1,
-  );
-  assert.match(streams.errors(), /--summary requires a value/);
 });

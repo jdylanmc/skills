@@ -6,8 +6,13 @@ This repository is Dylan's common library of reusable GitHub Copilot skills and 
 
 - Skills live at `skills/<skill-name>/SKILL.md`.
 - Skill support files live at `skills/<skill-name>/references/`.
-- Non-routable shared bases live at `skills/_base/<base-name>/BASE.md`; their deterministic support files may live in `scripts/` and `tests/` subdirectories of the same base package.
-- A `_base` package never contains `SKILL.md` and is never routed to, listed as a skill, or invoked directly.
+- Non-routable shared bases live under `skills/_base/`.
+- Composition levels are derived from the path. `skills/_base/_atoms/<name>.md` holds atoms and `skills/_base/_molecules/<name>.md` holds molecules; each `_`-prefixed directory is a level namespace, not a package.
+- A level namespace is flat. A unit is exactly one Markdown file, and a support file beside it must be named after its unit, so `chronicler.mjs` and `chronicler.adversarial.test.mjs` both belong to `chronicler.md`.
+- A unit declares `name`, `description`, and `level`. Its `level` must match its namespace and its `name` must match its file name. An atom declares `includes: []`, because it references no other unit. A molecule composes two or more units, and only atoms or molecules. Neither declares `requires-skills`.
+- Composition runs strictly downward and is enforced. A molecule may not compose a routable skill, a unit may include only its own local support files, and a level namespace contains no symbolic links.
+- Unit composition and code dependency are separate graphs. The unit graph runs strictly downward; a unit's local script may import another unit's script, which is how two atoms share one validated implementation without duplicating it.
+- Nothing under `_base` contains `SKILL.md`, and `_base` is never routed to, listed as a skill, or invoked directly.
 - `includes` frontmatter is a dependency-graph mirror, not a directive to load every listed file into model context. Consumers read Markdown in the documented order and invoke listed deterministic support files only when required.
 - Agents live as standalone files at `agents/<agent-name>.agent.md`.
 - Shared engineering doctrine lives at `doctrine/<id>.doctrine.md`.

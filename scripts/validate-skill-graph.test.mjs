@@ -342,3 +342,213 @@ test('closureFor is deterministic, deduplicates fan-in, and tolerates an unknown
   assert.deepEqual(closureFor(result, 'example/SKILL.md'), closure);
   assert.deepEqual(closureFor(result, 'example/missing.md'), ['example/missing.md']);
 });
+
+/**
+ * Level namespace enforcement.
+ *
+ * The composition level is derived from the path, so these tests attack the
+ * gap between what a file claims and where it actually lives. Every case here
+ * is a way the model could be violated while every other check stayed green,
+ * and every one of them passed validation before it was written.
+ */
+
+function unit(name, level, includes, body, requiresSkills = []) {
+  return [
+    '---',
+    `name: ${name}`,
+    'description: a unit under test',
+    `level: ${level}`,
+    `includes: ${JSON.stringify(includes)}`,
+    `requires-skills: ${JSON.stringify(requiresSkills)}`,
+    '---',
+    '',
+    body,
+  ].join('\n');
+}
+
+const ATOM = (name) => unit(name, 'atom', [], `# ${name}\n`);
+
+test('accepts a molecule composing atoms in their level namespaces', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_atoms/alpha.mjs': 'export const alpha = 1;\n',
+    'skills/_base/_atoms/alpha.test.mjs': '// seam test\n',
+    'skills/_base/_atoms/beta.md': ATOM('beta'),
+    'skills/_base/_molecules/combo.md': unit(
+      'combo',
+      'molecule',
+      ['_base/_atoms/alpha.md', '_base/_atoms/beta.md', '_base/_molecules/combo.mjs'],
+      '# combo\n\n## Required References\n\n1. [Alpha](../_atoms/alpha.md)\n2. [Beta](../_atoms/beta.md)\n\n## Required Files\n\n1. [Local](./combo.mjs)\n',
+    ),
+    'skills/_base/_molecules/combo.mjs': 'export const combo = 1;\n',
+  });
+  const result = validateRepository(root);
+  // closureFor walks Markdown units only; a local support file is mirror
+  // validated but is not a node in the composition graph.
+  assert.deepEqual(closureFor(result, '_base/_molecules/combo.md'), [
+    '_base/_molecules/combo.md',
+    '_base/_atoms/alpha.md',
+    '_base/_atoms/beta.md',
+  ]);
+});
+
+test('rejects a unit whose declared level contradicts its namespace', (t) => {
+  const root = fixture(t, { 'skills/_base/_atoms/alpha.md': unit('alpha', 'molecule', [], '# alpha\n') });
+  assert.throws(() => validateRepository(root), /level must be atom to match its namespace/);
+});
+
+test('rejects a file in a level namespace that is not a unit at all', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/ghost.md': '# Ghost\n',
+    'skills/_base/_atoms/ghost.mjs': 'export const ghost = 1;\n',
+  });
+  assert.throws(() => validateRepository(root), /must be a unit declaring frontmatter with includes/);
+});
+
+test('rejects a unit that omits name or description', (t) => {
+  const noName = fixture(t, {
+    'skills/_base/_atoms/alpha.md': '---\ndescription: d\nlevel: atom\nincludes: []\nrequires-skills: []\n---\n\n# alpha\n',
+  });
+  assert.throws(() => validateRepository(noName), /must declare name/);
+
+  const noDescription = fixture(t, {
+    'skills/_base/_atoms/alpha.md': '---\nname: alpha\nlevel: atom\nincludes: []\nrequires-skills: []\n---\n\n# alpha\n',
+  });
+  assert.throws(() => validateRepository(noDescription), /must declare description/);
+});
+
+test('rejects a unit whose name does not match its file name', (t) => {
+  const root = fixture(t, { 'skills/_base/_atoms/beta.md': ATOM('not-beta') });
+  assert.throws(() => validateRepository(root), /name not-beta must match the unit file name beta/);
+});
+
+test('rejects an atom that references another unit', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': unit(
+      'alpha',
+      'atom',
+      ['_base/_atoms/beta.md'],
+      '# alpha\n\n## Required References\n\n1. [Beta](./beta.md)\n',
+    ),
+    'skills/_base/_atoms/beta.md': ATOM('beta'),
+  });
+  assert.throws(() => validateRepository(root), /an atom references no other unit/);
+});
+
+test('rejects a molecule that composes fewer than two units', (t) => {
+  const none = fixture(t, { 'skills/_base/_molecules/combo.md': unit('combo', 'molecule', [], '# combo\n') });
+  assert.throws(() => validateRepository(none), /composes two or more units; found 0/);
+
+  const one = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_molecules/combo.md': unit(
+      'combo',
+      'molecule',
+      ['_base/_atoms/alpha.md'],
+      '# combo\n\n## Required References\n\n1. [Alpha](../_atoms/alpha.md)\n',
+    ),
+  });
+  assert.throws(() => validateRepository(one), /composes two or more units; found 1/);
+});
+
+test('rejects upward composition from a molecule to a routable skill', (t) => {
+  const root = fixture(t, {
+    'skills/demo/SKILL.md': participating([], '# Demo\n'),
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_molecules/combo.md': unit(
+      'combo',
+      'molecule',
+      ['_base/_atoms/alpha.md', 'demo/SKILL.md'],
+      '# combo\n\n## Required References\n\n1. [Alpha](../_atoms/alpha.md)\n2. [Demo](../../demo/SKILL.md)\n',
+    ),
+  });
+  assert.throws(() => validateRepository(root), /composes only atoms and molecules/);
+});
+
+test('rejects a molecule including a support file that is not its own', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_atoms/alpha.mjs': 'export const alpha = 1;\n',
+    'skills/_base/_atoms/beta.md': ATOM('beta'),
+    'skills/_base/_molecules/combo.md': unit(
+      'combo',
+      'molecule',
+      ['_base/_atoms/alpha.md', '_base/_atoms/alpha.mjs', '_base/_atoms/beta.md'],
+      '# combo\n\n## Required References\n\n1. [Alpha](../_atoms/alpha.md)\n2. [Beta](../_atoms/beta.md)\n\n## Required Files\n\n1. [Foreign](../_atoms/alpha.mjs)\n',
+    ),
+  });
+  assert.throws(() => validateRepository(root), /may include only its own local support files/);
+});
+
+test('rejects a level declared outside a level namespace', (t) => {
+  const root = fixture(t, { 'skills/example/SKILL.md': unit('example', 'atom', [], '# Example\n') });
+  assert.throws(() => validateRepository(root), /does not live in a level namespace/);
+});
+
+test('rejects requires-skills inside a level namespace', (t) => {
+  const root = fixture(t, {
+    'skills/other/SKILL.md': participating([], '# Other\n'),
+    'skills/_base/_atoms/alpha.md': unit('alpha', 'atom', [], '# alpha\n', [
+      { id: 'other', source: 'local', required: true },
+    ]),
+  });
+  assert.throws(() => validateRepository(root), /must not declare requires-skills/);
+});
+
+test('rejects a support file with no matching unit in its level namespace', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_atoms/orphan.mjs': 'export const orphan = 1;\n',
+  });
+  assert.throws(() => validateRepository(root), /has no matching orphan.md unit/);
+});
+
+test('accepts a suffixed support file that names its unit', (t) => {
+  const root = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_atoms/beta.md': ATOM('beta'),
+    'skills/_base/_molecules/combo.md': unit(
+      'combo',
+      'molecule',
+      ['_base/_atoms/alpha.md', '_base/_atoms/beta.md'],
+      '# combo\n\n## Required References\n\n1. [Alpha](../_atoms/alpha.md)\n2. [Beta](../_atoms/beta.md)\n',
+    ),
+    'skills/_base/_molecules/combo.adversarial.test.mjs': '// hostile input\n',
+  });
+  assert.doesNotThrow(() => validateRepository(root));
+});
+
+test('rejects a subdirectory inside a level namespace', (t) => {
+  const nestedUnit = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_atoms/nested/deep.md': ATOM('deep'),
+  });
+  assert.throws(() => validateRepository(nestedUnit), /a unit file name must be a non-empty unit name/);
+
+  const nestedSupport = fixture(t, {
+    'skills/_base/_atoms/alpha.md': ATOM('alpha'),
+    'skills/_base/_atoms/nested/deep.mjs': 'export const deep = 1;\n',
+  });
+  assert.throws(() => validateRepository(nestedSupport), /a level namespace is flat/);
+});
+
+test('rejects a symbolic link inside a level namespace', (t) => {
+  const root = fixture(t, { 'skills/_base/_atoms/alpha.md': ATOM('alpha') });
+  const outside = path.join(root, 'outside.mjs');
+  fs.writeFileSync(outside, 'export const outside = 1;\n');
+  fs.symlinkSync(outside, path.join(root, 'skills/_base/_atoms/alpha.mjs'));
+  assert.throws(() => validateRepository(root), /must not contain a symbolic link/);
+});
+
+test('rejects a symlinked Markdown file impersonating a unit', (t) => {
+  const root = fixture(t, { 'skills/_base/_atoms/alpha.md': ATOM('alpha') });
+  const outside = path.join(root, 'outside.md');
+  fs.writeFileSync(outside, ATOM('escape'));
+  fs.symlinkSync(outside, path.join(root, 'skills/_base/_atoms/escape.md'));
+  assert.throws(() => validateRepository(root), /must not contain a symbolic link/);
+});
+
+test('rejects a dotfile Markdown name in a level namespace', (t) => {
+  const root = fixture(t, { 'skills/_base/_atoms/.md': '# Dot\n' });
+  assert.throws(() => validateRepository(root), /must be a unit declaring frontmatter with includes/);
+});

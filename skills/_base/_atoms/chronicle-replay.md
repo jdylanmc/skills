@@ -1,17 +1,32 @@
 ---
+name: chronicle-replay
+description: Replay one explicitly selected Skill Run Log and return the reconstructed run state with any defects. Read only.
+level: atom
+allowed-tools: ["execute"]
 includes: []
-requires-skills: []
 ---
 
-# Replay Contract
+# Chronicle Replay
 
-Replay reconstructs Skill Run State from one explicitly selected Skill Run Log.
-It is read only. It never repairs, reorders, or invents evidence, and it never
+Reconstruct Skill Run State from one explicitly selected Skill Run Log. This
+atom is read only. It never repairs, reorders, or invents evidence, and it never
 repeats a recorded side effect.
 
-## Result
+## Operation
 
-Replay returns JSON:
+```text
+node <atoms>/chronicle-replay.mjs "$selected_log_path" [--log-id <opaque-id>]
+```
+
+Exit `0` prints the reconstructed state as JSON, including any defects. A
+non-zero exit means the selected log could not be read at all. Use `--log-id`
+when the absolute path must stay out of published output. Check availability
+with `--probe`.
+
+Replay only a log the operator explicitly selected. Never infer a run from the
+newest file on disk.
+
+## Result
 
 - `log_id` - the selected path, or the opaque identifier supplied with `--log-id`;
 - `run_id` and `root_skill` - taken from the first usable record;
@@ -44,6 +59,9 @@ An anchor is the physical line of the record in the selected log, written
 
 A defect never stops replay. Later records stay usable, and the reader decides
 how much confidence the remaining evidence supports.
+
+Every persisted bound is revalidated on read, so a record edited outside the
+append path is reported rather than trusted.
 
 ## Consumer Rules
 

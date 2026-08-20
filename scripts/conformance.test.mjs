@@ -24,9 +24,9 @@ import { closureFor, validateRepository } from './validate-skill-graph.mjs';
 const execFileAsync = promisify(execFile);
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const CHRONICLER = path.join(REPOSITORY_ROOT, 'skills', '_base', 'chronicler');
-const EMIT = path.join(CHRONICLER, 'scripts', 'emit-event.mjs');
-const REPLAY = path.join(CHRONICLER, 'scripts', 'replay-log.mjs');
+const ATOMS = path.join(REPOSITORY_ROOT, 'skills', '_base', '_atoms');
+const EMIT = path.join(ATOMS, 'chronicle-append.mjs');
+const REPLAY = path.join(ATOMS, 'chronicle-replay.mjs');
 const VALIDATOR = path.join(REPOSITORY_ROOT, 'scripts', 'validate-skill-graph.mjs');
 
 const RUN_ID = '20260820T120000Z-conformance';
@@ -261,16 +261,25 @@ test('replay reports a selection it cannot read at all', (t) => {
   assert.match(missing.stderr, /^log_unavailable:/m);
 });
 
-test('the Chronicle base stays out of skill routing and keeps a complete dependency closure', () => {
+test('the Chronicle units stay out of skill routing and keep a complete dependency closure', () => {
   const validation = runCommand(VALIDATOR, []);
   assert.equal(validation.code, 0, validation.stderr);
   assert.match(validation.stdout, /Validated \d+ participating Markdown files/);
 
-  assert.equal(
-    fs.existsSync(path.join(CHRONICLER, 'SKILL.md')),
-    false,
-    'a non-routable base must never contain SKILL.md',
-  );
+  const baseRoot = path.join(REPOSITORY_ROOT, 'skills', '_base');
+  const routableEntryPoints = [];
+  const walk = (directory) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const full = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.name === 'SKILL.md') {
+        routableEntryPoints.push(path.relative(REPOSITORY_ROOT, full));
+      }
+    }
+  };
+  walk(baseRoot);
+  assert.deepEqual(routableEntryPoints, [], 'nothing under _base may contain SKILL.md at any depth');
 
   const routable = fs
     .readdirSync(path.join(REPOSITORY_ROOT, 'skills'), { withFileTypes: true })
@@ -295,7 +304,15 @@ test('Ship with Squadron composes Chronicle through a complete dependency closur
   const result = validateRepository(REPOSITORY_ROOT);
   const closure = closureFor(result, 'ship-with-squadron/SKILL.md');
 
-  assert.ok(closure.includes('_base/chronicler/BASE.md'), 'the consumer must reach the Chronicle base');
+  assert.ok(closure.includes('_base/_molecules/chronicler.md'), 'the consumer must reach the Chronicler molecule');
+  assert.ok(
+    closure.includes('_base/_atoms/chronicle-append.md'),
+    'the consumer must reach the append atom through the molecule',
+  );
+  assert.ok(
+    closure.includes('_base/_atoms/chronicle-replay.md'),
+    'the consumer must reach the replay atom through the molecule',
+  );
   assert.ok(closure.includes('ship-with-squadron/references/25-run-recording.md'));
   assert.ok(
     result.routableSkills.includes('ship-with-squadron'),
@@ -382,7 +399,9 @@ test('Post-Mortem composes Chronicle and keeps its selected-log evidence referen
   const result = validateRepository(REPOSITORY_ROOT);
   const closure = closureFor(result, 'post-mortem/SKILL.md');
 
-  assert.ok(closure.includes('_base/chronicler/BASE.md'));
+  assert.ok(closure.includes('_base/_molecules/chronicler.md'));
+  assert.ok(closure.includes('_base/_atoms/chronicle-append.md'));
+  assert.ok(closure.includes('_base/_atoms/chronicle-replay.md'));
   assert.ok(closure.includes('post-mortem/references/skill-run-log-evidence.md'));
   assert.ok(result.routableSkills.includes('post-mortem'));
 });
