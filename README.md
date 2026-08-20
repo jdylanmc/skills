@@ -32,6 +32,40 @@ on it. It is never routed to, listed as a skill, or invoked directly. Its
 deterministic support files may live in `scripts/` and `tests/` subdirectories
 of the same base package.
 
+## Dependency Mirror
+
+A Markdown file opts in to dependency validation by declaring `includes` in its
+frontmatter. `includes` is a JSON array of skills-root-relative paths that
+mirrors exactly the local links in that file's `## Required References` or
+`## Required Files` section. `requires-skills` is a JSON array of routable
+skill dependencies, each `{"id": "<skill-name>", "source": "local" | "external",
+"required": true | false}`.
+
+```yaml
+---
+includes: ["_base/common/BASE.md", "example/references/a.md", "example/scripts/run.mjs"]
+requires-skills: [{"id": "handoff", "source": "external", "required": true}]
+---
+```
+
+Rules the validator enforces:
+
+- Both fields are single-line JSON. Block-style YAML lists are not accepted.
+- The mirror covers every local link in a required section, including links to
+  non-Markdown support files. Links elsewhere in the file are ignored.
+- Use inline links. Reference-style links in a required section are rejected
+  because the mirror cannot see them.
+- Opt-in is transitive. Every Markdown file reachable through `includes` must
+  itself declare `includes`, so an opted-in entry point has a complete closure.
+- Paths are normalized, forward-slash, case-exact, inside the skills root, and
+  free of cycles and duplicates.
+
+Markdown remains the runtime authority. The frontmatter is a machine-readable
+mirror, not a directive to load every listed file into context. A file with no
+`includes` field is ignored entirely, so skills adopt the convention one
+closure at a time. Run `node scripts/validate-skill-graph.mjs` to check every
+opted-in file.
+
 Agents are standalone `.agent.md` files. Prompt Coach reviews single-prompt
 quality; Skill Coach reviews skill package and workflow quality; Simplified
 Technical English Coach reviews documentation-production guardrails. Artifact
@@ -78,5 +112,6 @@ This repository does not currently ship that external prerequisite.
 3. Keep the entry point concise and link every required reference.
 4. Run Skill Coach against the complete package; use Prompt Coach for any embedded prompt wording.
 5. Preserve applicable licenses and attribution when adapting material from another source.
+6. Run `node scripts/validate-skill-graph.mjs` and `node --test scripts/validate-skill-graph.test.mjs`.
 
 Do not use JSON manifests or generated mirrors as the canonical skill format.
