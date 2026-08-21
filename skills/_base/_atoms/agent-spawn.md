@@ -92,4 +92,3 @@ by another unit.
 A caller that needs an untrusted-evidence posture, a report contract, or a
 severity vocabulary supplies them inside `prompt`. This atom carries no opinion
 about any of them.
-

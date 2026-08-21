@@ -24,7 +24,7 @@ reader exactly what was not verified.
 | `required-headings` | no | Headings that must each appear exactly once, in the given order. |
 | `required-fields` | no | Field names that must appear with a non-empty value. |
 | `terminator` | no | A line that must be the final line. |
-| `echo-identity` | no | A value the report must reproduce unchanged, such as a candidate identifier or content hash. |
+| `echo-identity` | no | A value the report must reproduce **unchanged**. Supply the value, and optionally the sections it must appear in and whether every returned finding must carry it equal to that value. A present-but-different value is a mismatch, not a pass. |
 | `required-per-finding` | no | Fields every returned finding must carry, such as evidence, location, confidence, or validation method. |
 | `prior-dispositions` | no | Finding identities the report must reconcile rather than silently drop. |
 

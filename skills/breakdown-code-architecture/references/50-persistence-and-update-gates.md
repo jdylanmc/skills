@@ -23,10 +23,15 @@ When persistence is requested:
 4. Preserve unrelated sections and user-authored notes in an existing document.
 5. Perform the write through the write-approved molecule named above, supplying
    `approval-phrase` `Approve and write`, the resolved destination, whether the
-   action creates or updates, the complete proposed document or a precise
-   section-level diff as `content`, any statements that will remain marked as
-   unknown as `uncertainties`, and resolution of every evidence link and
-   relative path as a `post-check`.
+   action creates or updates, the **complete resulting document** as `content`,
+   `scope` set to exactly that one document at that one path, any statements
+   that will remain marked as unknown as `uncertainties`, and resolution of
+   every evidence link and relative path as a `post-checks` entry.
+
+   The preview may show a precise section-level diff instead of the whole
+   document when that is clearer, but `content` is always the complete
+   resulting document. A diff is never passed as `content`; it would be written
+   literally.
 
 The molecule owns the preview, the approval, the re-read before writing, the
 abort when the destination changed after the preview, the verification, and the

@@ -56,14 +56,18 @@ The caller supplies the context; this molecule supplies the protocol.
 
 3. **Validate.** Use
    [Review validate report](../_atoms/review-validate-report.md) with the STE
-   Coach output contract, `echo-identity` set to `candidate-identity`, the
-   per-finding fields from step 1, and `prior-dispositions` from step 2.
+   Coach output contract, the per-finding fields from step 1, and
+   `prior-dispositions` from step 2. Set `echo-identity` to
+   `candidate-identity`, require it in `Skill Summary`, and require **every**
+   returned finding to carry it equal to that value. An identity that is present
+   but different is a mismatch.
 
-4. **Retry once.** On `Invalid`, repeat step 1 exactly once with a fresh run and
-   the exact defects named. A retry never reuses the failed run's context.
+4. **Retry once.** On `Invalid`, on a timed-out run, or on a run that could not
+   read the package, repeat step 1 exactly once with a fresh run and the exact
+   defects or failure named. A retry never reuses the failed run's context.
 
-5. **Report unavailable.** When the second attempt is `Invalid`, or the run
-   times out, or the coach document cannot be read, treat STE Coach as
+5. **Report unavailable.** When the second attempt also fails for any of those
+   reasons, or the coach document cannot be read at all, treat STE Coach as
    **unavailable** and apply `degraded-policy`. Never treat an unavailable coach
    as a clean review.
 

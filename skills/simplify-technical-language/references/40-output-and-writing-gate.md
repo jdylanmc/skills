@@ -130,7 +130,8 @@ When the user explicitly requests a file:
    [Approved and verified write](../../_base/_molecules/write-approved.md),
    supplying `approval-phrase` `Approve and write`, the resolved destination,
    the complete explanation as `content`, whether the action creates or
-   updates, and the content-quality gate as a `post-check`.
+   updates, `scope` set to exactly that one file at that one path, and the
+   content-quality gate as a `post-checks` entry.
 
 The molecule owns the preview, the approval, the stale-approval rule, the
 verified write, and the restore. Do not restate any of it here.

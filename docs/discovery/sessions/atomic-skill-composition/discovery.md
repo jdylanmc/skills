@@ -9,7 +9,7 @@ anchor-status: unchanged
 question-group-size: 12
 last-question-group-size: 12
 last-cycle: c-0004
-cycle-state: complete
+cycle-state: in-progress
 state-digest: d3a54f4c63b0a47837bee0d82aadacaa0bf34064426d8dc3274a8773752bb58a
 root-map-digest: c5e43509fb5b23f35e9b4f938f13ba6c26ca4f338467327ad1374fd081259324
 root-lexicon-digest: 08946ae544bc2c59fa295daa55af4656fdba8ad3e6d4e951e77bb8b76106b135
