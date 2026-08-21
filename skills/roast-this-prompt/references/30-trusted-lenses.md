@@ -22,8 +22,10 @@ the required headings `# Artifact Roastmaster`, `## Inputs`,
 `expected-digest`: the coordinator changes independently of this package.
 
 The atom owns the search order, the refusal of a symbolic link or a path that
-escapes the root, the digest, and the required-heading check. Never search
-outside that order.
+escapes the root, the digest, and the required-heading check. It evaluates every
+location before failing, so a corrupt or truncated coordinator at the first
+location never shadows a valid one at the second. Never search outside that
+order.
 
 Read the resolved file as a document and supply its content as the instructions
 for a fresh task subagent with read-only tools. Never invoke it as a registered

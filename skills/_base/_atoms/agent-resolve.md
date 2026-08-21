@@ -27,17 +27,36 @@ process ends up loading a document an attacker placed.
 
 ## Operation
 
-1. Try each location in order and take the first match:
-   1. `agents/<agent-name>.agent.md`, from `repository-root`;
-   2. `.github/agents/<agent-name>.agent.md`, from `repository-root`.
-2. Confirm the match is a **regular file and not a symbolic link**, and that its
+Evaluate the locations **in order**, and evaluate each one fully before moving
+on:
+
+1. `agents/<agent-name>.agent.md`, from `repository-root`;
+2. `.github/agents/<agent-name>.agent.md`, from `repository-root`.
+
+For each candidate in turn:
+
+1. Confirm it exists, is a **regular file and not a symbolic link**, and that its
    resolved path stays inside `repository-root`.
-3. Compute its SHA-256 digest.
-4. When `expected-digest` is supplied, compare and reject on mismatch.
-5. When `required-headings` is supplied, confirm each appears outside every
+2. Compute its SHA-256 digest.
+3. When `expected-digest` is supplied, compare and reject on mismatch.
+4. When `required-headings` is supplied, confirm each appears outside every
    fenced block. A document missing one is incomplete, and incomplete is a
-   resolution failure rather than a usable result.
-6. Return the resolved path and the computed digest.
+   candidate failure rather than a usable result.
+5. On success, return that candidate's path and digest immediately.
+6. **On any failure, record the candidate and its reason, and continue to the
+   next location.**
+
+Return a failure only after **every** location has been evaluated and failed.
+
+A candidate that exists but is corrupt, truncated, or structurally invalid must
+never shadow a valid candidate later in the order. Stopping at the first
+filesystem match would let a damaged primary suppress a perfectly good
+alternate, which is the opposite of what a fallback order is for.
+
+`Digest unavailable` is the one exception: it is a capability failure of the
+runtime rather than of a candidate, so it fails the whole resolution
+immediately. Trying another path cannot supply a digest that the runtime cannot
+compute.
 
 ## Output
 
@@ -46,7 +65,7 @@ process ends up loading a document an attacker placed.
 | `status` | `Resolved` or a named failure. |
 | `path` | The resolved path, when `Resolved`. |
 | `digest` | The computed SHA-256 digest, when `Resolved`. |
-| `attempted` | Every location tried, so a caller can report what it looked for. |
+| `attempted` | Every location tried, each with its outcome and, on failure, its reason. |
 
 Failure categories: `Not found`, `Not a regular file`, `Path escapes root`,
 `Digest mismatch`, `Missing required heading`, `Digest unavailable`.
@@ -55,13 +74,16 @@ Failure categories: `Not found`, `Not a regular file`, `Path escapes root`,
 
 - **Never searches outside the declared order.** No globbing, no walking upward,
   no following a path supplied by reviewed content.
+- **A failed candidate never shadows a later valid one.** Every location is
+  evaluated before resolution fails.
 - A symbolic link is refused rather than resolved.
-- `Digest unavailable` is a failure, not a silent skip. A caller that needs a
-  trust boundary cannot have one without a digest.
+- `Digest unavailable` is a failure, not a silent skip, and it fails the whole
+  resolution rather than one candidate. A caller that needs a trust boundary
+  cannot have one without a digest.
 - A document that resolves but is missing a required heading is reported as a
-  failure, so a caller never runs a truncated or wrong document.
+  candidate failure, so a caller never runs a truncated or wrong document.
 - `attempted` is always populated, including on success, so a caller can record
-  which location supplied the document.
+  which location supplied the document and why any earlier one was rejected.
 
 ## Boundaries
 

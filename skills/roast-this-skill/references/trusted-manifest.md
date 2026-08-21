@@ -5,7 +5,7 @@ trusted-files:
   - id: bundled-lenses
     path: 30-trusted-lenses.md
     source-path: skills/roast-this-skill/references/30-trusted-lenses.md
-    sha256: cc63d9f69909d46790d6a098fee1960464d403068cbc69c028ec96769c928d10
+    sha256: b0f4c73cfe36763780ab970c860f3a154c3ab813cebdad2f4cec5c7443339480
 ---
 
 # Trusted Manifest
