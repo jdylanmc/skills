@@ -15,7 +15,7 @@ function toPosix(value) {
   return value.split(path.sep).join('/');
 }
 
-function readFrontmatter(rawContent, file) {
+export function readFrontmatter(rawContent, file) {
   const content = rawContent.replace(/\r\n/g, '\n');
   if (!content.startsWith('---\n')) {
     return null;
@@ -56,6 +56,8 @@ function readFrontmatter(rawContent, file) {
     level: fields.get('level') ?? null,
     includes: parseJsonField('includes', null),
     requiresSkills: parseJsonField('requires-skills', []),
+    allowedTools: parseJsonField('allowed-tools', null),
+    usedBy: parseJsonField('used-by', null),
   };
 }
 

@@ -4,6 +4,7 @@ description: Replay one explicitly selected Skill Run Log and return the reconst
 level: atom
 allowed-tools: ["execute"]
 includes: []
+used-by: ["_base/_molecules/chronicler.md"]
 ---
 
 # Chronicle Replay

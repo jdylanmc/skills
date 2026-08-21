@@ -4,6 +4,7 @@ description: Append one bounded event to a Skill Run Log. Recording is best effo
 level: atom
 allowed-tools: ["execute"]
 includes: []
+used-by: ["_base/_molecules/chronicler.md"]
 ---
 
 # Chronicle Append

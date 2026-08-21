@@ -4,6 +4,7 @@ description: Validate one returned report against one declared contract and retu
 level: atom
 allowed-tools: []
 includes: []
+used-by: ["_base/_molecules/review-ste-coach.md"]
 ---
 
 # Review Validate Report
