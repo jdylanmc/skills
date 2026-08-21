@@ -2,14 +2,10 @@
 schema-version: 1
 package: roast-this-prompt
 trusted-files:
-  - id: artifact-roastmaster-snapshot
-    path: agents/artifact-roastmaster.agent.md
-    source-path: agents/artifact-roastmaster.agent.md
-    sha256: 79b6b059d9d6d0a1c8024b8ce15f08d916fbd4c9e280d0795891cd5e8c7ef478
   - id: bundled-lenses
     path: 30-trusted-lenses.md
     source-path: skills/roast-this-prompt/references/30-trusted-lenses.md
-    sha256: 3750de75ebf1731561d85acfe1c47f35a002734ca41bb47b6699f26657c8deee
+    sha256: f5269212590c62524630453dfd379766fe8e48f02ad3e8e7aeb0bd3020497be4
 ---
 
 # Trusted Manifest
@@ -26,16 +22,12 @@ any check is not loaded.
 If the runtime cannot compute a digest, do not load any trusted source or
 launch the coordinator. Return `Insufficient review`.
 
-`artifact-roastmaster-snapshot` is a copy of the repository agent. When the
-repository agent resolves and its digest differs from the recorded value, use
-the repository agent and record `Snapshot drift` as an evidence gap.
-
 Repository coach agents are deliberately absent from this manifest. They change
 independently of this package, so they carry no expected digest. The coordinator
 verifies such a file structurally, records the digest it computed as the actual
 digest for that lens, and uses it for the lens drift check in
 [Trusted lenses](./30-trusted-lenses.md).
 
-After editing either source file, refresh the copy and regenerate the digest
+After editing the source file, refresh the copy and regenerate the digest
 with `shasum -a 256`, then update the matching entry above. The commands are in
 [Roast This Prompt](../README.md) under `## Maintenance`.

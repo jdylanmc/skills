@@ -43,20 +43,13 @@ doctrine/manifest.md
 skills/roast-this-skill/
 ```
 
-The package also installs standalone at `.github/skills/roast-this-skill/` or
-`~/.agents/skills/roast-this-skill/`. A standalone install works on its first
-run:
+The package may be installed at `.github/skills/roast-this-skill/` or
+`~/.agents/skills/roast-this-skill/`. It resolves the coordinator and every coach agent
+from `agents/` or `.github/agents/`, so those agent files must be present
+alongside it. This package vendors no copy of either.
 
-- the coordinator resolves to the bundled snapshot at
-  `references/agents/artifact-roastmaster.agent.md`;
-- every lens resolves to its bundled configuration in
-  `references/30-trusted-lenses.md`;
-- shared doctrine is absent, which is a supported state recorded as
-  `Doctrine status: unavailable`.
-
-Copying `agents/artifact-roastmaster.agent.md` and the coach agent files to
-`.github/agents/` restores the repository sources, which take precedence over
-the bundled copies. Resolution order and integrity rules are in
+Shared doctrine may be absent, which is a supported state recorded as
+`Doctrine status: unavailable`. Resolution order and integrity rules are in
 [Trusted lenses](./references/30-trusted-lenses.md).
 
 ## Package layout
@@ -70,28 +63,16 @@ skills/roast-this-skill/
     20-failure-and-recovery.md
     30-trusted-lenses.md
     trusted-manifest.md
-    agents/
-      artifact-roastmaster.agent.md
 ```
 
 ## Maintenance
 
-`references/agents/artifact-roastmaster.agent.md` is a copy of
-`agents/artifact-roastmaster.agent.md`. After editing the repository agent or
-`references/30-trusted-lenses.md`, refresh the copy and regenerate the digests:
+After editing `references/30-trusted-lenses.md`, regenerate its digest and
+update the matching entry in `references/trusted-manifest.md`:
 
 ```bash
-cp agents/artifact-roastmaster.agent.md \
-  skills/roast-this-skill/references/agents/artifact-roastmaster.agent.md
-shasum -a 256 \
-  skills/roast-this-skill/references/agents/artifact-roastmaster.agent.md \
-  skills/roast-this-skill/references/30-trusted-lenses.md
+shasum -a 256 skills/roast-this-skill/references/30-trusted-lenses.md
 ```
-
-Update the matching entries in
-[Trusted manifest](./references/trusted-manifest.md). A stale copy is detected
-rather than silently used: the skill prefers the repository agent and records
-`Snapshot drift` when the digests disagree.
 
 A run records `Lens drift` when a coach agent in `agents/` no longer matches the
 bundled lens configuration in `references/30-trusted-lenses.md`. That is the
