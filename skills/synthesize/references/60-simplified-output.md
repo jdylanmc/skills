@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_molecules/review-ste-coach.md"]
+includes: ["_base/_molecules/review-ste-coach/review-ste-coach.md"]
 requires-skills: []
 ---
 
@@ -16,7 +16,7 @@ writing gates do not match this derived artifact.
 
 ## Required References
 
-1. [Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md)
+1. [Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach/review-ste-coach.md)
 
 ## Simplification Packet
 
@@ -87,7 +87,7 @@ A gate failure starts a repair round under the budget in
 
 The review round itself - the dispatch, the response contract, the single retry,
 and the unavailability verdict - is owned by
-[Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md).
+[Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach/review-ste-coach.md).
 Do not restate that protocol here.
 
 This skill supplies the molecule's inputs for each stage:

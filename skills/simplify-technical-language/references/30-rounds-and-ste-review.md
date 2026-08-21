@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_molecules/review-ste-coach.md"]
+includes: ["_base/_molecules/review-ste-coach/review-ste-coach.md"]
 requires-skills: []
 ---
 
@@ -7,7 +7,7 @@ requires-skills: []
 
 ## Required References
 
-1. [Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md)
+1. [Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach/review-ste-coach.md)
 
 ## Round State
 
@@ -55,7 +55,7 @@ available evidence.
 
 The review round itself - the dispatch, the response contract, the single retry,
 and the unavailability verdict - is owned by
-[Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md).
+[Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach/review-ste-coach.md).
 Do not restate that protocol here.
 
 This skill supplies the molecule's inputs for each round:

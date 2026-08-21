@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_molecules/write-approved.md"]
+includes: ["_base/_molecules/write-approved/write-approved.md"]
 requires-skills: []
 ---
 
@@ -7,7 +7,7 @@ requires-skills: []
 
 ## Required References
 
-1. [Approved and verified write](../../_base/_molecules/write-approved.md)
+1. [Approved and verified write](../../_base/_molecules/write-approved/write-approved.md)
 
 ## Derived-Summary Output
 
@@ -127,7 +127,7 @@ When the user explicitly requests a file:
 2. Reuse or update an existing artifact when it has the same identity and
    purpose.
 3. Perform the write through
-   [Approved and verified write](../../_base/_molecules/write-approved.md),
+   [Approved and verified write](../../_base/_molecules/write-approved/write-approved.md),
    supplying `approval-phrase` `Approve and write`, the resolved destination,
    the complete explanation as `content`, whether the action creates or
    updates, `scope` set to exactly that one file at that one path, and the

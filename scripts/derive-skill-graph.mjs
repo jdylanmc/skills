@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { readFrontmatter, validateRepository } from './validate-skill-graph.mjs';
+import { readFrontmatter, unitDescriptor, validateRepository } from './validate-skill-graph.mjs';
 
 /**
  * Derived frontmatter for the composition graph.
@@ -25,8 +25,6 @@ import { readFrontmatter, validateRepository } from './validate-skill-graph.mjs'
  * superset of what its units need, and narrowing it stays a human decision.
  */
 
-const LEVEL_PREFIXES = ['_base/_atoms/', '_base/_molecules/'];
-const MOLECULE_PREFIX = '_base/_molecules/';
 const WILDCARD = '*';
 
 function toPosix(value) {
@@ -34,11 +32,11 @@ function toPosix(value) {
 }
 
 function isUnit(relativeFile) {
-  return LEVEL_PREFIXES.some((prefix) => relativeFile.startsWith(prefix)) && relativeFile.endsWith('.md');
+  return unitDescriptor(relativeFile) !== null;
 }
 
 function isMolecule(relativeFile) {
-  return relativeFile.startsWith(MOLECULE_PREFIX) && relativeFile.endsWith('.md');
+  return unitDescriptor(relativeFile)?.level === 'molecule';
 }
 
 function isSkillEntry(relativeFile) {

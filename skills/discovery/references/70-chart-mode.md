@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_atoms/approval-gate-mutation.md"]
+includes: ["_base/_atoms/approval-gate-mutation/approval-gate-mutation.md"]
 requires-skills: []
 ---
 
@@ -7,7 +7,7 @@ requires-skills: []
 
 ## Required References
 
-1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation/approval-gate-mutation.md)
 
 Use Chart mode when the user brings a loose idea without an existing map.
 

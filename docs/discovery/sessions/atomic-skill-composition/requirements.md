@@ -17,7 +17,7 @@ Each entry links to the node and cycle that produced it.
 | Adoption is proven by collapse: behavior currently duplicated across skills exists exactly once as an atom or molecule, and every former copy is replaced by a reference. | n-0000 | c-0001 |
 | Enforcement is automated and mandatory. The check must prove collapse, not merely that a level was declared. | n-0005 | c-0001 |
 | A molecule may compose atoms or other molecules. | n-0001 | c-0002 |
-| Atom files live at `skills/_base/_atoms/<name>.md`; molecule files at `skills/_base/_molecules/<name>.md`. The level is derivable from the path. | n-0003 | c-0002 |
+| Atom files live at `skills/_base/_atoms/<name>/<name>.md`; molecule files at `skills/_base/_molecules/<name>/<name>.md`. The level is derivable from the path, and each unit's support files are isolated in its same-named root. | n-0003 | post-c-0006 user directive |
 | Atoms and molecules are non-routable, inherited from the existing `_base` exclusion in `validate-skill-graph.mjs`. No new routing mechanism is introduced. | n-0003 | c-0002 |
 | Molecule frontmatter: `name`, `description`, `level`, `includes` authored; `allowed-tools` and `used-by` generated. `requires-skills` is forbidden. | n-0003 | c-0002 |
 | The `level` frontmatter value and the file's path must agree; disagreement fails the build. | n-0003 | c-0002 |
@@ -28,9 +28,8 @@ Each entry links to the node and cycle that produced it.
 | The skill level carries no obligation beyond composing rather than restating. Composition is already universal: all 21 skills use `## Required References`, across 165 reference files. | n-0001 | c-0003 |
 | Every reference file carries a level, wherever it lives. Level is a property of the unit, not of its address, so relocating a unit is never a reclassification. | n-0001 | c-0003 |
 | Chronicler is a molecule composing atomic chronicle operations, not a package. `skills/_base/chronicler/` is retired. | n-0006 | c-0003 |
-| Deterministic scripts and their tests are co-located by basename with the unit they implement: `<unit>.md`, `<unit>.mjs`, `<unit>.test.mjs`. | n-0003 | c-0003 |
-| Unit names follow `<domain>-<verb>[-<object>].md`: kebab-case, lowercase, globally unique, no numeric prefix, and no level suffix. Domain first, so families cluster alphabetically in a flat namespace. | n-0003 | c-0005 |
-| A level namespace stays flat. The domain prefix supplies grouping at no cost to addressing. Revisit when one domain prefix exceeds roughly twenty units. | n-0003 | c-0005 |
+| Deterministic scripts and their tests are co-located by basename with the unit they implement inside its same-named root: `<unit>/<unit>.md`, `<unit>/<unit>.mjs`, `<unit>/<unit>.test.mjs`. | n-0003 | post-c-0006 user directive |
+| Unit names follow `<domain>-<verb>[-<object>].md`: kebab-case, lowercase, globally unique, no numeric prefix, and no level suffix. The unit-root migration does not rename them. | n-0003 | c-0005; post-c-0006 user directive |
 | A `## Required References` section contains its list and nothing else, and sits immediately before the next `##` heading. The validator's section scan runs to the next heading or to end of file, so prose links inside the section are captured. Prose elsewhere names a unit rather than linking it. | n-0005 | c-0005 |
 | A unit declares `## Inputs`, `## Output`, `## Guarantees`, and `## Boundaries`. Without a declared contract a caller must read the whole file to compose it, which makes the library a pile of documents rather than an API. | n-0003 | c-0005 |
 | Collapse takes the **union** of the requirements of every copy, then decides per requirement whether it belongs to the unit or to the caller. Collapsing to the most common wording silently drops the strictest copy. | n-0005 | c-0005 |
@@ -59,6 +58,8 @@ is recorded rather than deleted so the reasoning survives.
 
 | Requirement | Node | Confirmed | Revoked | Reason |
 | --- | --- | --- | --- | --- |
+| Atom files live directly at `skills/_base/_atoms/<name>.md`; molecule files live directly at `skills/_base/_molecules/<name>.md`. | n-0003 | c-0002 | post-c-0006 user directive | The user required every atom and molecule to have an encompassing same-named root so all multi-file structures are isolated. |
+| A level namespace stays flat. The domain prefix supplies grouping at no cost to addressing. Revisit when one domain prefix exceeds roughly twenty units. | n-0003 | c-0005 | post-c-0006 user directive | The user explicitly superseded flatness with one same-named root per unit and requested no renaming. |
 | Every reference file carries a level, wherever it lives. Level is a property of the unit, not of its address, so relocating a unit is never a reclassification. | n-0001 | c-0003 | c-0004 | Contradicted the c-0002 requirement that the `level` value and the file's path must agree, which `scripts/validate-skill-graph.mjs` had already implemented. c-0003 recorded it without comparing it against that requirement. The user resolved the conflict in favor of address-derived level in c-0004 Q1, choosing human readability. The shipped merge gate was correct; the written record was wrong. |
 | Atom frontmatter: `name`, `description`, `level`, `allowed-tools` authored; `used-by` generated. `includes` and `requires-skills` are forbidden, and their absence is the enforcement of "an atom references no other unit". | n-0003 | c-0002 | c-0006 | The adopted schema requires the explicit empty mirror `includes: []`, as documented in `AGENTS.md` and enforced across the seven current atoms. |
 
@@ -94,7 +95,7 @@ Carried from repository evidence.
 | Whether the union audit that catches collapse regressions can be automated, or whether it stays a human diff review before merge. Five of seven regressions in the first migration were union losses. | n-0005 | c-0005 |
 | Whether the three vendored copies of `artifact-roastmaster.agent.md` may be collapsed. RESOLVED before c-0006 by #38: all three copies were deleted when standalone installation was dropped. | n-0007 | c-0004 |
 | The naming convention for a global flat namespace. RESOLVED in c-0005. | n-0003 | c-0004 |
-| Whether a level namespace stays flat at scale. RESOLVED in c-0005: yes, with a revisit threshold. | n-0003 | c-0004 |
+| Whether a level namespace stays flat at scale. RESOLVED in c-0005, then superseded after c-0006 by the direct requirement for one same-named isolation root per unit. | n-0003 | c-0004 |
 | The true atoms-per-file ratio, and therefore the endpoint unit count. RESOLVED in c-0005 by measurement: roughly 1.5 units per duplicated behavior, and materially fewer than one unit per reference file. | n-0004 | c-0004 |
 | Whether classification proceeds across all 21 skills at once or incrementally, and whether a skill may remain unclassified. PARTIALLY RESOLVED in c-0004: incrementally, value-first, and no skill remains unclassified because the endpoint is total. | n-0004 | c-0003 |
 | Which of the 165 reference files are genuinely duplicated rather than merely similar. RESOLVED in c-0004 by the verified inventory: 36 files in 12 clusters, 26 in rejected near-misses, 103 genuinely skill-specific. | n-0007 | c-0003 |

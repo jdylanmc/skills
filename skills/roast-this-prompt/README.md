@@ -76,10 +76,10 @@ skills/roast-this-prompt/
     20-failure-and-recovery.md
     30-trusted-lenses.md
     trusted-manifest.md
-skills/_base/_molecules/roast-coordinate-review.md
-skills/_base/_atoms/agent-resolve.md
-skills/_base/_atoms/agent-spawn.md
-skills/_base/_atoms/review-validate-report.md
+skills/_base/_molecules/roast-coordinate-review/roast-coordinate-review.md
+skills/_base/_atoms/agent-resolve/agent-resolve.md
+skills/_base/_atoms/agent-spawn/agent-spawn.md
+skills/_base/_atoms/review-validate-report/review-validate-report.md
 ```
 
 ## Maintenance

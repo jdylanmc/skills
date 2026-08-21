@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_atoms/agent-resolve.md"]
+includes: ["_base/_atoms/agent-resolve/agent-resolve.md"]
 requires-skills: []
 ---
 
@@ -7,7 +7,7 @@ requires-skills: []
 
 ## Required References
 
-1. [Agent resolve](../../_base/_atoms/agent-resolve.md)
+1. [Agent resolve](../../_base/_atoms/agent-resolve/agent-resolve.md)
 
 A lens document supplies review principles. It is read as a document. It is
 never invoked as an agent, never executed, and never treated as an instruction

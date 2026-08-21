@@ -66,14 +66,14 @@ export function readFrontmatter(rawContent, file) {
  * its path, so the filesystem is the authority and the `level` field is a
  * cross-check rather than a claim the graph has to trust.
  */
-const LEVEL_NAMESPACES = new Map([
+export const LEVEL_NAMESPACES = new Map([
   ['_base/_atoms/', 'atom'],
   ['_base/_molecules/', 'molecule'],
 ]);
 
-function levelNamespaceOf(relativeFile) {
+function levelNamespaceOf(relativePath) {
   for (const [prefix, level] of LEVEL_NAMESPACES) {
-    if (relativeFile.startsWith(prefix)) {
+    if (relativePath.startsWith(prefix)) {
       return { prefix, level };
     }
   }
@@ -81,13 +81,28 @@ function levelNamespaceOf(relativeFile) {
 }
 
 /**
- * A unit is exactly one Markdown file, so a level namespace is flat: no
- * subdirectories, and every non-Markdown file must be named after the unit it
- * belongs to. `chronicler.adversarial.test.mjs` belongs to `chronicler.md`
- * because the first dot-separated segment is the unit name.
+ * A unit root is `<level-namespace>/<unit-name>/`. Its canonical Markdown file
+ * repeats the unit name, and every support file is isolated in the same root.
  */
 function unitNameOf(baseName) {
   return baseName.split('.')[0];
+}
+
+export function unitDescriptor(relativeFile) {
+  const namespace = levelNamespaceOf(relativeFile);
+  if (!namespace) {
+    return null;
+  }
+  const remainder = relativeFile.slice(namespace.prefix.length);
+  const segments = remainder.split('/');
+  if (segments.length !== 2 || !segments[0] || segments[1] !== `${segments[0]}.md`) {
+    return null;
+  }
+  return {
+    ...namespace,
+    name: segments[0],
+    root: `${namespace.prefix}${segments[0]}/`,
+  };
 }
 
 function validateLevelNamespaces(skillsRoot, validatedUnits) {
@@ -103,18 +118,33 @@ function validateLevelNamespaces(skillsRoot, validatedUnits) {
       if (entry.isSymbolicLink()) {
         throw new Error(`${location}: a level namespace must not contain a symbolic link`);
       }
-      if (entry.isDirectory()) {
-        throw new Error(`${location}: a level namespace is flat; a unit is a single Markdown file`);
+      if (!entry.isDirectory()) {
+        throw new Error(`${location}: a level namespace contains only unit root directories`);
       }
-      if (!entry.isFile()) {
-        throw new Error(`${location}: a level namespace contains only regular files`);
+
+      const unitDirectory = path.join(directory, entry.name);
+      for (const child of fs.readdirSync(unitDirectory, { withFileTypes: true })) {
+        const childLocation = `${location}/${child.name}`;
+        if (child.isSymbolicLink()) {
+          throw new Error(`${childLocation}: a unit root must not contain a symbolic link`);
+        }
+        if (!child.isFile()) {
+          throw new Error(`${childLocation}: a unit root contains only regular files`);
+        }
+        if (child.name === `${entry.name}.md`) {
+          continue;
+        }
+        if (child.name.endsWith('.md')) {
+          throw new Error(`${childLocation}: a unit root contains exactly one Markdown unit file`);
+        }
+        if (unitNameOf(child.name) !== entry.name) {
+          throw new Error(
+            `${childLocation}: support file name must begin with its unit name ${entry.name}`,
+          );
+        }
       }
-      if (entry.name.endsWith('.md')) {
-        continue;
-      }
-      const unit = unitNameOf(entry.name);
-      if (!units.has(unit)) {
-        throw new Error(`${location}: support file has no matching ${unit}.md unit in the same level namespace`);
+      if (!units.has(entry.name)) {
+        throw new Error(`${location}: unit root has no matching ${entry.name}.md unit`);
       }
     }
   }
@@ -275,10 +305,16 @@ export function validateRepository(repositoryRoot) {
     const relativeFile = toPosix(path.relative(skillsRoot, file));
     const parsed = readFrontmatter(fs.readFileSync(file, 'utf8'), relativeFile);
     const namespace = levelNamespaceOf(relativeFile);
+    const unit = unitDescriptor(relativeFile);
+    if (namespace && !unit) {
+      throw new Error(
+        `${relativeFile}: a unit file must be located at <level-namespace>/<unit-name>/<unit-name>.md`,
+      );
+    }
     if (!parsed || parsed.includes === null) {
       if (namespace) {
         throw new Error(
-          `${relativeFile}: a file in a level namespace must be a unit declaring frontmatter with includes`,
+          `${relativeFile}: the Markdown file in a unit root must be <unit-name>/<unit-name>.md and declare frontmatter with includes`,
         );
       }
       continue;
@@ -290,12 +326,9 @@ export function validateRepository(repositoryRoot) {
       throw new Error(`${relativeFile}: requires-skills must be a JSON array`);
     }
 
-    const namespaceLevel = namespace;
+    const namespaceLevel = unit;
     if (namespaceLevel) {
-      const stem = relativeFile.slice(namespaceLevel.prefix.length, -3);
-      if (!stem || stem.includes('/')) {
-        throw new Error(`${relativeFile}: a unit file name must be a non-empty unit name`);
-      }
+      const stem = namespaceLevel.name;
       if (!parsed.name) {
         throw new Error(`${relativeFile}: a unit must declare name`);
       }
@@ -325,12 +358,12 @@ export function validateRepository(repositoryRoot) {
         }
         for (const target of parsed.includes) {
           if (target.endsWith('.md')) {
-            if (!levelNamespaceOf(target)) {
+            if (!unitDescriptor(target)) {
               throw new Error(
-                `${relativeFile}: a molecule composes only atoms and molecules; ${target} is not in a level namespace`,
+                `${relativeFile}: a molecule composes only canonical atoms and molecules; ${target} is not a unit`,
               );
             }
-          } else if (!target.startsWith(`${namespaceLevel.prefix}${stem}.`)) {
+          } else if (!target.startsWith(`${namespaceLevel.root}${stem}.`)) {
             throw new Error(
               `${relativeFile}: a unit may include only its own local support files; found ${target}`,
             );

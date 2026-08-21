@@ -53,7 +53,7 @@ findings section is not evidence of quality.
 ## Schema Validation Failure
 
 The **Validate** operation in
-`skills/_base/_molecules/roast-coordinate-review.md` validates the envelope
+`skills/_base/_molecules/roast-coordinate-review/roast-coordinate-review.md` validates the envelope
 against the Envelope schema 1 checklist in
 [Skill roast contract](./10-skill-roast-contract.md).
 

@@ -2,7 +2,7 @@
 name: roast-this-agent
 description: Adversarially reviews one agent definition and its explicitly linked prompt files with the shared Artifact Roastmaster and independent read-only roasters, then returns one severity-ranked roast. Use when the user asks to roast, pressure-test, or adversarially review an agent. Don't use for a skill package (use roast-this-skill), a single prompt (use roast-this-prompt), source code or a diff (use roast-this-code), running the agent, or applying fixes.
 allowed-tools: ["read", "search", "execute", "task"]
-includes: ["_base/_molecules/roast-coordinate-review.md","roast-this-agent/references/10-agent-roast-contract.md","roast-this-agent/references/20-failure-and-recovery.md","roast-this-agent/references/30-trusted-lenses.md"]
+includes: ["_base/_molecules/roast-coordinate-review/roast-coordinate-review.md","roast-this-agent/references/10-agent-roast-contract.md","roast-this-agent/references/20-failure-and-recovery.md","roast-this-agent/references/30-trusted-lenses.md"]
 ---
 
 # Roast This Agent
@@ -24,7 +24,7 @@ See [Roast This Agent](./README.md) for the shared terms.
 1. [Agent roast contract](./references/10-agent-roast-contract.md)
 2. [Failure reporting and recovery](./references/20-failure-and-recovery.md)
 3. [Trusted lenses](./references/30-trusted-lenses.md)
-4. [Coordinate an Artifact Roast](../_base/_molecules/roast-coordinate-review.md)
+4. [Coordinate an Artifact Roast](../_base/_molecules/roast-coordinate-review/roast-coordinate-review.md)
 
 ## Prerequisites
 
@@ -77,7 +77,7 @@ and failure modes, never its author.
    next source; when no source loads, stop and return the Artifact Roast with
    `Status: Insufficient review`.
 3. Invoke
-   [Coordinate an Artifact Roast](../_base/_molecules/roast-coordinate-review.md)
+   [Coordinate an Artifact Roast](../_base/_molecules/roast-coordinate-review/roast-coordinate-review.md)
    with the verified coordinator document, artifact type `agent`, the agent
    locator and explicitly linked prompt files, the allowed review root, the
    agent roast contract, the resolved lens sources, the doctrine input, model

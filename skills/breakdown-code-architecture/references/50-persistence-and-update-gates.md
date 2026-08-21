@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_molecules/write-approved.md"]
+includes: ["_base/_molecules/write-approved/write-approved.md"]
 requires-skills: []
 ---
 
@@ -7,7 +7,7 @@ requires-skills: []
 
 ## Required References
 
-1. [Approved and verified write](../../_base/_molecules/write-approved.md)
+1. [Approved and verified write](../../_base/_molecules/write-approved/write-approved.md)
 
 ## Default: Conversation Only
 

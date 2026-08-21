@@ -15,13 +15,15 @@ doctrine/
 skills/
   _base/
     _atoms/
-      <atom-name>.md
-      <atom-name>.mjs
-      <atom-name>.test.mjs
+      <atom-name>/
+        <atom-name>.md
+        <atom-name>.mjs
+        <atom-name>.test.mjs
     _molecules/
-      <molecule-name>.md
-      <molecule-name>.mjs
-      <molecule-name>.test.mjs
+      <molecule-name>/
+        <molecule-name>.md
+        <molecule-name>.mjs
+        <molecule-name>.test.mjs
   <skill-name>/
     SKILL.md
     references/
@@ -31,8 +33,9 @@ skills/
 `SKILL.md` is the canonical entry point for every skill. Supporting instructions belong beside it under `references/` and are linked from the skill.
 
 Non-routable shared units live under `skills/_base/` in level namespaces. A unit
-is exactly one Markdown file, and its composition level is derived from its
-path: `_atoms/` holds atoms and `_molecules/` holds molecules.
+is exactly one Markdown file inside a same-named unit root, and its composition
+level is derived from its path: `_atoms/` holds atoms and `_molecules/` holds
+molecules.
 
 An **atom** is one single operation judged from the caller's point of view. It
 references no other unit and declares `includes: []`. A **molecule** composes
@@ -40,13 +43,14 @@ two or more atoms or molecules by reference to produce one bounded outcome. A
 **skill** is the only unit that may be invoked directly: the contract the agent
 understands.
 
-A level namespace is flat and contains only regular files, never symbolic links.
-A support file beside a unit is named after that unit, so `chronicler.mjs` and
-`chronicler.adversarial.test.mjs` both belong to `chronicler.md`, and a unit may
-include only its own local support files. Unit composition and code dependency
-are separate graphs: the unit graph runs strictly downward and is enforced,
-while a unit's local script may import another unit's script so that shared
-implementation is written once.
+A level namespace contains one same-named root directory per unit. Each unit
+root is flat, contains only regular files, and never contains symbolic links. A
+support file beside a unit is named after that unit, so `chronicler.mjs` and
+`chronicler.adversarial.test.mjs` both belong beside `chronicler.md` in
+`_molecules/chronicler/`, and a unit may include only its own local support
+files. Unit composition and code dependency are separate graphs: the unit graph
+runs strictly downward and is enforced, while a unit's local script may import
+another unit's script so that shared implementation is written once.
 
 Nothing under `_base` uses `SKILL.md`. These units are read by the skills that
 compose them and are never routed to, listed as a skill, or invoked directly.

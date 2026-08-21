@@ -25,8 +25,8 @@ const execFileAsync = promisify(execFile);
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ATOMS = path.join(REPOSITORY_ROOT, 'skills', '_base', '_atoms');
-const EMIT = path.join(ATOMS, 'chronicle-append.mjs');
-const REPLAY = path.join(ATOMS, 'chronicle-replay.mjs');
+const EMIT = path.join(ATOMS, 'chronicle-append', 'chronicle-append.mjs');
+const REPLAY = path.join(ATOMS, 'chronicle-replay', 'chronicle-replay.mjs');
 const VALIDATOR = path.join(REPOSITORY_ROOT, 'scripts', 'validate-skill-graph.mjs');
 
 const RUN_ID = '20260820T120000Z-conformance';
@@ -304,13 +304,13 @@ test('Ship with Squadron composes Chronicle through a complete dependency closur
   const result = validateRepository(REPOSITORY_ROOT);
   const closure = closureFor(result, 'ship-with-squadron/SKILL.md');
 
-  assert.ok(closure.includes('_base/_molecules/chronicler.md'), 'the consumer must reach the Chronicler molecule');
+  assert.ok(closure.includes('_base/_molecules/chronicler/chronicler.md'), 'the consumer must reach the Chronicler molecule');
   assert.ok(
-    closure.includes('_base/_atoms/chronicle-append.md'),
+    closure.includes('_base/_atoms/chronicle-append/chronicle-append.md'),
     'the consumer must reach the append atom through the molecule',
   );
   assert.ok(
-    closure.includes('_base/_atoms/chronicle-replay.md'),
+    closure.includes('_base/_atoms/chronicle-replay/chronicle-replay.md'),
     'the consumer must reach the replay atom through the molecule',
   );
   assert.ok(closure.includes('ship-with-squadron/references/25-run-recording.md'));
@@ -399,9 +399,9 @@ test('Post-Mortem composes Chronicle and keeps its selected-log evidence referen
   const result = validateRepository(REPOSITORY_ROOT);
   const closure = closureFor(result, 'post-mortem/SKILL.md');
 
-  assert.ok(closure.includes('_base/_molecules/chronicler.md'));
-  assert.ok(closure.includes('_base/_atoms/chronicle-append.md'));
-  assert.ok(closure.includes('_base/_atoms/chronicle-replay.md'));
+  assert.ok(closure.includes('_base/_molecules/chronicler/chronicler.md'));
+  assert.ok(closure.includes('_base/_atoms/chronicle-append/chronicle-append.md'));
+  assert.ok(closure.includes('_base/_atoms/chronicle-replay/chronicle-replay.md'));
   assert.ok(closure.includes('post-mortem/references/skill-run-log-evidence.md'));
   assert.ok(result.routableSkills.includes('post-mortem'));
 });

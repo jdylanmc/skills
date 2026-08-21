@@ -115,9 +115,9 @@ All three composition levels are now confirmed vocabulary.
 - RESOLVED in c-0004. The duplication inventory is complete and verified: 36 of
   165 reference files fall in 12 clusters, 26 in rejected near-misses, and 103
   are genuinely skill-specific.
-- RESOLVED in c-0005. Unit names use
-  `<domain>-<verb>[-<object>]`, and level namespaces remain flat until one
-  domain prefix exceeds roughly twenty units.
+- RESOLVED in c-0005, then partially superseded by direct user instruction
+  after c-0006. Unit names still use `<domain>-<verb>[-<object>]`, but each unit
+  now has a same-named isolation root inside its level namespace.
 - No material domain-language question was opened in c-0006. The selected
   `roast-coordinate-review` name follows the confirmed composition vocabulary
   and the settled naming convention.

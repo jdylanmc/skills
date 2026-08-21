@@ -2,7 +2,7 @@
 name: synthesize
 description: Distills one large local file into reviewed `.full.md`, `.mini.md`, and `.nano.md` knowledge layers written beside the source, plus a `.simplified.md` explanation derived from mini. Invoke when the user asks to synthesize, distill, compress, or extract durable understanding from a PDF, Markdown document, ebook, text file, or another runtime-readable file and accepts a multi-agent extraction and adversarial review pass. Do not use for ordinary summarization, web research, multiple unrelated sources, files the runtime cannot extract completely, session retrospectives, design discovery, or specification writing.
 allowed-tools: ["read", "search", "edit", "execute", "task"]
-includes: ["_base/_molecules/review-ste-coach.md","synthesize/references/10-input-stage-and-output.md","synthesize/references/20-extraction-and-sharding.md","synthesize/references/30-full-synthesis.md","synthesize/references/40-mini-and-nano.md","synthesize/references/50-fleet-and-review.md","synthesize/references/60-simplified-output.md","synthesize/references/70-provenance-validation-and-errors.md"]
+includes: ["_base/_molecules/review-ste-coach/review-ste-coach.md","synthesize/references/10-input-stage-and-output.md","synthesize/references/20-extraction-and-sharding.md","synthesize/references/30-full-synthesis.md","synthesize/references/40-mini-and-nano.md","synthesize/references/50-fleet-and-review.md","synthesize/references/60-simplified-output.md","synthesize/references/70-provenance-validation-and-errors.md"]
 ---
 
 # Synthesize
@@ -29,7 +29,7 @@ Read and follow these files in order:
 5. [Fleet orchestration and adversarial review](./references/50-fleet-and-review.md)
 6. [Simplified output](./references/60-simplified-output.md)
 7. [Provenance, validation, cleanup, and errors](./references/70-provenance-validation-and-errors.md)
-8. [Review with the Simplified Technical English Coach](../_base/_molecules/review-ste-coach.md)
+8. [Review with the Simplified Technical English Coach](../_base/_molecules/review-ste-coach/review-ste-coach.md)
 
 ## Core Workflow
 

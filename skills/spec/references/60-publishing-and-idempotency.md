@@ -1,5 +1,5 @@
 ---
-includes: ["_base/_atoms/approval-gate-mutation.md"]
+includes: ["_base/_atoms/approval-gate-mutation/approval-gate-mutation.md"]
 requires-skills: []
 ---
 
@@ -7,12 +7,12 @@ requires-skills: []
 
 ## Required References
 
-1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation/approval-gate-mutation.md)
 
 ## Publish Approval
 
 Gate publication through
-[Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
+[Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation/approval-gate-mutation.md)
 with `approval-phrase` `Approve and publish`. The atom owns the offer, the
 explicit-approval rule, and the stale-approval rule.
 

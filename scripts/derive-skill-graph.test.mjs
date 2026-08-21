@@ -32,12 +32,16 @@ function writeAtom(root, name, { tools = [], usedBy = null } = {}) {
     lines.push(`used-by: ${JSON.stringify(usedBy)}`);
   }
   lines.push('---', '', `# ${name}`, '');
-  fs.writeFileSync(path.join(root, 'skills', '_base', '_atoms', `${name}.md`), lines.join('\n'));
+  const directory = path.join(root, 'skills', '_base', '_atoms', name);
+  fs.mkdirSync(directory, { recursive: true });
+  fs.writeFileSync(path.join(directory, `${name}.md`), lines.join('\n'));
 }
 
 function writeMolecule(root, name, composes, { tools = null, usedBy = null } = {}) {
-  const includes = composes.map((unit) => `_base/_atoms/${unit}.md`);
-  const links = composes.map((unit, index) => `${index + 1}. [${unit}](../_atoms/${unit}.md)`);
+  const includes = composes.map((unit) => `_base/_atoms/${unit}/${unit}.md`);
+  const links = composes.map(
+    (unit, index) => `${index + 1}. [${unit}](../../_atoms/${unit}/${unit}.md)`,
+  );
   const lines = ['---', `name: ${name}`, `description: Molecule ${name}.`, 'level: molecule'];
   if (tools !== null) {
     lines.push(`allowed-tools: ${JSON.stringify(tools)}`);
@@ -47,7 +51,9 @@ function writeMolecule(root, name, composes, { tools = null, usedBy = null } = {
     lines.push(`used-by: ${JSON.stringify(usedBy)}`);
   }
   lines.push('---', '', `# ${name}`, '', '## Required References', '', ...links, '');
-  fs.writeFileSync(path.join(root, 'skills', '_base', '_molecules', `${name}.md`), lines.join('\n'));
+  const directory = path.join(root, 'skills', '_base', '_molecules', name);
+  fs.mkdirSync(directory, { recursive: true });
+  fs.writeFileSync(path.join(directory, `${name}.md`), lines.join('\n'));
 }
 
 function writeSkill(root, name, composes, tools) {
@@ -79,7 +85,7 @@ test('a molecule inherits the union of the tools of what it composes', () => {
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
 
   const derived = deriveGraph(root);
-  assert.deepEqual(derived.resolvedTools.get('_base/_molecules/gamma.md'), ['edit', 'read']);
+  assert.deepEqual(derived.resolvedTools.get('_base/_molecules/gamma/gamma.md'), ['edit', 'read']);
 });
 
 test('a molecule composing only tool-free atoms derives an empty tool set', () => {
@@ -89,7 +95,7 @@ test('a molecule composing only tool-free atoms derives an empty tool set', () =
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
 
   const derived = deriveGraph(root);
-  assert.deepEqual(derived.resolvedTools.get('_base/_molecules/gamma.md'), []);
+  assert.deepEqual(derived.resolvedTools.get('_base/_molecules/gamma/gamma.md'), []);
 });
 
 test('used-by records every direct consumer, sorted and deduplicated', () => {
@@ -97,11 +103,11 @@ test('used-by records every direct consumer, sorted and deduplicated', () => {
   writeAtom(root, 'alpha', { tools: ['read'] });
   writeAtom(root, 'beta', { tools: [] });
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
-  writeSkill(root, 'zulu', ['_molecules/gamma.md'], ['read']);
+  writeSkill(root, 'zulu', ['_molecules/gamma/gamma.md'], ['read']);
 
   const derived = deriveGraph(root);
-  assert.deepEqual(derived.usedBy.get('_base/_atoms/alpha.md'), ['_base/_molecules/gamma.md']);
-  assert.deepEqual(derived.usedBy.get('_base/_molecules/gamma.md'), ['zulu/SKILL.md']);
+  assert.deepEqual(derived.usedBy.get('_base/_atoms/alpha/alpha.md'), ['_base/_molecules/gamma/gamma.md']);
+  assert.deepEqual(derived.usedBy.get('_base/_molecules/gamma/gamma.md'), ['zulu/SKILL.md']);
 });
 
 test('a unit with no consumers derives an empty used-by rather than being skipped', () => {
@@ -109,9 +115,12 @@ test('a unit with no consumers derives an empty used-by rather than being skippe
   writeAtom(root, 'orphan', { tools: ['read'] });
 
   const derived = deriveGraph(root);
-  assert.deepEqual(derived.usedBy.get('_base/_atoms/orphan.md'), []);
+  assert.deepEqual(derived.usedBy.get('_base/_atoms/orphan/orphan.md'), []);
   applyUpdates(derived);
-  const written = fs.readFileSync(path.join(root, 'skills', '_base', '_atoms', 'orphan.md'), 'utf8');
+  const written = fs.readFileSync(
+    path.join(root, 'skills', '_base', '_atoms', 'orphan', 'orphan.md'),
+    'utf8',
+  );
   assert.match(written, /^used-by: \[\]$/m);
 });
 
@@ -120,7 +129,7 @@ test('a skill whose grant covers its units passes verification', () => {
   writeAtom(root, 'alpha', { tools: ['read'] });
   writeAtom(root, 'beta', { tools: ['edit'] });
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
-  writeSkill(root, 'zulu', ['_molecules/gamma.md'], ['read', 'edit', 'search']);
+  writeSkill(root, 'zulu', ['_molecules/gamma/gamma.md'], ['read', 'edit', 'search']);
 
   const derived = deriveGraph(root);
   assert.deepEqual(derived.grantViolations, []);
@@ -131,7 +140,7 @@ test('a skill whose grant does not cover a transitively composed atom is reporte
   writeAtom(root, 'alpha', { tools: ['read'] });
   writeAtom(root, 'beta', { tools: ['execute'] });
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
-  writeSkill(root, 'zulu', ['_molecules/gamma.md'], ['read']);
+  writeSkill(root, 'zulu', ['_molecules/gamma/gamma.md'], ['read']);
 
   const derived = deriveGraph(root);
   assert.equal(derived.grantViolations.length, 1);
@@ -144,7 +153,7 @@ test('a skill grant is never rewritten, only reported', () => {
   writeAtom(root, 'alpha', { tools: ['execute'] });
   writeAtom(root, 'beta', { tools: [] });
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
-  writeSkill(root, 'zulu', ['_molecules/gamma.md'], ['read']);
+  writeSkill(root, 'zulu', ['_molecules/gamma/gamma.md'], ['read']);
 
   const skillPath = path.join(root, 'skills', 'zulu', 'SKILL.md');
   const before = fs.readFileSync(skillPath, 'utf8');
@@ -160,7 +169,7 @@ test('a wildcard skill grant satisfies every requirement', () => {
   writeAtom(root, 'alpha', { tools: ['execute'] });
   writeAtom(root, 'beta', { tools: ['edit'] });
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
-  writeSkill(root, 'zulu', ['_molecules/gamma.md'], ['*']);
+  writeSkill(root, 'zulu', ['_molecules/gamma/gamma.md'], ['*']);
 
   const derived = deriveGraph(root);
   assert.deepEqual(derived.grantViolations, []);
@@ -173,12 +182,18 @@ test('regeneration is idempotent', () => {
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
 
   applyUpdates(deriveGraph(root));
-  const snapshot = fs.readFileSync(path.join(root, 'skills', '_base', '_molecules', 'gamma.md'), 'utf8');
+  const snapshot = fs.readFileSync(
+    path.join(root, 'skills', '_base', '_molecules', 'gamma', 'gamma.md'),
+    'utf8',
+  );
 
   const second = deriveGraph(root);
   assert.deepEqual(second.updates, []);
   applyUpdates(second);
-  assert.equal(fs.readFileSync(path.join(root, 'skills', '_base', '_molecules', 'gamma.md'), 'utf8'), snapshot);
+  assert.equal(
+    fs.readFileSync(path.join(root, 'skills', '_base', '_molecules', 'gamma', 'gamma.md'), 'utf8'),
+    snapshot,
+  );
 });
 
 test('a stale committed value is detected rather than trusted', () => {
@@ -189,7 +204,7 @@ test('a stale committed value is detected rather than trusted', () => {
 
   const derived = deriveGraph(root);
   const fields = derived.updates
-    .filter((update) => update.relativeFile === '_base/_molecules/gamma.md')
+    .filter((update) => update.relativeFile === '_base/_molecules/gamma/gamma.md')
     .map((update) => update.field)
     .sort();
   assert.deepEqual(fields, ['allowed-tools']);
@@ -202,8 +217,11 @@ test('a hand-written wrong used-by is corrected', () => {
   writeMolecule(root, 'gamma', ['alpha', 'beta']);
 
   applyUpdates(deriveGraph(root));
-  const written = fs.readFileSync(path.join(root, 'skills', '_base', '_atoms', 'alpha.md'), 'utf8');
-  assert.match(written, /^used-by: \["_base\/_molecules\/gamma\.md"\]$/m);
+  const written = fs.readFileSync(
+    path.join(root, 'skills', '_base', '_atoms', 'alpha', 'alpha.md'),
+    'utf8',
+  );
+  assert.match(written, /^used-by: \["_base\/_molecules\/gamma\/gamma\.md"\]$/m);
   assert.doesNotMatch(written, /nonsense/);
 });
 
@@ -235,7 +253,9 @@ test('a molecule composing another molecule unions transitively', () => {
   writeAtom(root, 'beta', { tools: ['edit'] });
   writeMolecule(root, 'inner', ['alpha', 'beta']);
 
-  const outerPath = path.join(root, 'skills', '_base', '_molecules', 'outer.md');
+  const outerDirectory = path.join(root, 'skills', '_base', '_molecules', 'outer');
+  fs.mkdirSync(outerDirectory, { recursive: true });
+  const outerPath = path.join(outerDirectory, 'outer.md');
   fs.writeFileSync(
     outerPath,
     [
@@ -243,19 +263,19 @@ test('a molecule composing another molecule unions transitively', () => {
       'name: outer',
       'description: Molecule outer.',
       'level: molecule',
-      'includes: ["_base/_atoms/alpha.md","_base/_molecules/inner.md"]',
+      'includes: ["_base/_atoms/alpha/alpha.md","_base/_molecules/inner/inner.md"]',
       '---',
       '',
       '# outer',
       '',
       '## Required References',
       '',
-      '1. [alpha](../_atoms/alpha.md)',
-      '2. [inner](./inner.md)',
+      '1. [alpha](../../_atoms/alpha/alpha.md)',
+      '2. [inner](../inner/inner.md)',
       '',
     ].join('\n'),
   );
 
   const derived = deriveGraph(root);
-  assert.deepEqual(derived.resolvedTools.get('_base/_molecules/outer.md'), ['edit', 'read']);
+  assert.deepEqual(derived.resolvedTools.get('_base/_molecules/outer/outer.md'), ['edit', 'read']);
 });
