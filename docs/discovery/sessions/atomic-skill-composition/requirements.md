@@ -30,6 +30,12 @@ Each entry links to the node and cycle that produced it.
 | Every reference file carries a level, wherever it lives. Level is a property of the unit, not of its address, so relocating a unit is never a reclassification. | n-0001 | c-0003 |
 | Chronicler is a molecule composing atomic chronicle operations, not a package. `skills/_base/chronicler/` is retired. | n-0006 | c-0003 |
 | Deterministic scripts and their tests are co-located by basename with the unit they implement: `<unit>.md`, `<unit>.mjs`, `<unit>.test.mjs`. | n-0003 | c-0003 |
+| Unit names follow `<domain>-<verb>[-<object>].md`: kebab-case, lowercase, globally unique, no numeric prefix, and no level suffix. Domain first, so families cluster alphabetically in a flat namespace. | n-0003 | c-0005 |
+| A level namespace stays flat. The domain prefix supplies grouping at no cost to addressing. Revisit when one domain prefix exceeds roughly twenty units. | n-0003 | c-0005 |
+| A `## Required References` section contains its list and nothing else, and sits immediately before the next `##` heading. The validator's section scan runs to the next heading or to end of file, so prose links inside the section are captured. Prose elsewhere names a unit rather than linking it. | n-0005 | c-0005 |
+| A unit declares `## Inputs`, `## Output`, `## Guarantees`, and `## Boundaries`. Without a declared contract a caller must read the whole file to compose it, which makes the library a pile of documents rather than an API. | n-0003 | c-0005 |
+| Collapse takes the **union** of the requirements of every copy, then decides per requirement whether it belongs to the unit or to the caller. Collapsing to the most common wording silently drops the strictest copy. | n-0005 | c-0005 |
+| Every adversarial review of this work is given an explicit mandate to execute rather than read, and must attach a reproducing command and its output to each finding. | n-0005 | c-0005 |
 | A `.mjs` file inside a level namespace must have a matching `.md` of the same basename. | n-0005 | c-0003 |
 | Zero-consumer units are reported, never failed. A reusable library unit owes no caller. | n-0005 | c-0003 |
 | Collapse is measured against the named inventory of behaviors that were actually duplicated, not across the whole unit population. | n-0007 | c-0003 |
@@ -77,10 +83,12 @@ Carried from repository evidence.
 
 | Unresolved requirement | Node | Cycle |
 | --- | --- | --- |
+| Whether the roast trio still needs to install standalone. It blocks five of the twelve clusters and roughly 2,200 lines. The loop's direction under autopilot is that standalone install is incompatible with the destination, but execution is deferred pending explicit confirmation because it deletes a deliberately engineered property of three shipped skills. | n-0007 | c-0005 |
+| Whether the union audit that catches collapse regressions can be automated, or whether it stays a human diff review before merge. Five of seven regressions in the first migration were union losses. | n-0005 | c-0005 |
 | Whether the three vendored copies of `artifact-roastmaster.agent.md` may be collapsed, given that they are deliberate digest-pinned fallbacks that let a roast skill install standalone. | n-0007 | c-0004 |
-| The naming convention for a global flat namespace that will hold well over a hundred units. Existing units disagree already: `chronicle-append` is noun-verb, while the inventory proposes verb-noun names such as `resolve-artifact-roast-sources`. | n-0003 | c-0004 |
-| Whether a level namespace stays flat at scale. `validate-skill-graph.mjs` enforces flatness today, which was written when the population was three. | n-0003 | c-0004 |
-| The true atoms-per-file ratio, and therefore the endpoint unit count. To be measured on `roast-this-prompt` rather than projected. | n-0004 | c-0004 |
+| The naming convention for a global flat namespace. RESOLVED in c-0005. | n-0003 | c-0004 |
+| Whether a level namespace stays flat at scale. RESOLVED in c-0005: yes, with a revisit threshold. | n-0003 | c-0004 |
+| The true atoms-per-file ratio, and therefore the endpoint unit count. RESOLVED in c-0005 by measurement: roughly 1.5 units per duplicated behavior, and materially fewer than one unit per reference file. | n-0004 | c-0004 |
 | Whether classification proceeds across all 21 skills at once or incrementally, and whether a skill may remain unclassified. PARTIALLY RESOLVED in c-0004: incrementally, value-first, and no skill remains unclassified because the endpoint is total. | n-0004 | c-0003 |
 | Which of the 165 reference files are genuinely duplicated rather than merely similar. RESOLVED in c-0004 by the verified inventory: 36 files in 12 clusters, 26 in rejected near-misses, 103 genuinely skill-specific. | n-0007 | c-0003 |
 

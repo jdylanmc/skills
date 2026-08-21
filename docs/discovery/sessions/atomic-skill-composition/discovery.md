@@ -2,16 +2,16 @@
 schema-version: 1
 session: atomic-skill-composition
 state-root: docs/discovery
-revision: 4
+revision: 5
 anchor: idea
 anchor-revision: 2026-08-20T16:20:00Z
 anchor-status: unchanged
 question-group-size: 12
 last-question-group-size: 12
-last-cycle: c-0004
-cycle-state: in-progress
-state-digest: d3a54f4c63b0a47837bee0d82aadacaa0bf34064426d8dc3274a8773752bb58a
-root-map-digest: c5e43509fb5b23f35e9b4f938f13ba6c26ca4f338467327ad1374fd081259324
+last-cycle: c-0005
+cycle-state: complete
+state-digest: b5a054624a423c584d4aa85456350b80d95d21a1622fac7f19c367f2d8d70130
+root-map-digest: c3bd62855b1a7cbde054606b1548cab3985586fc29a1ae0fae8b468290d257a7
 root-lexicon-digest: 08946ae544bc2c59fa295daa55af4656fdba8ad3e6d4e951e77bb8b76106b135
 digest-tool: shasum -a 256
 digest-status: verified
@@ -150,38 +150,38 @@ A stated, enforceable composition model for the skills library in which:
 ### n-0003 - Packaging, naming, and routing
 
 - Parent: n-0000
-- Fog: investigating
-- Maturity: decision-ready
+- Fog: decision-ready
+- Maturity: promotion-ready
 - Priority: P0
-- Outcome: Atoms live at `skills/_base/_atoms/<name>.md` and molecules at `skills/_base/_molecules/<name>.md`. Both are single Markdown files; the package-directory form is reserved for skills. Non-routability is inherited from the existing `_base` exclusion. Atom frontmatter is `name`, `description`, `level`, `allowed-tools` authored plus `used-by` generated, with `includes` and `requires-skills` forbidden. Molecule frontmatter is `name`, `description`, `level`, `includes` authored plus `allowed-tools` and `used-by` generated, with `requires-skills` forbidden. Deterministic scripts and tests are co-located by basename. **Settled in c-0004:** address is the **sole** authority for level. A unit exists only inside a level namespace; a file outside one is not a unit and carries no level. The shipped validator is correct as written and needs no change.
-- Open questions: What naming convention governs a global flat namespace that will hold well over a hundred permanently addressable units? Existing practice already disagrees - `chronicle-append` is noun-verb, the inventory proposes verb-noun. Does a level namespace stay flat at that scale? `validate-skill-graph.mjs` enforces flatness today, written when the population was three.
-- Evidence: `scripts/validate-skill-graph.mjs` lines 202, 275, 277, 306, 342-344; `scripts/conformance.test.mjs` line 281; `AGENTS.md` Canonical Formats; `agents/<name>.agent.md` routability flags; `doctrine/manifest.md` generated-and-committed precedent; c-0004 answer Q1
+- Outcome: Atoms live at `skills/_base/_atoms/<name>.md` and molecules at `skills/_base/_molecules/<name>.md`. Both are single Markdown files. Address is the **sole** authority for level. Atom and molecule frontmatter schemas are as recorded in c-0002. Scripts and tests are co-located by basename. **Settled in c-0005:** unit names are `<domain>-<verb>[-<object>].md`, kebab-case, globally unique, no numeric prefix and no level suffix, domain first so families cluster; a level namespace stays flat, revisited only when one domain prefix exceeds roughly twenty units; and every unit declares `## Inputs`, `## Output`, `## Guarantees`, and `## Boundaries`.
+- Open questions: none. The two questions opened in c-0004 are both answered, and the convention is held in practice by nine units across three domains.
+- Evidence: `scripts/validate-skill-graph.mjs` lines 8, 87, 115, 202, 275, 277, 292, 304, 342-344; `AGENTS.md` Canonical Formats; `doctrine/manifest.md` precedent; c-0004 answer Q1; c-0005 evidence `E-c0005-3`, `E-c0005-4`, and the nine shipped units
 - Links: refines n-0000; blocks n-0005
 - First seen: c-0001
 - Former node id: none
-- Reinterpreted: c-0004 (intact)
+- Reinterpreted: c-0005 (intact)
 - Promotion key: atomic-skill-composition/n-0003
 - Tracker: Branch [#33 Formalize atom, molecule, and skill packaging, naming, and routing](https://github.com/jdylanmc/skills/issues/33)
-- Divergence: Recorded in c-0004 and **resolved within the same cycle**. The node left fog `promoted` for `blocked` while its c-0002 path-agreement requirement stood in conflict with n-0001's c-0003 level-address rider, then returned to `investigating` once the user resolved the conflict in this node's favor. #33 was not edited, and its scope is unchanged by the resolution; two new naming questions were added to this node and are not yet reflected in #33.
-- History: c-0001 node created; single-file form settled; fog unexplored -> scouted; maturity vague -> framed; priority -> P0 | c-0002 location, frontmatter schema, and routability settled; fog -> decision-ready; maturity -> decision-ready; debt cleared against n-0006 | c-0003 `Base package` deprecated; code placement settled; fog -> cleared -> promoted; maturity -> promotion-ready; published as Branch #33 | c-0004 `conflicts-with n-0001` recorded on contradicting evidence; fog promoted -> blocked; maturity promotion-ready -> decision-ready; the user chose address-derived level, the conflicting rider was revoked, the conflict was removed, and fog moved blocked -> investigating; naming and flatness at scale added as new fog
+- Divergence: #33 does not yet carry the naming convention, the flatness threshold, or the unit contract sections settled in c-0005, and its `used-by` and generated `allowed-tools` criteria remain unbuilt. The item is open and its scope is a superset of what has shipped, so this is incompleteness rather than contradiction.
+- History: c-0001 node created; single-file form settled; fog unexplored -> scouted; maturity vague -> framed; priority -> P0 | c-0002 location, frontmatter schema, and routability settled; fog -> decision-ready; maturity -> decision-ready; debt cleared against n-0006 | c-0003 `Base package` deprecated; code placement settled; fog -> cleared -> promoted; maturity -> promotion-ready; published as Branch #33 | c-0004 `conflicts-with n-0001` recorded on contradicting evidence; fog promoted -> blocked; the user chose address-derived level and the conflict was removed; fog blocked -> investigating; maturity -> decision-ready; naming and flatness added as new fog | c-0005 naming convention decided under delegation on executed evidence; flatness retained with a revisit threshold; unit contract sections added; fog investigating -> researched -> decision-ready; maturity -> promotion-ready
 
 ### n-0004 - Migration disposition for existing skills
 
 - Parent: n-0000
-- Fog: researched
-- Maturity: researched
+- Fog: decision-ready
+- Maturity: decision-ready
 - Priority: P0
 - Outcome: **Settled in c-0004.** The endpoint is total: every one of the 165 reference files eventually becomes a unit under `skills/_base/`, because address is the sole authority for level and the user's destination is a shared library of reusable units with its own lexicon. `SKILL.md` becomes a thin wrapper over structured units. Execution is incremental and ordered **value-first**, not simplest-first. No skill remains unclassified. The first target is `roast-this-prompt`, with `roast-this-agent` and `roast-this-skill` necessarily in scope because shared units cannot be extracted from one without changing all three. Per-file granularity is an empirical parameter to be measured on that first target, not a declared rule.
-- Open questions: What is the true atoms-per-file ratio, and therefore the endpoint unit count? A loop projection of roughly 900 atoms was derived from level-two heading counts and rejected by the user as unfounded; the heading count was never established as an operation count. What is the schedule beyond the first target?
-- Evidence: 22 directory entries under `skills/`, of which `_base` is non-routable and `reinforce-skill` is untracked; the verified c-0004 inventory - 36 files in 12 clusters, 26 near-miss only, 103 skill-specific; measured scale of 16,671 lines and 929 headings; c-0004 answers Q1-Q4
+- Open questions: What is the schedule beyond the first target? The endpoint unit count is now bounded by measurement rather than projection, but the order of the remaining consumers is not set.
+- Evidence: 22 directory entries under `skills/`; the verified c-0004 inventory - 36 files in 12 clusters, 26 near-miss only, 103 skill-specific; measured scale of 16,671 lines and 929 headings; c-0004 answers Q1-Q4; c-0005 evidence `E-c0005-1`, the executed first migration
 - Links: refines n-0000
 - First seen: c-0001
 - Former node id: none
-- Reinterpreted: c-0004 (intact)
+- Reinterpreted: c-0005 (intact)
 - Promotion key: none
-- Tracker: none. Candidate for promotion once the naming convention in n-0003 is settled, since every migrated unit needs a name that is globally unique and permanent.
+- Tracker: none. Now the strongest promotion candidate: n-0003 settled the naming convention it was waiting on, and the ratio is measured.
 - Divergence: none
-- History: c-0001 node created; fog unexplored -> scouted; priority -> P1 | c-0003 reframed as classification-first after the 165-file survey; fog -> investigating; maturity vague -> framed | c-0004 endpoint settled as total migration, ordering settled as value-first, first target chosen, granularity deferred to measurement; fog investigating -> researched; maturity framed -> researched; priority P1 -> P0 because it now carries the destination itself
+- History: c-0001 node created; fog unexplored -> scouted; priority -> P1 | c-0003 reframed as classification-first after the 165-file survey; fog -> investigating; maturity vague -> framed | c-0004 endpoint settled as total migration, ordering settled as value-first, first target chosen, granularity deferred to measurement; fog investigating -> researched; maturity framed -> researched; priority P1 -> P0 | c-0005 first migration executed and the ratio measured at roughly 1.5 units per duplicated behavior, materially fewer than one unit per reference file; the c-0004 projection of roughly 900 atoms is contradicted by measurement; maturity researched -> decision-ready
 
 ### n-0005 - Verification and enforcement
 
@@ -190,7 +190,7 @@ A stated, enforceable composition model for the skills library in which:
 - Maturity: researched
 - Priority: P1
 - Outcome: An automated check is required, not optional. It must prove collapse, not merely that a level was declared. Five concrete checks are now specified: path and `level` frontmatter must agree; forbidden fields must be absent per level; `used-by` and molecule `allowed-tools` are validator-written and continuous-integration-verified; the composition graph must be acyclic; and a `.mjs` file in a level namespace must have a matching `.md` of the same basename.
-- Open questions: What check proves collapse itself? Declaration, direction, forbidden fields, derivation, cycles, and code pairing are all mechanically checkable, but "this behavior exists exactly once" is not, and likely depends on the named inventory from n-0007 rather than an algorithm. Zero-consumer units are reported, never failed, because the library holds reusable units that owe no caller.
+- Open questions: Can the union audit be automated? c-0005 produced the strongest answer so far to "what check proves collapse": a diff-based audit of every removed requirement against the unit plus the caller, before merge. Five of seven regressions in the first migration were union losses, so this is the dominant failure mode rather than an incidental one. It is currently a human diff review and is deliberately not claimed to be automatable.
 - Evidence: `scripts/validate-skill-graph.mjs`; `.github/workflows/validate-skills.yml`; `doctrine/manifest.md`; c-0001 answer Q6; c-0002 answers Q4, Q5; c-0003 answers Q1, Q4
 - Links: refines n-0000; depends-on n-0003; depends-on n-0007
 - First seen: c-0001
@@ -241,25 +241,24 @@ A stated, enforceable composition model for the skills library in which:
 
 | Node | Fog | Maturity | Priority | Blocked by | Open questions |
 | --- | --- | --- | --- | --- | --- |
-| n-0001 | investigating | decision-ready | P0 | none | none of its own; re-earning `cleared` through the ordered states after its c-0004 unblock |
-| n-0003 | investigating | decision-ready | P0 | none | Naming convention for a global namespace; whether a level namespace stays flat at scale |
-| n-0004 | researched | researched | P0 | none | True atoms-per-file ratio; schedule beyond the first target |
+| n-0003 | decision-ready | promotion-ready | P0 | none | none - naming, flatness, and the unit contract all settled in c-0005 |
+| n-0004 | decision-ready | decision-ready | P0 | none | Schedule beyond the first target |
+| n-0001 | investigating | decision-ready | P0 | none | none of its own; re-earning `cleared` through the ordered states |
 | n-0002 | researched | researched | P1 | none | none material |
-| n-0005 | investigating | researched | P1 | n-0003 | What check proves collapse itself |
-| n-0007 | researched | researched | P1 | none | May the vendored coordinator copies be collapsed, given standalone-install intent |
+| n-0005 | investigating | researched | P1 | none | Can the union audit be automated |
+| n-0007 | researched | researched | P1 | none | Does the roast trio still need standalone install |
 
-Nodes n-0000 is at fog `cleared` and n-0006 is at fog `promoted`, so neither
-appears on the frontier. n-0007 no longer blocks n-0005: the inventory it owed
-now exists, so n-0005's remaining blocker is n-0003 alone.
+n-0000 is at fog `cleared` and n-0006 at fog `promoted`, so neither appears.
+n-0003 no longer blocks n-0005: the naming convention n-0005 was waiting on is
+settled, so n-0005's remaining question is its own.
 
 ## Priority Debt
 
 | Lower-priority node | Outran (maturity below researched) | Relation | Cause | Detected | Last seen | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 
-No open or deferred debt. n-0001 and n-0003 were lowered to maturity
-`decision-ready` in c-0004, which is above the `researched` floor, so the
-lowering generated no debt.
+No open or deferred debt. Every P0 node is at maturity `decision-ready` or
+above, so no lower-priority node can be outranking one.
 
 
 ## Tracker Synchronization
