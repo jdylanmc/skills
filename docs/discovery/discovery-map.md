@@ -2,7 +2,7 @@
 schema-version: 1
 state-root: docs/discovery
 sessions: 2
-last-updated-cycle: atomic-skill-composition/c-0005
+last-updated-cycle: atomic-skill-composition/c-0006
 ---
 
 # Primary Discovery Map - Engineering Skills Library
@@ -25,7 +25,7 @@ and an automated check enforces the model.
 
 | Session | Kind | Priority | Maturity | Active fog | Major blockers | Package |
 | --- | --- | --- | --- | --- | --- | --- |
-| atomic-skill-composition | cross-cutting | P0 | decision-ready | Schedule beyond the first migration, whether the roast trio still needs standalone install, and whether the collapse union audit can be automated | none | [discovery.md](./sessions/atomic-skill-composition/discovery.md) |
+| atomic-skill-composition | cross-cutting | P0 | promotion-ready | Implement the selected `roast-coordinate-review` slice, refresh the remaining inventory afterward, and decide whether the collapse union audit can be automated | none | [discovery.md](./sessions/atomic-skill-composition/discovery.md) |
 | test-coverage-doctrine | cross-cutting | unprioritized | vague | Recorded only, no cycle run. Seam and internal are undefined, and the position may conflict with the shipped testing doctrine | none recorded | [discovery.md](./sessions/test-coverage-doctrine/discovery.md) |
 
 ## Typed Session Links

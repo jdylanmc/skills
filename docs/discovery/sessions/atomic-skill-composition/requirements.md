@@ -19,7 +19,6 @@ Each entry links to the node and cycle that produced it.
 | A molecule may compose atoms or other molecules. | n-0001 | c-0002 |
 | Atom files live at `skills/_base/_atoms/<name>.md`; molecule files at `skills/_base/_molecules/<name>.md`. The level is derivable from the path. | n-0003 | c-0002 |
 | Atoms and molecules are non-routable, inherited from the existing `_base` exclusion in `validate-skill-graph.mjs`. No new routing mechanism is introduced. | n-0003 | c-0002 |
-| Atom frontmatter: `name`, `description`, `level`, `allowed-tools` authored; `used-by` generated. `includes` and `requires-skills` are forbidden, and their absence is the enforcement of "an atom references no other unit". | n-0003 | c-0002 |
 | Molecule frontmatter: `name`, `description`, `level`, `includes` authored; `allowed-tools` and `used-by` generated. `requires-skills` is forbidden. | n-0003 | c-0002 |
 | The `level` frontmatter value and the file's path must agree; disagreement fails the build. | n-0003 | c-0002 |
 | Derived fields are generated and committed, never hand-authored: `validate-skill-graph.mjs` gains a write-back mode and continuous integration verifies the result. This follows the existing `doctrine/manifest.md` pattern. | n-0005 | c-0002 |
@@ -45,6 +44,13 @@ Each entry links to the node and cycle that produced it.
 | A referenced unit is incorporated at runtime by the consuming unit's prose instructing the agent to read it by relative link. `includes` participates in validation, never in loading. Runtime places no constraint on where a unit lives. | n-0002 | c-0004 |
 | Per-file granularity is an empirical parameter, not a declared rule. It is measured by decomposing one high-value skill and observing the ratio. | n-0004 | c-0004 |
 | The first migration target is `roast-this-prompt`. Its siblings `roast-this-agent` and `roast-this-skill` are necessarily in scope, because shared units cannot be extracted from one without changing all three. | n-0004 | c-0004 |
+| An atom declares `includes: []` because it references no other composition unit. `allowed-tools` is authored and `used-by` is generated. | n-0003 | c-0006 |
+| The next value-first migration slice is one `roast-coordinate-review` molecule consumed by `roast-this-agent`, `roast-this-prompt`, and `roast-this-skill` in the same pull request. | n-0008 | c-0006 |
+| `roast-coordinate-review` owns coordinate, unchanged-envelope validation, exactly one validation retry with a fresh coordinator, `Unsynthesized` after the second failure, synthesize, and common named-status handling. | n-0008 | c-0006 |
+| Artifact identity and locator, artifact-specific contracts and inputs, prompt stale-evidence rehashing, artifact-specific prohibitions, output-schema details, and package-specific recovery remain caller-owned. | n-0008 | c-0006 |
+| The n-0008 pull request must audit the union of all three pre-migration workflows, contracts, trusted-source rules, and failure/recovery documents against the molecule plus each caller before merge. | n-0008 | c-0006 |
+| Issue #35 behavior is excluded from n-0008. Panel scheduling, re-review, and hypothetical-finding triage add behavior rather than collapse current duplication. | n-0008 | c-0006 |
+| The repository remains primarily a skills library; composition work must not broaden it into a general-purpose agent framework. | n-0000 | c-0006 |
 
 ## Revoked Requirements
 
@@ -54,6 +60,7 @@ is recorded rather than deleted so the reasoning survives.
 | Requirement | Node | Confirmed | Revoked | Reason |
 | --- | --- | --- | --- | --- |
 | Every reference file carries a level, wherever it lives. Level is a property of the unit, not of its address, so relocating a unit is never a reclassification. | n-0001 | c-0003 | c-0004 | Contradicted the c-0002 requirement that the `level` value and the file's path must agree, which `scripts/validate-skill-graph.mjs` had already implemented. c-0003 recorded it without comparing it against that requirement. The user resolved the conflict in favor of address-derived level in c-0004 Q1, choosing human readability. The shipped merge gate was correct; the written record was wrong. |
+| Atom frontmatter: `name`, `description`, `level`, `allowed-tools` authored; `used-by` generated. `includes` and `requires-skills` are forbidden, and their absence is the enforcement of "an atom references no other unit". | n-0003 | c-0002 | c-0006 | The adopted schema requires the explicit empty mirror `includes: []`, as documented in `AGENTS.md` and enforced across the seven current atoms. |
 
 ## Constraints
 
@@ -83,15 +90,14 @@ Carried from repository evidence.
 
 | Unresolved requirement | Node | Cycle |
 | --- | --- | --- |
-| Whether the roast trio still needs to install standalone. It blocks five of the twelve clusters and roughly 2,200 lines. The loop's direction under autopilot is that standalone install is incompatible with the destination, but execution is deferred pending explicit confirmation because it deletes a deliberately engineered property of three shipped skills. | n-0007 | c-0005 |
+| Whether the roast trio still needs to install standalone. RESOLVED before c-0006 by #38: the standalone-install property and three vendored coordinators were removed. | n-0007 | c-0005 |
 | Whether the union audit that catches collapse regressions can be automated, or whether it stays a human diff review before merge. Five of seven regressions in the first migration were union losses. | n-0005 | c-0005 |
-| Whether the three vendored copies of `artifact-roastmaster.agent.md` may be collapsed, given that they are deliberate digest-pinned fallbacks that let a roast skill install standalone. | n-0007 | c-0004 |
+| Whether the three vendored copies of `artifact-roastmaster.agent.md` may be collapsed. RESOLVED before c-0006 by #38: all three copies were deleted when standalone installation was dropped. | n-0007 | c-0004 |
 | The naming convention for a global flat namespace. RESOLVED in c-0005. | n-0003 | c-0004 |
 | Whether a level namespace stays flat at scale. RESOLVED in c-0005: yes, with a revisit threshold. | n-0003 | c-0004 |
 | The true atoms-per-file ratio, and therefore the endpoint unit count. RESOLVED in c-0005 by measurement: roughly 1.5 units per duplicated behavior, and materially fewer than one unit per reference file. | n-0004 | c-0004 |
 | Whether classification proceeds across all 21 skills at once or incrementally, and whether a skill may remain unclassified. PARTIALLY RESOLVED in c-0004: incrementally, value-first, and no skill remains unclassified because the endpoint is total. | n-0004 | c-0003 |
 | Which of the 165 reference files are genuinely duplicated rather than merely similar. RESOLVED in c-0004 by the verified inventory: 36 files in 12 clusters, 26 in rejected near-misses, 103 genuinely skill-specific. | n-0007 | c-0003 |
-
 | The exact atom decomposition of Chronicler. `append` is confirmed; the rest is inferred and must be confirmed during implementation. | n-0006 | c-0003 |
 | What automated check can prove collapse itself, as opposed to declaration, direction, derivation, and cycles. | n-0005 | c-0002 |
 | The testable boundary for the skill level. | n-0001 | c-0002 |
@@ -104,3 +110,5 @@ Carried from repository evidence.
 | The disposition of `skills/_base/chronicler/`, which conforms to neither the atom nor the molecule form rule. | n-0006 | c-0001 |
 | Which behaviors are actually duplicated across the existing skills, without which the collapse test is unmeasurable. | n-0007 | c-0001 |
 | Whether all existing skills migrate, and on what schedule. | n-0004 | c-0001 |
+| Which value-first slice follows n-0008. Re-run the complete current inventory after n-0008 rather than fixing a speculative long-range order now. | n-0004 | c-0006 |
+| Reconstruct the complete current duplication inventory: the c-0004 checkpoint preserved counts but not the full definitions of all twelve clusters. | n-0007 | c-0006 |

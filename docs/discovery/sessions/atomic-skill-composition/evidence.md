@@ -34,6 +34,11 @@ Every claim used in a decision must be traceable to an entry here.
 | First migration executed - branch `atomize-roast-this-prompt`, pull request #37 | 2026-08-20 | commits `f9b0ff2`, `12e4e93`, `708823d`, `24bc1fc` | Six units created, taking the population from 3 to 9. Clusters C7 and C5 collapsed across 8 consumer skills. `validate-skill-graph.mjs` reports 43 participating Markdown files, up from 17. Suite 101 passing. Measured ratio: roughly 1.5 units per duplicated behavior, and materially fewer than one unit per reference file, because a unit is extracted from a section rather than from a file. Net line change +681 / -138 across `skills/`: the pass removed about 146 lines of duplicated prose and added declared contracts the copies never had. | n-0004, n-0005, n-0007 |
 | `validate-skill-graph.mjs` lines 8, 87, 115, 292, 304 | 2026-08-20 | commit `274b816` | Section scan matches `## Required References` or `## Required Files` and runs to the next `##` heading or end of file. `unitNameOf` takes the first dot-separated segment. `stem` is the file name minus `.md`, and frontmatter `name` must equal it. Together these decided the naming convention: a `<purpose>.atom.md` suffix would force `name: <purpose>.atom` and would break support-file pairing for any unit with a script. | n-0003, n-0005 |
 | Adversarial review of pull request #37 | 2026-08-20 | reviewed commit `708823d` | Executed the six-file CI set, the validator, full consumer diffs, nine validator-evasion fixtures, a required-reference boundary scan, a link resolver, and frontmatter inspection. All nine evasion fixtures were rejected and every added link resolved, so the PR #36 hardening held. Returned five contract regressions, all reproduced independently and fixed in `24bc1fc`. | n-0005 |
+| Commit #38, `Drop standalone install from the roast family` | 2026-08-21 | `e85349e2e283010b0bb29f1993649d47133477cd` | Deleted the three vendored Artifact Roastmaster copies and removed standalone-install behavior from `roast-this-agent`, `roast-this-prompt`, and `roast-this-skill`. Resolves both n-0007 standalone-install requirements and eliminates N1. | n-0007 |
+| Commit #39, `Add the reinforce-skill package` | 2026-08-21 | `a95ea30343751072d24fea8e2d4667ffa0123daa` | Commits `skills/reinforce-skill/` as a routable skill. The prior untracked-skill limitation is resolved; the repository has 21 routable skills. | n-0004 |
+| Commit #40, `Generate used-by and molecule allowed-tools from the graph` | 2026-08-21 | `fe0b3989372400adb1486e2fa53974ffac9c02ed` | Generates committed `used-by` for all ten units and transitive `allowed-tools` for three molecules, while verifying rather than automatically widening skill permission grants. | n-0003, n-0005 |
+| Current level namespaces | 2026-08-21 | commit `fe0b398` | Seven atoms: `agent-resolve`, `agent-spawn`, `approval-gate-mutation`, `chronicle-append`, `chronicle-replay`, `review-validate-report`, `write-verified`. Three molecules: `chronicler`, `review-ste-coach`, `write-approved`. | n-0003 |
+| Focused refresh of all three artifact-roast packages | 2026-08-21 | commit `fe0b398` | Roughly 75-105 workflow lines remain repeated across the three `SKILL.md` files. The narrow shared skeleton is coordinate, validate, retry once, synthesize, and common status handling. `agent-resolve` covers safe agent lookup but not roast-specific lens/doctrine adaptation, source recording, orchestration, retry, synthesis, or final status. | n-0004, n-0007, n-0008 |
 
 ## Research Results
 
@@ -152,6 +157,31 @@ review of this repository finds nothing. Both reviews given an explicit mandate
 to execute, and to attach a reproducing command and its output to each finding,
 returned real defects within minutes.
 
+### c-0006 - Next value-first slice
+
+The focused current-main refresh accepted one bounded tracer-bullet:
+`roast-coordinate-review`, a molecule used by all three artifact-roast skills.
+It owns the common coordinate -> validate -> retry once -> synthesize sequence
+and common named-status handling.
+
+The union audit must prove that the composed molecule plus each caller preserves:
+
+- every artifact identity and locator;
+- every artifact-specific contract and coordinator input;
+- the prompt's supplied-text normalization, identity, digest, and stale-evidence
+  comparison;
+- every prohibition on invoking, executing, rewriting, or editing the reviewed
+  artifact;
+- the unchanged-envelope rule and exactly-one-retry rule;
+- every named failure status and recovery action;
+- every output-schema requirement.
+
+Trusted-source adaptation is a credible later extraction but is excluded from
+this slice because it substantially enlarges the audit surface. Issue #35 is
+also excluded: its panel scheduling, re-review, and hypothetical-finding
+behavior is not present in current code and would expand behavior rather than
+collapse it.
+
 
 ## Prototype Outputs
 
@@ -183,9 +213,8 @@ not execution.
 - `docs/` is untracked in git at commit `e98a372`, so this discovery package is
   currently outside version control. Recorded at session setup on 2026-08-20.
   **Resolved:** committed in `ca9b668`.
-- `skills/reinforce-skill/` is untracked and exists in no commit. It is counted
-  in the 22 directory entries but is not part of the committed skill set. Still
-  open as of c-0004; the user has never decided its disposition.
+- `skills/reinforce-skill/` was untracked at c-0004. **Resolved:** committed in
+  #39 as a routable skill.
 - **c-0003 digest bookkeeping is unreliable.** Its recorded `exit-state-digest`
   and `exit-root-map-digest` do not reproduce from the files it wrote, although
   `exit-root-lexicon-digest` does, and `git` proves no file changed after the
@@ -201,3 +230,7 @@ not execution.
 - The duplication inventory is a static comparison of Markdown. No skill was
   executed and no behavioral test was run, so "same behavior" is a reading of
   the instructions rather than an observation of what the skills do.
+- The c-0004 inventory preserved counts and the strongest clusters but not the
+  full definitions of all twelve accepted clusters in durable state. c-0006
+  therefore reconciles N1, C1, C5, C7, and the current artifact-roast surface
+  without claiming a complete current repository recount.

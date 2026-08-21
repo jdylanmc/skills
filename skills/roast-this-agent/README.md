@@ -44,10 +44,11 @@ doctrine/manifest.md
 skills/roast-this-agent/
 ```
 
-The package may be installed at `.github/skills/roast-this-agent/` or
-`~/.agents/skills/roast-this-agent/`. It resolves the coordinator and every coach agent
-from `agents/` or `.github/agents/`, so those agent files must be present
-alongside it. This package vendors no copy of either.
+Install this repository, or copy this package with the sibling `skills/_base/`
+directory while preserving those paths. The Artifact Roastmaster coordinator
+must be present in `agents/` or `.github/agents/`. Repository coach agents are
+preferred but optional because the verified bundled lens configurations provide
+the final fallback. This package vendors no coordinator or coach agent.
 
 Shared doctrine may be absent, which is a supported state recorded as
 `Doctrine status: unavailable`. Resolution order and integrity rules are in
@@ -64,6 +65,10 @@ skills/roast-this-agent/
     20-failure-and-recovery.md
     30-trusted-lenses.md
     trusted-manifest.md
+skills/_base/_molecules/roast-coordinate-review.md
+skills/_base/_atoms/agent-resolve.md
+skills/_base/_atoms/agent-spawn.md
+skills/_base/_atoms/review-validate-report.md
 ```
 
 ## Maintenance

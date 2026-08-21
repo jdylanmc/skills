@@ -115,13 +115,12 @@ All three composition levels are now confirmed vocabulary.
 - RESOLVED in c-0004. The duplication inventory is complete and verified: 36 of
   165 reference files fall in 12 clusters, 26 in rejected near-misses, and 103
   are genuinely skill-specific.
-- **New.** What naming convention governs a global flat namespace holding well
-  over a hundred units? The three existing units disagree with the inventory's
-  proposals already: `chronicle-append` is noun-verb, while
-  `resolve-artifact-roast-sources` is verb-noun. Under the c-0004 decision that
-  address is the sole authority for level, every unit name becomes globally
-  unique and permanently addressable, so this is now a domain question rather
-  than a style preference.
+- RESOLVED in c-0005. Unit names use
+  `<domain>-<verb>[-<object>]`, and level namespaces remain flat until one
+  domain prefix exceeds roughly twenty units.
+- No material domain-language question was opened in c-0006. The selected
+  `roast-coordinate-review` name follows the confirmed composition vocabulary
+  and the settled naming convention.
 
 ### Level namespace after c-0004
 

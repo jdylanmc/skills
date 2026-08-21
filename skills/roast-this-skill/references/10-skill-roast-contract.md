@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Skill Roast Contract
 
 ## Scope

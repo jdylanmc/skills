@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Failure Reporting and Recovery
 
 Every run returns the Artifact Roast shape defined in
@@ -47,8 +52,10 @@ findings section is not evidence of quality.
 
 ## Schema Validation Failure
 
-Step 4 of the workflow validates the envelope against the Envelope schema 1
-checklist in [Skill roast contract](./10-skill-roast-contract.md).
+The **Validate** operation in
+`skills/_base/_molecules/roast-coordinate-review.md` validates the envelope
+against the Envelope schema 1 checklist in
+[Skill roast contract](./10-skill-roast-contract.md).
 
 1. On the first failure, repeat the `coordinate` step once with a new Artifact
    Roastmaster instance and no prior roast context.

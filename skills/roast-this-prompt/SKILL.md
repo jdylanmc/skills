@@ -2,6 +2,7 @@
 name: roast-this-prompt
 description: Adversarially reviews one pasted prompt or one named prompt file with the shared Artifact Roastmaster and independent read-only roasters, then returns one severity-ranked roast. Use when the user asks to roast, pressure-test, or adversarially review a prompt. Don't use for a skill package (use roast-this-skill), an agent definition (use roast-this-agent), source code or a diff (use roast-this-code), executing the prompt, or rewriting it.
 allowed-tools: ["read", "search", "execute", "task"]
+includes: ["_base/_molecules/roast-coordinate-review.md","roast-this-prompt/references/10-prompt-roast-contract.md","roast-this-prompt/references/20-failure-and-recovery.md","roast-this-prompt/references/30-trusted-lenses.md"]
 ---
 
 # Roast This Prompt
@@ -23,6 +24,7 @@ different skill. See [Roast This Prompt](./README.md) for the shared terms.
 1. [Prompt roast contract](./references/10-prompt-roast-contract.md)
 2. [Failure reporting and recovery](./references/20-failure-and-recovery.md)
 3. [Trusted lenses](./references/30-trusted-lenses.md)
+4. [Coordinate an Artifact Roast](../_base/_molecules/roast-coordinate-review.md)
 
 ## Prerequisites
 
@@ -74,28 +76,17 @@ assumptions, never the prompt author.
    source outside that order. On a coordinator load failure, fall back to the
    next source; when no source loads, stop and return the Artifact Roast with
    `Status: Insufficient review`.
-3. Launch a fresh read-only task subagent whose instructions are the
-   coordinator document, with no prior roast context, in `coordinate` mode.
-   Supply artifact type `prompt`, the prompt locator or the supplied prompt
-   text with its supplied-text identifier, the allowed review root, the prompt
-   roast contract, the resolved lens sources, the resolved doctrine manifest
-   path or `Doctrine unavailable`, the model routing defaults, and the
-   repository instructions and conventions that govern how the roast is
-   written.
-4. Retain the returned Artifact Roast Envelope unchanged and validate it
-   against the Envelope schema 1 checklist in the prompt roast contract. On a
-   first validation failure, repeat step 3 once with a new subagent. On a
-   second failure, return the Artifact Roast with `Status: Unsynthesized` and
-   the named schema defect.
-5. Launch a second fresh read-only task subagent whose instructions are the
-   coordinator document, with no prior roast context, in `synthesize` mode,
-   with the unchanged envelope, the synthesize-mode inputs, and the supplied
-   text this skill retained when the run staged supplied text.
-6. Return the Artifact Roast exactly as returned, including its
-   `Schema version: 1` field. Do not execute or rewrite the prompt.
-7. When `Status` is not `Complete`, state plainly that the review is incomplete
-   and that an empty findings section is not evidence of quality, then follow
-   the recovery action for that status in
+3. Invoke
+   [Coordinate an Artifact Roast](../_base/_molecules/roast-coordinate-review.md)
+   with the verified coordinator document, artifact type `prompt`, the prompt
+   locator or supplied-text identifier, the allowed review root, the prompt
+   roast contract, the resolved lens sources, the doctrine input, model
+   routing, repository instructions, roast-writing conventions, and the
+   complete coordinate-mode and synthesize-mode input sets required by the
+   contract. Pass the normalized supplied prompt text as retained evidence so
+   the molecule re-supplies it unchanged for synthesis.
+4. Never execute or rewrite the prompt. When the returned status is not
+   `Complete`, apply the artifact-specific recovery action in
    [Failure reporting and recovery](./references/20-failure-and-recovery.md).
 
 ## Supplied Prompt Text
