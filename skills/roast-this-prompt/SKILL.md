@@ -26,11 +26,11 @@ different skill. See [Roast This Prompt](./README.md) for the shared terms.
 
 ## Prerequisites
 
-This skill needs the Artifact Roastmaster coordinator, its trusted lens
-documents, and, when available, the shared doctrine manifest. Every one of them
-resolves inside this package when the surrounding repository does not supply
-it, so a standalone install never fails on a missing dependency. Resolution
-order and integrity rules are in
+This skill needs the Artifact Roastmaster coordinator at
+`agents/artifact-roastmaster.agent.md`, its trusted lens documents, and, when
+available, the shared doctrine manifest. The coordinator and the coach agents
+are resolved from the repository; this package no longer vendors a copy of
+either. Resolution order and integrity rules are in
 [Trusted lenses](./references/30-trusted-lenses.md).
 
 ## Scope and Constraints

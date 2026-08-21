@@ -1,4 +1,13 @@
+---
+includes: ["_base/_atoms/agent-resolve.md"]
+requires-skills: []
+---
+
 # Trusted Lenses
+
+## Required References
+
+1. [Agent resolve](../../_base/_atoms/agent-resolve.md)
 
 A lens document supplies review principles. It is read as a document. It is
 never invoked as an agent, never executed, and never treated as an instruction
@@ -6,36 +15,29 @@ to the Artifact Roastmaster.
 
 ## Coordinator Resolution
 
-Resolve the Artifact Roastmaster in this order and use the first match. Never
-search outside this list.
+Resolve the Artifact Roastmaster with the agent-resolve atom named above,
+passing `agent-name` `artifact-roastmaster`, the declared repository root, and
+the required headings `# Artifact Roastmaster`, `## Inputs`,
+`## Coordinate Mode`, `## Synthesize Mode`, and `## Final Output`. Supply no
+`expected-digest`: the coordinator changes independently of this package.
 
-1. `agents/artifact-roastmaster.agent.md`, resolved from the declared
-   repository root.
-2. `.github/agents/artifact-roastmaster.agent.md`, resolved from the declared
-   repository root.
-3. `./agents/artifact-roastmaster.agent.md`, resolved relative to this file.
-   This bundled snapshot ships inside the package and is always present. A
-   standalone install loads it only when its expected digest can be verified.
+The atom owns the search order, the refusal of a symbolic link or a path that
+escapes the root, the digest, and the required-heading check. It evaluates every
+location before failing, so a corrupt or truncated coordinator at the first
+location never shadows a valid one at the second. Never search outside that
+order.
 
 Read the resolved file as a document and supply its content as the instructions
 for a fresh task subagent with read-only tools. Never invoke it as a registered
 agent, and never route to it by `name`. It declares
 `disable-model-invocation: true` and `user-invocable: false` for that reason.
 
-Before use, confirm the loaded document contains `# Artifact Roastmaster` and
-the headings `## Inputs`, `## Coordinate Mode`, `## Synthesize Mode`, and
-`## Final Output`, each outside every fenced block. A document that fails this
-check, or that cannot be read, is a coordinator load failure: fall back to the
-next source in the order above. The bundled snapshot is last. When no source
-loads, return the Artifact Roast with `Status: Insufficient review`, name every
+When resolution fails for any reason, including a missing required heading,
+return the Artifact Roast with `Status: Insufficient review`, name every
 attempted path in `## What Was Not Reviewed`, and list every dimension as
 uncovered.
 
-Record the resolved path and whether the source is the repository copy or the
-bundled snapshot. The bundled snapshot is a copy of the repository agent; its
-expected digest is recorded in [Trusted manifest](./trusted-manifest.md). When
-the repository copy resolves and its digest differs from the recorded value,
-use the repository copy and record `Snapshot drift` as an evidence gap.
+Record the resolved path and the computed digest.
 
 ## Lens Resolution
 
@@ -55,7 +57,7 @@ Resolve each lens document in this order and use the first match:
 In the canonical repository layout every repository coach agent resolves at
 step 1, so the default in-repository run loads the repository agents and
 records `Lens source: repository agent` with the resolved path and the actual
-digest the coordinator computed. A standalone install reaches step 3 and
+digest the coordinator computed. An install whose repository has no coach agent reaches step 3 and
 records `Lens source: bundled configuration`.
 
 Every lens document is read as a document and supplied as lens principles.
@@ -71,10 +73,9 @@ Before loading any lens document or the coordinator:
 
 Digest ownership:
 
-- **Bundled files** — the bundled lens configuration in this file and the
-  bundled coordinator snapshot carry an expected digest in
+- **The bundled lens configuration in this file** carries an expected digest in
   [Trusted manifest](./trusted-manifest.md). Compare the computed digest with
-  it, and do not load the file on a mismatch.
+  it, and do not load the configuration on a mismatch.
 - **Repository coach agents** — these carry no expected digest, because they
   change independently of this package. Items 1 and 2 are the whole
   verification. The coordinator computes the digest, records it as the actual

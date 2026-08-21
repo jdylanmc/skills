@@ -31,10 +31,7 @@ findings section is not evidence of quality.
   `# Artifact Roastmaster`, `## Inputs`, `## Coordinate Mode`,
   `## Synthesize Mode`, or `## Final Output` outside every fenced block. Step 2
   already fell back through the resolution order. Name every attempted path and
-  list every dimension as uncovered. Recovery: restore
-  `agents/artifact-roastmaster.agent.md`, or reinstall the package so its
-  bundled snapshot at `references/agents/artifact-roastmaster.agent.md` is
-  present and intact.
+  list every dimension as uncovered. Recovery: restore `agents/artifact-roastmaster.agent.md`.
 - **`Unsynthesized`** — name the schema defect. The workflow already retried
   `coordinate` once. Recovery: rerun this skill; if it fails again, the
   coordinator resolution is the suspect, so verify which source
@@ -87,10 +84,6 @@ status unchanged.
   configuration omits. Record the lens, its actual digest, and the differing
   dimensions. This is the maintenance trigger to refresh the bundled
   configuration and its digest; see [Trusted lenses](./30-trusted-lenses.md).
-- **Snapshot drift** — the repository coordinator resolved and its digest
-  differs from the value recorded in
-  [Trusted manifest](./trusted-manifest.md). The repository copy is used.
-  Refresh the bundled snapshot and its digest.
 - **Digest verification unavailable** — the runtime could not grant `execute`
   to the caller or coordinator. Return `Insufficient review` before staging
   evidence; no trusted source or evidence identity was verified.
