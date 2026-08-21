@@ -1,4 +1,13 @@
+---
+includes: ["_base/_atoms/approval-gate-mutation.md"]
+requires-skills: []
+---
+
 # Chart Mode
+
+## Required References
+
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
 
 Use Chart mode when the user brings a loose idea without an existing map.
 
@@ -12,7 +21,12 @@ Use Chart mode when the user brings a loose idea without an existing map.
 
 ## Chart Approval Gate
 
-Before any charting write, preview:
+Gate every charting write through the approval-gate-mutation atom named above,
+with `approval-phrase` `Approve and chart` and `scope` set to exactly the
+previewed map and children. The atom owns the offer, the explicit-approval
+rule, and the stale-approval rule.
+
+Preview:
 
 - Destination and success conditions;
 - map title and Notes, including execution policy;
@@ -20,14 +34,6 @@ Before any charting write, preview:
 - initial fog;
 - initial out-of-scope entries;
 - research tickets that will launch automatically.
-
-Offer:
-
-- `Approve and chart`;
-- `Revise`;
-- `Cancel`.
-
-Only explicit approval authorizes creation.
 
 ## Creation
 

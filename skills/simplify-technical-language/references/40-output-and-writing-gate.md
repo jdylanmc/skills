@@ -1,9 +1,13 @@
 ---
-includes: []
+includes: ["_base/_molecules/write-approved.md"]
 requires-skills: []
 ---
 
 # Layered Output and Writing Gate
+
+## Required References
+
+1. [Approved and verified write](../../_base/_molecules/write-approved.md)
 
 ## Derived-Summary Output
 
@@ -122,16 +126,13 @@ When the user explicitly requests a file:
 1. Discover repository documentation conventions and the intended path.
 2. Reuse or update an existing artifact when it has the same identity and
    purpose.
-3. Preview the complete path and content.
-4. Require exact `Approve and write`.
-5. Invalidate approval if any content changes after preview.
-6. Preserve the exact pre-write state and write only the approved content.
-7. Write to a temporary repository-local file or otherwise validate the exact
-   candidate before replacing an existing artifact.
-8. Reread the file and rerun the content-quality gate.
+3. Perform the write through
+   [Approved and verified write](../../_base/_molecules/write-approved.md),
+   supplying `approval-phrase` `Approve and write`, the resolved destination,
+   the complete explanation as `content`, whether the action creates or
+   updates, and the content-quality gate as a `post-check`.
 
-If the written file differs from the approved candidate or fails the gate,
-restore the pre-write state, report the failure, show a corrected preview, and
-require fresh approval.
+The molecule owns the preview, the approval, the stale-approval rule, the
+verified write, and the restore. Do not restate any of it here.
 
 Do not create a documentation file merely because a prior skill produced one.

@@ -1,4 +1,13 @@
+---
+includes: ["_base/_molecules/write-approved.md"]
+requires-skills: []
+---
+
 # Persistence and Update Gates
+
+## Required References
+
+1. [Approved and verified write](../../_base/_molecules/write-approved.md)
 
 ## Default: Conversation Only
 
@@ -12,18 +21,16 @@ When persistence is requested:
 2. Prefer an existing relevant document when the request is to refresh or extend it.
 3. Otherwise propose `docs/architecture/<target-slug>.md`.
 4. Preserve unrelated sections and user-authored notes in an existing document.
-5. Present:
-   - the exact destination path;
-   - whether the action creates or updates;
-   - the complete proposed document or a precise section-level diff;
-   - any uncertain statements that will remain marked as unknown.
-6. Wait for the exact approval phrase `Approve and write`.
-7. Re-read the destination immediately before editing.
-8. Abort and report the conflict if it changed materially after the preview.
-9. Write only the approved content.
-10. Re-read the result and verify all evidence links or relative paths.
+5. Perform the write through the write-approved molecule named above, supplying
+   `approval-phrase` `Approve and write`, the resolved destination, whether the
+   action creates or updates, the complete proposed document or a precise
+   section-level diff as `content`, any statements that will remain marked as
+   unknown as `uncertainties`, and resolution of every evidence link and
+   relative path as a `post-check`.
 
-Approval is scoped to the displayed path and content. A request to inspect, map, document, or explain architecture is not by itself approval to write files unless it explicitly asks for persistence.
+The molecule owns the preview, the approval, the re-read before writing, the
+abort when the destination changed after the preview, the verification, and the
+restore. Do not restate any of it here.
 
 ## Idempotency
 
