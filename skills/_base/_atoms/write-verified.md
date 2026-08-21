@@ -31,12 +31,17 @@ This atom detects both.
    `preview-state`. If it changed materially, abort, write nothing, and report
    the conflict. The approval described a destination that no longer exists.
 2. **Preserve the previous state** so it can be restored.
-3. **Write `content`, and only `content`.** Never merge, reformat, reorder, or
+3. **Stage before replacing.** When the destination already exists, write the
+   candidate to a temporary repository-local file and validate it there, or
+   otherwise validate the exact candidate, **before** replacing the existing
+   artifact. Replacing first and checking afterwards leaves a window in which
+   the destination holds content nobody approved.
+4. **Write `content`, and only `content`.** Never merge, reformat, reorder, or
    add to it. Preserve unrelated sections that the approved content did not
    claim.
-4. **Re-read the destination** and compare with `content`.
-5. **Run `post-checks`** when supplied.
-6. On any mismatch or failed check, **restore the preserved state** and report
+5. **Re-read the destination** and compare with `content`.
+6. **Run `post-checks`** when supplied.
+7. On any mismatch or failed check, **restore the preserved state** and report
    the failure.
 
 ## Output

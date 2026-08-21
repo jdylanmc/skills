@@ -32,6 +32,10 @@ The molecule owns the preview, the approval, the re-read before writing, the
 abort when the destination changed after the preview, the verification, and the
 restore. Do not restate any of it here.
 
+A request to inspect, map, document, or explain architecture is not by itself
+approval to write files, unless it explicitly asks for persistence. Only
+`Save Mode` may write, and only through the molecule.
+
 ## Idempotency
 
 - If the approved document already matches the proposed map, make no edit and report that it is current.
