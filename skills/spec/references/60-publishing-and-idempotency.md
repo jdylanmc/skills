@@ -1,8 +1,22 @@
+---
+includes: ["_base/_atoms/approval-gate-mutation.md"]
+requires-skills: []
+---
+
 # Publishing and Idempotency
+
+## Required References
+
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
 
 ## Publish Approval
 
-Before writing, preview:
+Gate publication through
+[Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
+with `approval-phrase` `Approve and publish`. The atom owns the offer, the
+explicit-approval rule, and the stale-approval rule.
+
+This skill supplies the preview:
 
 - create versus update target;
 - the complete seven-section specification;
@@ -11,13 +25,7 @@ Before writing, preview:
 - the configured label mapped from `ready-for-agent`;
 - the exact local path when using local-only Markdown.
 
-Offer:
-
-- `Approve and publish`;
-- `Revise`;
-- `Cancel`.
-
-Only explicit approval authorizes publication.
+The `scope` is exactly one specification at the previewed target.
 
 ## Duplicate Detection
 

@@ -1,4 +1,13 @@
+---
+includes: ["_base/_atoms/approval-gate-mutation.md"]
+requires-skills: []
+---
+
 # Preview and Approval
+
+## Required References
+
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
 
 Present a numbered breakdown before any write.
 
@@ -26,10 +35,8 @@ Ask focused questions:
 
 Iterate without reopening product decisions.
 
-Offer:
-
-- `Approve and publish`;
-- `Revise`;
-- `Cancel`.
-
-Only explicit approval authorizes publication.
+Gate publication through the approval-gate-mutation atom named above, with
+`approval-phrase` `Approve and publish`, the numbered breakdown above as the
+preview, and `scope` set to exactly the previewed tickets and their dependency
+edges at the named target. The atom owns the offer, the explicit-approval rule,
+and the stale-approval rule.

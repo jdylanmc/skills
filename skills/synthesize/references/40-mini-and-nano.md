@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Mini and Nano Compression
 
 ## Fresh-Context Rule

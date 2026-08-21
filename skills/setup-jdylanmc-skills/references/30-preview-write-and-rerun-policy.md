@@ -1,4 +1,13 @@
+---
+includes: ["_base/_atoms/approval-gate-mutation.md"]
+requires-skills: []
+---
+
 # Preview, Write, and Rerun Policy
+
+## Required References
+
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
 
 ## Exact Preview
 
@@ -17,15 +26,14 @@ When an existing `docs/agents/` file contains compatible additions, merge them i
 
 ## Approval Gate
 
-Offer:
+Gate every write through the approval-gate-mutation atom named above, with
+`approval-phrase` `Approve and write` and the exact preview from
+`## Exact Preview` as the preview content. The atom owns the offer, the rule
+that a general acknowledgement is not approval, the stale-approval rule, and
+the repeat-until-approved-or-cancelled loop.
 
-- `Approve and write`;
-- `Revise`;
-- `Cancel`.
-
-Only `Approve and write`, or an equally explicit statement naming the write action, authorizes edits. A general acknowledgement is not approval.
-
-Repeat preview and revision until approved or cancelled.
+`scope` is exactly the files named in the preview. An approval never authorizes
+an adjacent file.
 
 ## Writing
 

@@ -22,10 +22,18 @@ Every claim used in a decision must be traceable to an entry here.
 | `agents/skill-coach.agent.md` frontmatter | 2026-08-20 | commit `e98a372` | Flat single-file units already exist with `name`, `description`, `target`, `tools`, `disable-model-invocation`, and `user-invocable`. Routability control is prior art in this repository, so the atom model needed no new mechanism. | n-0003 |
 | Root `CONTEXT.md` after the c-0002 `/domain-mapping` handoff | 2026-08-20 | sha256 `398c6907df230a1cc869e37c199bacc3fb88d1b1011d1964604c6aab4ea41759` | Canonical confirmed definition of `Molecule`, amended by the user to allow molecule-in-molecule composition. | n-0001 |
 | Survey of all 21 routable skill packages | 2026-08-20 | working tree at commit `e98a372` | Every skill has a `references/` directory and a `## Required References` section - composition is already universal. **No routable skill has a `scripts/` directory**; `skills/_base/chronicler/` is the only script-bearing package in the repository. Only `ship-with-squadron` declares a non-empty `requires-skills`. | n-0001, n-0004, n-0006 |
-| Reference-file classification scan | 2026-08-20 | working tree at commit `e98a372` | 165 reference files exist across the 21 skills. 135 contain no relative Markdown link, matching the confirmed Atom rule "references no other unit". 30 link to other Markdown units, which is molecule-shaped. The atom/molecule split already exists in the tree, unnamed, at a 135/30 ratio. | n-0001, n-0007 |
+| Reference-file classification scan | 2026-08-20 | working tree at commit `e98a372` | 165 reference files exist across the 21 skills. 135 contain no relative Markdown link, matching the confirmed Atom rule "references no other unit". 30 link to other Markdown units, which is molecule-shaped. **Corrected in c-0004: the true split is 134 link-free and 31 linked.** One file was misclassified. | n-0001, n-0007 |
 | `scripts/conformance.test.mjs` lines 298 and 385 | 2026-08-20 | commit `e98a372` | Both assert the include closure reaches `_base/chronicler/BASE.md`. Decomposing Chronicler changes that path, so both assertions are in the blast radius and are named in the acceptance criteria of Task #34. | n-0006 |
 | Root `CONTEXT.md` after the c-0003 `/domain-mapping` handoff | 2026-08-20 | sha256 `e9b4fb986f490f59d6c414fd53e1a0bf48561ebe84cd988cb00e0ba483d2f760` | Canonical confirmed definition of `Skill`, including the user's framing "the contract the agent understands" and `organism` as a discouraged alias. All three composition levels are now confirmed. | n-0001 |
 | GitHub issues #33 and #34 | 2026-08-20 | created in c-0003 | Branch and Task published from nodes n-0003 and n-0006, each carrying its immutable promotion key, with #34 wired as a native sub-issue of #33. | n-0003, n-0006 |
+| `scripts/validate-skill-graph.mjs` lines 275, 306, 342-344 | 2026-08-20 | commit `274b816` | Level is derived from path; a `level` declared outside a level namespace is rejected by name. A passing test `rejects a level declared outside a level namespace` exists. This is the shipped implementation of the c-0002 requirement and the direct contradiction of the c-0003 requirement revoked in c-0004. | n-0003, n-0001, n-0004 |
+| `AGENTS.md` line 16, plus direct observation of this cycle's own runtime | 2026-08-20 | commit `274b816` | "`includes` frontmatter is a dependency-graph mirror, not a directive to load every listed file into model context. Consumers read Markdown in the documented order." Corroborated empirically: the runtime injected only `SKILL.md` and enumerated reference paths; no reference content existed in context until it was explicitly read, in the order `## Required References` prescribed. Establishes that incorporation is by instruction plus relative link, and that runtime places no constraint on unit location. | n-0002, n-0003 |
+| Repository-wide digest comparison over every Markdown file in `skills/`, `agents/`, and `doctrine/` | 2026-08-20 | commit `274b816` | Exactly **one** group of byte-identical files exists: `agents/artifact-roastmaster.agent.md` and three vendored copies under `skills/roast-this-{agent,prompt,skill}/references/agents/`, all at sha256 `79b6b059d9d6d0a1c8024b8ce15f08d916fbd4c9e280d0795891cd5e8c7ef478`, 591 lines each. 1,773 of those 2,364 lines are pure duplication. No second byte-identical pair exists anywhere in the repository. | n-0007 |
+| Measured scale of the reference population | 2026-08-20 | commit `274b816` | 165 files, 16,671 lines, 929 level-two headings. Line counts: minimum 12, median 60, 90th percentile 208, maximum 591. Recorded because the loop used the heading count as an atom-count proxy in c-0004 Q3 without first establishing that a heading is an operation, and the user rejected the resulting projection. | n-0004, n-0005 |
+| `skills/roast-this-prompt/` package read in full | 2026-08-20 | commit `274b816` | `SKILL.md` 123 lines; `10-prompt-roast-contract.md` 208 lines and 9 headings; `20-failure-and-recovery.md` 108 lines and 5 headings; `30-trusted-lenses.md` 268 lines and 8 headings; `trusted-manifest.md` 41 lines and 0 headings; plus the 591-line vendored coordinator. The `30-trusted-lenses.md` headings divide cleanly into operations - coordinator resolution, lens resolution, integrity verification, drift detection, model routing - and three lens-content sections that are data rather than operations. | n-0004, n-0007 |
+| First migration executed - branch `atomize-roast-this-prompt`, pull request #37 | 2026-08-20 | commits `f9b0ff2`, `12e4e93`, `708823d`, `24bc1fc` | Six units created, taking the population from 3 to 9. Clusters C7 and C5 collapsed across 8 consumer skills. `validate-skill-graph.mjs` reports 43 participating Markdown files, up from 17. Suite 101 passing. Measured ratio: roughly 1.5 units per duplicated behavior, and materially fewer than one unit per reference file, because a unit is extracted from a section rather than from a file. Net line change +681 / -138 across `skills/`: the pass removed about 146 lines of duplicated prose and added declared contracts the copies never had. | n-0004, n-0005, n-0007 |
+| `validate-skill-graph.mjs` lines 8, 87, 115, 292, 304 | 2026-08-20 | commit `274b816` | Section scan matches `## Required References` or `## Required Files` and runs to the next `##` heading or end of file. `unitNameOf` takes the first dot-separated segment. `stem` is the file name minus `.md`, and frontmatter `name` must equal it. Together these decided the naming convention: a `<purpose>.atom.md` suffix would force `name: <purpose>.atom` and would break support-file pairing for any unit with a script. | n-0003, n-0005 |
+| Adversarial review of pull request #37 | 2026-08-20 | reviewed commit `708823d` | Executed the six-file CI set, the validator, full consumer diffs, nine validator-evasion fixtures, a required-reference boundary scan, a link resolver, and frontmatter inspection. All nine evasion fixtures were rejected and every added link resolved, so the PR #36 hardening held. Returned five contract regressions, all reproduced independently and fixed in `24bc1fc`. | n-0005 |
 
 ## Research Results
 
@@ -67,6 +75,84 @@ the confirmed definition: an atom references no other unit of composition, so
 the existing dependency-graph validator can decide the question without human
 judgment.
 
+### c-0004 - Verified duplication inventory
+
+Delegated to a read-only research subagent and independently verified by the
+loop. Twelve accepted clusters; nine near-misses rejected with reasons.
+
+| Bucket | Files |
+| --- | ---: |
+| In at least one accepted duplication cluster | 36 |
+| In a rejected near-miss only | 26 |
+| No cluster; genuinely skill-specific | 103 |
+| **Total** | **165** |
+
+Strongest clusters:
+
+| Cluster | Proposed unit | Level | Similarity | Skills |
+| --- | --- | --- | --- | ---: |
+| N1 | `coordinate-artifact-roast` | molecule | byte-identical | 3 |
+| C1 | `resolve-artifact-roast-sources` | molecule | identical | 3 |
+| C5 | `explicit-write-approval-gate` | atom | same rule, different wording | 6 |
+| C2 | `report-artifact-roast-failure` | atom | same rule, different wording | 3 |
+| C4 | `validate-artifact-roast-envelope` | atom | same rule, different wording | 3 |
+| C6 | `verify-trusted-bundled-file` | atom | same rule, different wording | 3 |
+
+N1 is the only cluster proven by digest rather than by judgment. C5 is the
+widest non-identical cluster, spanning `breakdown-code-architecture`,
+`breakdown-to-tickets`, `discovery`, `setup-jdylanmc-skills`,
+`simplify-technical-language`, and `spec`.
+
+**Material negative finding.** `roast-this-code` was expected to be a fourth
+member of the roast family and joins **none** of its clusters. It uses a
+different council, trust model, envelope schema, terminators, and failure
+semantics. The subagent recorded the divergence rather than forcing a match.
+
+**Standing tension.** The three vendored coordinator copies are deliberate:
+digest-pinned, package-local fallbacks that let a roast skill install standalone.
+`skills/roast-this-prompt/SKILL.md` states it directly - "Every one of them
+resolves inside this package when the surrounding repository does not supply it,
+so a standalone install never fails on a missing dependency." Collapsing them to
+one shared unit removes that property. Recorded as an unresolved requirement
+rather than an inventory finding, because it is a user decision.
+
+
+### c-0005 - Collapse loses the strictest copy, and that is the dominant failure mode
+
+Seven regressions were found in the first migration: two by the loop's own audit
+of removed prose, five by an adversarial review with a mandate to execute. Five
+of the seven were the same class.
+
+| Regression | Lost requirement | Owner of the fix |
+| --- | --- | --- |
+| `write-verified` validated only after writing | Stage and validate the candidate **before** replacing an existing artifact | unit |
+| `breakdown-code-architecture` scope rule | A request to inspect or document architecture is not by itself approval to write | caller |
+| Diff passed as `content` | The preview may show a diff; the payload is always the complete document | caller and unit |
+| Timeout not retried | Retry once on timeout or unreadable package before declaring unavailable | unit |
+| Identity echo weakened | Identity must appear in `Skill Summary` and equal that value in every finding | unit |
+
+The rule this establishes: **when N copies of a behavior differ, the union of
+their requirements is larger than any single copy.** Collapsing to the most
+common wording, or to the clearest-looking copy, silently drops whichever copy
+was strictest. The strictest copy is usually strictest because someone hit the
+failure it prevents.
+
+Collapse is therefore a three-step operation, not a move:
+
+1. take the **union** of the requirements across every copy;
+2. decide, per requirement, whether it belongs to the unit or to the caller;
+3. audit the removed text against the unit plus the caller before merge.
+
+Step 3 is currently a human diff review. Whether it can be automated is open
+fog on n-0005. It is the strongest available answer so far to "what check proves
+collapse", and it is deliberately not claimed to be automatable yet.
+
+Corollary, now confirmed three times in one session: a read-only adversarial
+review of this repository finds nothing. Both reviews given an explicit mandate
+to execute, and to attach a reproducing command and its output to each finding,
+returned real defects within minutes.
+
+
 ## Prototype Outputs
 
 ### c-0002 - Derived versus authored reverse links
@@ -96,5 +182,22 @@ not execution.
 
 - `docs/` is untracked in git at commit `e98a372`, so this discovery package is
   currently outside version control. Recorded at session setup on 2026-08-20.
+  **Resolved:** committed in `ca9b668`.
 - `skills/reinforce-skill/` is untracked and exists in no commit. It is counted
-  in the 22 directory entries but is not part of the committed skill set.
+  in the 22 directory entries but is not part of the committed skill set. Still
+  open as of c-0004; the user has never decided its disposition.
+- **c-0003 digest bookkeeping is unreliable.** Its recorded `exit-state-digest`
+  and `exit-root-map-digest` do not reproduce from the files it wrote, although
+  `exit-root-lexicon-digest` does, and `git` proves no file changed after the
+  single commit that introduced them. c-0004 recomputed and verified its own
+  baseline, so drift detection from c-0004 forward is sound. Any comparison
+  against a pre-c-0004 recorded digest is not.
+- **A delegated survey's completeness claim was false.** The duplication
+  inventory's first pass reported "no files were sampled or skipped" while
+  having read 140 of 165 files, missing every file in a nested
+  `references/**/` subdirectory. It was corrected only because the count was
+  checked independently. Treat any subagent self-report of coverage as
+  unverified until counted.
+- The duplication inventory is a static comparison of Markdown. No skill was
+  executed and no behavioral test was run, so "same behavior" is a reading of
+  the instructions rather than an observation of what the skills do.

@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Input, Stage, and Output Contract
 
 ## Source Contract

@@ -1,4 +1,13 @@
+---
+includes: ["_base/_atoms/approval-gate-mutation.md"]
+requires-skills: []
+---
+
 # Work Mode and Completion
+
+## Required References
+
+1. [Approval gate for a mutation](../../_base/_atoms/approval-gate-mutation.md)
 
 Use Work mode when the user provides or refers to an existing map or child ticket.
 
@@ -17,7 +26,12 @@ Use Work mode when the user provides or refers to an existing map or child ticke
 
 ## Resolve and Update Approval Gate
 
-Before consequential writes, preview:
+Gate consequential writes through the approval-gate-mutation atom named above,
+with `approval-phrase` `Approve and update` and `scope` set to exactly the
+previewed deltas. The atom owns the offer, the explicit-approval rule, and the
+stale-approval rule.
+
+Preview:
 
 - resolution record;
 - ticket closure;
@@ -28,12 +42,6 @@ Before consequential writes, preview:
 - graduated fog;
 - invalidated or revised tickets;
 - Destination or scope changes.
-
-Offer:
-
-- `Approve and update`;
-- `Revise`;
-- `Cancel`.
 
 After approval:
 

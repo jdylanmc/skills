@@ -2,6 +2,7 @@
 name: simplify-technical-language
 description: Builds shared understanding from an existing technical design, architecture artifact, specification, or sufficiently settled design conversation through evidence-grounded clarification, layered explanation, and repeated Simplified Technical English guardrail reviews. Invoke when readers need an accurate mental model of an established design. Do not invoke to discover architecture, resolve design or vocabulary decisions, produce a specification, implement changes, or copyedit prose.
 allowed-tools: ["read", "search", "edit", "task"]
+includes: ["_base/_molecules/review-ste-coach.md","_base/_molecules/write-approved.md","simplify-technical-language/references/10-role-composition-and-boundaries.md","simplify-technical-language/references/20-evidence-audience-and-model.md","simplify-technical-language/references/30-rounds-and-ste-review.md","simplify-technical-language/references/40-output-and-writing-gate.md","simplify-technical-language/references/50-safeguards-and-scenarios.md"]
 ---
 
 # Simplify Technical Language
@@ -24,6 +25,8 @@ Read and follow these files in order:
 3. [Clarification and synthesis rounds](./references/30-rounds-and-ste-review.md)
 4. [Layered output and writing gate](./references/40-output-and-writing-gate.md)
 5. [Safeguards, errors, and scenarios](./references/50-safeguards-and-scenarios.md)
+6. [Review with the Simplified Technical English Coach](../_base/_molecules/review-ste-coach.md)
+7. [Approved and verified write](../_base/_molecules/write-approved.md)
 
 ## Core Workflow
 

@@ -109,10 +109,27 @@ All three composition levels are now confirmed vocabulary.
 
 ### Open domain questions
 
-- How is a referenced unit's instruction text actually incorporated at runtime,
-  given that `includes` is a dependency mirror rather than a loading directive?
-- Which of the 165 existing reference files are genuinely duplicated, as opposed
-  to merely similar?
+- RESOLVED in c-0004. A referenced unit is incorporated by the consuming unit's
+  prose instructing the agent to read it by relative link. `includes` takes no
+  part in loading, and runtime places no constraint on where a unit lives.
+- RESOLVED in c-0004. The duplication inventory is complete and verified: 36 of
+  165 reference files fall in 12 clusters, 26 in rejected near-misses, and 103
+  are genuinely skill-specific.
+- **New.** What naming convention governs a global flat namespace holding well
+  over a hundred units? The three existing units disagree with the inventory's
+  proposals already: `chronicle-append` is noun-verb, while
+  `resolve-artifact-roast-sources` is verb-noun. Under the c-0004 decision that
+  address is the sole authority for level, every unit name becomes globally
+  unique and permanently addressable, so this is now a domain question rather
+  than a style preference.
+
+### Level namespace after c-0004
+
+The c-0004 Q1 answer promotes `Level namespace` from a convenient location to
+the **sole locus of unit identity**. A Markdown file inside one is a unit; a
+Markdown file outside one is not a unit at all and carries no level. The term's
+written definition did not change, so no `/domain-mapping` handoff was raised
+for it; its significance changed, not its meaning.
 
 ### Conflicts awaiting `/domain-mapping`
 
