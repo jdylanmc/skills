@@ -4,6 +4,7 @@ description: Resolve one agent document by name from the standard locations, ver
 level: atom
 allowed-tools: ["read", "search", "execute"]
 includes: []
+used-by: ["roast-this-agent/references/30-trusted-lenses.md","roast-this-prompt/references/30-trusted-lenses.md","roast-this-skill/references/30-trusted-lenses.md"]
 ---
 
 # Agent Resolve

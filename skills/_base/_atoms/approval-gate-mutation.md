@@ -4,6 +4,7 @@ description: Preview one exact mutation, offer approve, revise, or cancel, and r
 level: atom
 allowed-tools: []
 includes: []
+used-by: ["_base/_molecules/write-approved.md","breakdown-to-tickets/references/70-preview-and-approval.md","discovery/references/70-chart-mode.md","discovery/references/80-work-mode-and-completion.md","setup-jdylanmc-skills/references/30-preview-write-and-rerun-policy.md","spec/references/60-publishing-and-idempotency.md"]
 ---
 
 # Approval Gate for a Mutation

@@ -3,6 +3,8 @@ name: chronicler
 description: Keep one bounded running log of skill operations across a long-running session, and replay it on demand. Composes the chronicle append and chronicle replay atoms.
 level: molecule
 includes: ["_base/_atoms/chronicle-append.md","_base/_atoms/chronicle-replay.md","_base/_molecules/chronicler.mjs"]
+used-by: ["post-mortem/SKILL.md","ship-with-squadron/SKILL.md"]
+allowed-tools: ["execute"]
 ---
 
 # Chronicler

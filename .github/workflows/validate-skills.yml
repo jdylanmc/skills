@@ -32,10 +32,14 @@ jobs:
       - name: Validate the skill dependency graph
         run: node scripts/validate-skill-graph.mjs
 
+      - name: Verify derived frontmatter is regenerated and committed
+        run: node scripts/derive-skill-graph.mjs
+
       - name: Run validator, Chronicle, and conformance tests
         run: >-
           node --test
           scripts/validate-skill-graph.test.mjs
+          scripts/derive-skill-graph.test.mjs
           scripts/conformance.test.mjs
           skills/_base/_molecules/chronicler.test.mjs
           skills/_base/_molecules/chronicler.adversarial.test.mjs
