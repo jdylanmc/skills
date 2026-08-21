@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Full Synthesis
 
 ## Goal

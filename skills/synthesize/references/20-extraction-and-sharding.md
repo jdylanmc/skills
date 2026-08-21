@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Extraction, Manifests, and Sharding
 
 ## Immutable Source Manifest

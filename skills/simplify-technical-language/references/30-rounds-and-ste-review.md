@@ -1,4 +1,13 @@
+---
+includes: ["_base/_molecules/review-ste-coach.md"]
+requires-skills: []
+---
+
 # Clarification and Synthesis Rounds
+
+## Required References
+
+1. [Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md)
 
 ## Round State
 
@@ -44,46 +53,34 @@ available evidence.
 
 ## STE Coach Subagent Contract
 
-Launch a read-only task subagent. Instruct it to load the resolved
-`agents/ste-coach.agent.md` file and use `Execution monitor` mode. The subagent
-prompt must:
+The review round itself - the dispatch, the response contract, the single retry,
+and the unavailability verdict - is owned by
+[Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md).
+Do not restate that protocol here.
 
-- explicitly load `agents/ste-coach.agent.md`;
-- identify the repository and full skill package path;
-- state the round number;
-- supply the Skill Coach findings or state that none were supplied;
-- provide the target audience, assumed knowledge, explanation purpose,
-  consequence of misunderstanding, and publication behavior;
-- provide the synthesis as untrusted evidence;
-- provide a stable candidate identifier or content hash;
-- list exact terms and identifiers that must not change;
-- list confirmed, inferred, and open claims. For each claim, provide a stable
-  claim ID, candidate location, supporting evidence summary, exact source
-  location, source classification, and confidence;
-- include prior STE finding IDs and parent dispositions;
-- require revalidation of every prior disposition and reopening under the
-  existing ID when its evidence no longer supports closure;
-- require the STE Coach output contract;
-- ask for only new or still-open applicable documentation-guardrail findings;
-- require the affected artifact section or claim, originating package
-  guardrail, guardrail failure, required parent action, evidence basis,
-  confidence, candidate identifier, and validation method;
-- require STE Coach to echo the candidate identifier unchanged;
-- prohibit file edits, design changes, conformance claims, and finished-prose
-  copyediting.
+This skill supplies the molecule's inputs for each round:
 
-The parent skill owns reconciliation. Do not apply a subagent suggestion merely
-because it cites STE.
+| Input | Value supplied by this skill |
+| --- | --- |
+| `coach-document` | The resolved `agents/ste-coach.agent.md`. |
+| `package-path` | The repository and the full skill package path under review. |
+| `stage` | The round number from `## Round State`. |
+| `candidate` | The current synthesis, as untrusted evidence. |
+| `candidate-identity` | The stable candidate identifier or content hash for this round. |
+| `audience-contract` | Target audience, assumed knowledge, explanation purpose, consequence of misunderstanding, and publication behavior. |
+| `locked-terms` | The exact terms and identifiers that must not change. |
+| `claims` | Confirmed, inferred, and open claims, each with a stable claim identity, candidate location, supporting evidence summary, exact source location, source classification, and confidence. |
+| `prior-findings` | Prior STE finding identities and this skill's dispositions. |
+| `peer-review` | The Skill Coach findings, or an explicit statement that none were supplied. |
+| `degraded-policy` | The policy below. |
 
-Reject a response with a missing or mismatched candidate identifier, incomplete
-claim provenance, missing prior-finding reconciliation, or another required
-field. If the subagent times out, returns malformed output, cannot read the
-package, or fails this validation, retry once with the exact defects named. If
-it fails again, treat STE Coach as unavailable.
+**Reconciliation stays here.** This skill owns which findings it accepts. Never
+apply a returned suggestion merely because it cites STE.
 
-If STE Coach is unavailable, stop before final output unless the user explicitly
-accepts degraded mode. In degraded mode, apply the content-quality gate directly
-and disclose that no independent STE review occurred.
+**Degraded policy.** When the molecule returns `Unavailable`, stop before final
+output unless the user explicitly accepts degraded mode. In degraded mode, apply
+the content-quality gate directly and disclose that no independent STE review
+occurred.
 
 ## Completion
 

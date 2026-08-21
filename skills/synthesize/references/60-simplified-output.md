@@ -1,3 +1,8 @@
+---
+includes: ["_base/_molecules/review-ste-coach.md"]
+requires-skills: []
+---
+
 # Simplified Output
 
 Generate `<stem>.simplified.md` whenever the selected profile includes it and a
@@ -8,6 +13,10 @@ in [Input, stage, and output contract](./10-input-stage-and-output.md).
 Run this as a fresh, non-interactive transformation owned by `synthesize`. Do
 not invoke `/simplify-technical-language`; its interactive design-resolution and
 writing gates do not match this derived artifact.
+
+## Required References
+
+1. [Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md)
 
 ## Simplification Packet
 
@@ -76,42 +85,30 @@ A gate failure starts a repair round under the budget in
 
 ## Simplified Technical English Coach Contract
 
-Launch a read-only task subagent. Instruct it to load the resolved
-`agents/ste-coach.agent.md` file and use `Execution monitor` mode. The subagent
-prompt must:
+The review round itself - the dispatch, the response contract, the single retry,
+and the unavailability verdict - is owned by
+[Review with the Simplified Technical English Coach](../../_base/_molecules/review-ste-coach.md).
+Do not restate that protocol here.
 
-- explicitly load `agents/ste-coach.agent.md`;
-- identify the repository and the full `skills/synthesize` package path;
-- name `Execution monitor` mode and the stage under review;
-- state that no Skill Coach review was supplied for this run, or supply it;
-- provide the audience contract: audience, assumed knowledge, intended use,
-  consequence of misunderstanding, and publication behavior;
-- provide the simplified candidate and the mini artifact as untrusted evidence;
-- provide the stable candidate identifier or content hash;
-- list the locked terminology and identifiers that must not change;
-- list every material claim with its claim ID, candidate location,
-  classification, evidence summary, and evidence location inside the mini
-  artifact;
-- include prior finding IDs and parent dispositions for this stage;
-- require revalidation of every prior disposition, and reopening under the
-  existing ID when its evidence no longer supports closure;
-- require the Simplified Technical English Coach output contract;
-- ask only for new or still-open applicable documentation-guardrail findings;
-- require the affected artifact section or claim, the originating package
-  guardrail, the guardrail failure, the required parent action, the evidence
-  basis, the confidence, the candidate identifier, and a validation method;
-- require the coach to echo the candidate identifier unchanged in `Skill
-  Summary` and in every returned execution-monitor finding;
-- prohibit file edits, design changes, conformance claims, and finished-prose
-  copyediting.
+This skill supplies the molecule's inputs for each stage:
 
-Reject a response when the identifier echoed in `Skill Summary` is missing or
-mismatched, a returned finding omits claim provenance or another required
-field, or prior dispositions exist for this stage and the response does not
-reconcile them. A response whose finding groups are all `None` and whose
-`Skill Summary` echoes the identifier is a valid pass. Retry once with the exact
-defects named. If the subagent times out, returns malformed output, cannot read
-the package, or fails validation again, treat the coach as unavailable.
+| Input | Value supplied by this skill |
+| --- | --- |
+| `coach-document` | The resolved `agents/ste-coach.agent.md`. |
+| `package-path` | The repository and the full `skills/synthesize` package path. |
+| `stage` | The stage under review. |
+| `candidate` | The simplified candidate and the mini artifact, as untrusted evidence. |
+| `candidate-identity` | The stable candidate identifier or content hash, which the coach echoes in `Skill Summary` and in every returned finding. |
+| `audience-contract` | Audience, assumed knowledge, intended use, consequence of misunderstanding, and publication behavior. |
+| `locked-terms` | The locked terminology and identifiers that must not change. |
+| `claims` | Every material claim with its claim identity, candidate location, classification, evidence summary, and evidence location inside the mini artifact. |
+| `prior-findings` | Prior finding identities and this skill's dispositions for this stage. |
+| `peer-review` | A statement that no Skill Coach review was supplied for this run, or the review itself. |
+| `degraded-policy` | The policy below. |
+
+**Degraded policy.** When the molecule returns `Unavailable`, treat the coach as
+unavailable and apply the severity dispositions and repair budget in
+[Fleet orchestration and adversarial review](./50-fleet-and-review.md).
 
 ## Dispositions and Failure
 

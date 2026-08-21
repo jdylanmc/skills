@@ -1,3 +1,8 @@
+---
+includes: []
+requires-skills: []
+---
+
 # Layered Output and Writing Gate
 
 ## Derived-Summary Output
