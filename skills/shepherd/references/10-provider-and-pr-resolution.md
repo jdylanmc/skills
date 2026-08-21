@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Provider Detection and Pull-Request Resolution
 
 ## Establish the Repository

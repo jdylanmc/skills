@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Inputs and Context Gathering
 
 ## Accepted Sources

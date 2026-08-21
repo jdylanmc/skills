@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Interrogation Groups
 
 **Intended reader:** the agent executing a cycle.

@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Images and Assets
 
 ## Choice

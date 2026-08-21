@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Clarifying Questions
 
 ## Default: Do Not Ask

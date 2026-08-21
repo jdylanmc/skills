@@ -43,6 +43,12 @@ two or more atoms or molecules by reference to produce one bounded outcome. A
 **skill** is the only unit that may be invoked directly: the contract the agent
 understands.
 
+Every routable skill directly composes the `chronicler` molecule. A root
+invocation creates one bounded Skill Run Log, nested skills reuse that run
+context, and meaningful lifecycle operations are recorded on a best-effort
+basis. A recording failure is reported as incomplete diagnostics and never
+changes the skill's delivery, approval, mutation, or read-only behavior.
+
 A level namespace contains one same-named root directory per unit. Each unit
 root is flat, contains only regular files, and never contains symbolic links. A
 support file beside a unit is named after that unit, so `chronicler.mjs` and
@@ -82,6 +88,9 @@ Rules the validator enforces:
   itself declare `includes`, so an opted-in entry point has a complete closure.
 - Paths are normalized, forward-slash, case-exact, inside the skills root, and
   free of cycles and duplicates.
+- When Chronicler is installed, every routable `SKILL.md` must opt into the
+  graph and directly compose it. This keeps invocation diagnostics mandatory
+  for current and future skills.
 
 Markdown remains the runtime authority. The frontmatter is a machine-readable
 mirror, not a directive to load every listed file into context. A file with no

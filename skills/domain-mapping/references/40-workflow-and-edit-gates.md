@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Workflow
 
 1. **Locate context artifacts.** Determine whether the repository has no recorded context, one context, or multiple contexts.

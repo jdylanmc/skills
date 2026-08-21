@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Error Handling
 
 - **Input too vague to classify:** Ask one focused question about what is broken or wanted rather than guessing a kind.

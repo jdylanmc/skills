@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Subagent Prompt and Report Contract
 
 ## Reviewer Prompt Template

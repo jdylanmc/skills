@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Repository Context Model
 
 Determine the repository's context structure before proposing edits.

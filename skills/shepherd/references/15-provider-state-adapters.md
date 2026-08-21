@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Provider State Adapters
 
 Normalize provider data into one canonical snapshot. Do not infer a passing

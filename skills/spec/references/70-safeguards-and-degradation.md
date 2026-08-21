@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Safeguards and Degradation
 
 ## Human Gates

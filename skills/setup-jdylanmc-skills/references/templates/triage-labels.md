@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Triage Label Vocabulary
 
 This repository's engineering skills use five canonical triage roles. Provider-specific labels or tags may differ, but every role maps to exactly one configured string.

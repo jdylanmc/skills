@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 <!--
 Seed template for a consumer repository.
 Insert the rendered block below into that repository's CLAUDE.md or AGENTS.md.

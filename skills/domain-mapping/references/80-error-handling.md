@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Error Handling
 
 - **No context artifacts:** Apply the empty-repository default and propose a root `CONTEXT.md`.

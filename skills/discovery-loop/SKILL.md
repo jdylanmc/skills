@@ -2,6 +2,7 @@
 name: discovery-loop
 description: Runs a durable, repeatable fog-of-war discovery loop that turns a vague idea or anchor file into an understood, prioritized, dependency-aware Branch-Story-Task backlog. Invoke to start, resume, or continue daily discovery cycles over a product area, epic, theme, or subsystem, with persisted Markdown state, a product-level mind map, a shared Domain Lexicon, bounded question groups, and approved promotion into the issue tracker. Do not invoke for a bounded interview, a one-time specification, routine ticket slicing, or implementation, and do not invoke for a single tracker-backed route-map or ticket-resolution pass - route that to /discovery.
 allowed-tools: ["read", "search", "edit", "execute", "task"]
+includes: ["_base/_molecules/chronicler/chronicler.md","discovery-loop/references/10-composition-and-ownership.md","discovery-loop/references/20-cycle-workflow.md","discovery-loop/references/30-session-package-and-state.md","discovery-loop/references/40-traversal-and-selection.md","discovery-loop/references/50-interrogation-groups.md","discovery-loop/references/60-domain-lexicon.md","discovery-loop/references/70-research-and-prototypes.md","discovery-loop/references/80-promotion-and-tracker.md","discovery-loop/references/90-safeguards-and-recovery.md","discovery-loop/references/95-examples-and-scenario-tests.md"]
 ---
 
 # Discovery Loop
@@ -21,11 +22,12 @@ Read before the first cycle of an invocation, and follow them for every cycle:
 5. [Interrogation groups](./references/50-interrogation-groups.md)
 6. [Domain Lexicon](./references/60-domain-lexicon.md)
 7. [Safeguards and recovery](./references/90-safeguards-and-recovery.md)
+8. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 Read on demand, before the phase that needs them:
 
 - [Research and prototypes](./references/70-research-and-prototypes.md) - before delegating research or proposing a prototype.
-- [Promotion and tracker mapping](./references/80-promotion-and-tracker.md) - before the promotion-readiness check in step 13b of [Cycle workflow](./references/20-cycle-workflow.md).
+- [Promotion and tracker mapping](./references/80-promotion-and-tracker.md) - before the promotion-readiness check in step 13b of Cycle workflow.
 - [Examples and scenario tests](./references/95-examples-and-scenario-tests.md) - when a situation is ambiguous or a behavior needs confirming.
 
 ## Core Workflow

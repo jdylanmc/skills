@@ -2,6 +2,7 @@
 name: shepherd
 description: Autonomously shepherds exactly one already-open GitHub or Azure DevOps pull request on its writable source branch through human merge by fixing required checks and review feedback, committing and pushing verified changes, performing guarded rebases, and adaptively monitoring ship-ready state until the provider reports it merged. Use only when the user explicitly delegates bounded source-branch mutation and continuous monitoring. Do not use for status-only watching, opening or merging pull requests, one-time review, unsupported hosts, or branches the agent cannot update.
 allowed-tools: ["read", "search", "execute", "edit", "manage_schedule"]
+includes: ["_base/_molecules/chronicler/chronicler.md","shepherd/references/10-provider-and-pr-resolution.md","shepherd/references/15-provider-state-adapters.md","shepherd/references/20-shepherding-loop.md","shepherd/references/30-rebase-and-safety.md","shepherd/references/40-readiness-and-scenarios.md"]
 ---
 
 # Shepherd
@@ -27,6 +28,7 @@ others before performing the action they govern:
 5. Before a readiness transition, human-facing output, recovery, or unusual
    state:
    [Readiness, errors, and scenario tests](./references/40-readiness-and-scenarios.md)
+6. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Human-Facing Outputs
 

@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Safeguards and Capability Degradation
 
 ## Approval Rules

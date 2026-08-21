@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Template Rendering Guide
 
 These files are seed content used by `setup-jdylanmc-skills`. They are not links to configuration files inside this common skills library.

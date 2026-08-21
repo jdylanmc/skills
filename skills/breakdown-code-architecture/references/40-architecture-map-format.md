@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Architecture Map Output Contract
 
 Return the relevant sections in this order. Always include **Scope and Orientation**, **Main Execution and Data Flow**, **Constraints, Risks, and Unknowns**, and **Evidence Index**. Include the remaining sections only when the target has meaningful evidence for them. At symbol or single-flow depth, related module, caller, and test-seam details may be folded into the flow narrative, and the diagram may be omitted when there is no multi-stage path. Do not pad a focused map with repository-wide inventory.

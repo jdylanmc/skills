@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Specification Format
 
 Use these sections in order.

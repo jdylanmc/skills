@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Ticket Formats
 
 This skill renders every payload in one of two canonical shapes. The caller selects the shape; when the caller does not specify one, default to the remote tracker body.

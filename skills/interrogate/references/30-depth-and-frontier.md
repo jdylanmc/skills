@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Choose Interrogation Depth
 
 Begin by asking the user to choose a depth before asking substantive questions:

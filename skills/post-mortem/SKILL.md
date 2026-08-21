@@ -10,7 +10,9 @@ requires-skills: []
 
 Analyze the current session to improve future performance, not to defend the agent, apologize, assign blame, or manufacture criticism. Diagnose observable friction and propose reusable capabilities, evaluators, and lessons without applying or promoting any change.
 
-The `execute` capability exists for exactly one purpose: running the Chronicle read-only replay command on a Skill Run Log the operator explicitly selected. Never use it for anything else.
+The `execute` capability is limited to Chronicle invocation recording and the
+Chronicle read-only replay command on a Skill Run Log the operator explicitly
+selected. Never use it for anything else.
 
 ## Required References
 
@@ -35,7 +37,12 @@ Read and follow these files in order:
 10. Apply the reinforcement lifecycle and validation gates. This skill may create `PROPOSED` candidates, and may mark a candidate `OBSERVED` only across independent operator-selected runs.
 11. Produce the required YAML record, allow a no-finding result, state that no changes or learning were applied, and end with the required final question.
 
-Constraint: Do not edit files, execute any command other than the Chronicle read-only replay command on an operator-selected log, invoke follow-up skills or agents, query prior sessions, write memory, modify instructions, publish artifacts, or promote knowledge. Do not infer operator emotion, intent, or satisfaction from silence, politeness, brevity, or task completion.
+Constraint: Do not edit files, execute any command other than Chronicle
+invocation recording or Chronicle read-only replay on an operator-selected log,
+invoke follow-up skills or agents, query prior sessions, write memory, modify
+instructions, publish artifacts, or promote knowledge. Do not infer operator
+emotion, intent, or satisfaction from silence, politeness, brevity, or task
+completion.
 
 ---
 

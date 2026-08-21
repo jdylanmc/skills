@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Materiality and Completion
 
 Avoid infinite questioning by continuously applying materiality. Stop generating new questions when additional answers would not meaningfully change the objective, boundaries, choices, risks, success criteria, or next actions.

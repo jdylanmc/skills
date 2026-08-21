@@ -2,6 +2,7 @@
 name: spec
 description: Synthesizes a publishable, ready-for-agent implementation specification from settled conversation context, a Discovery map and handoff, prototypes, and repository evidence. Invoke after `/discovery` to write, publish, or update a specification. Confirms testing seams, but does not conduct a broad interview or reopen settled decisions.
 allowed-tools: ["*"]
+includes: ["_base/_molecules/chronicler/chronicler.md","spec/references/10-role-and-boundaries.md","spec/references/20-inputs-and-repository-contracts.md","spec/references/30-evidence-and-synthesis.md","spec/references/40-testing-seams.md","spec/references/50-specification-format.md","spec/references/60-publishing-and-idempotency.md","spec/references/70-safeguards-and-degradation.md","spec/references/80-examples-and-scenarios.md","spec/references/90-error-handling.md"]
 ---
 
 # Spec
@@ -21,6 +22,7 @@ Read and follow these files in order:
 7. [Safeguards and degradation](./references/70-safeguards-and-degradation.md)
 8. [Examples and scenario tests](./references/80-examples-and-scenarios.md)
 9. [Error handling](./references/90-error-handling.md)
+10. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

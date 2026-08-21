@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Reviewer Panel and Personality Discovery
 
 ## Bundled Default Panel

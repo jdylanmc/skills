@@ -2,6 +2,7 @@
 name: interrogate
 description: Interviews users to expose material decisions, dependencies, assumptions, risks, and unknowns before action. Invoke for interrogate, grill, stress-test, pressure-test, challenge, or clarify-my-thinking requests. Researches discoverable facts, preserves user decision authority, and requires confirmation of shared understanding before implementation.
 allowed-tools: ["*"]
+includes: ["_base/_molecules/chronicler/chronicler.md","interrogate/references/10-role-and-boundaries.md","interrogate/references/20-design-tree.md","interrogate/references/30-depth-and-frontier.md","interrogate/references/40-question-contract.md","interrogate/references/50-research-and-decision-rights.md","interrogate/references/60-round-workflow-and-register.md","interrogate/references/70-completion-and-confirmation.md","interrogate/references/80-error-handling.md","interrogate/references/90-examples.md"]
 ---
 
 # Interrogate
@@ -21,6 +22,7 @@ Read and follow these files in order:
 7. [Completion and confirmation](./references/70-completion-and-confirmation.md)
 8. [Error handling](./references/80-error-handling.md)
 9. [Examples](./references/90-examples.md)
+10. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

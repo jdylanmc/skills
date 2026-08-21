@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Examples and Scenario Tests
 
 ## Completed Discovery Map

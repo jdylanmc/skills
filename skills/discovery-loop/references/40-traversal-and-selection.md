@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Traversal, Priority, and Selection
 
 **Intended reader:** the agent executing a cycle.

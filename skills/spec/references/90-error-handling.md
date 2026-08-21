@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Error Handling
 
 - **Missing tracker, domain, or triage guidance:** Stop and direct the user to `/setup-jdylanmc-skills`.

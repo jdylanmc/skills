@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Promotion and Tracker Mapping
 
 **Intended reader:** the agent running step 13b of a cycle in [Cycle workflow](./20-cycle-workflow.md).

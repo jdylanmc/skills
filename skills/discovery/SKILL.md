@@ -2,6 +2,7 @@
 name: discovery
 description: Charts a shared route map and one-question decision or investigation tickets for an effort too large for one agent session whose path to a named Destination is unclear, then resolves tickets one at a time until nothing material remains before execution or handoff. Invoke to chart a map from a loose idea or work an existing Discovery map. Domain-agnostic and planning-first; requires repository issue-tracker guidance.
 allowed-tools: ["*"]
+includes: ["_base/_molecules/chronicler/chronicler.md","discovery/references/10-role-and-boundaries.md","discovery/references/20-tracker-contract.md","discovery/references/30-map-model.md","discovery/references/40-ticket-model-and-types.md","discovery/references/50-fog-and-scope.md","discovery/references/60-frontier-claim-and-concurrency.md","discovery/references/70-chart-mode.md","discovery/references/80-work-mode-and-completion.md","discovery/references/90-safeguards-and-degradation.md","discovery/references/95-examples-and-scenarios.md","discovery/references/99-error-handling.md"]
 ---
 
 # Discovery
@@ -23,6 +24,7 @@ Read and follow these files in order:
 9. [Safeguards and capability degradation](./references/90-safeguards-and-degradation.md)
 10. [Examples and scenario tests](./references/95-examples-and-scenarios.md)
 11. [Error handling](./references/99-error-handling.md)
+12. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

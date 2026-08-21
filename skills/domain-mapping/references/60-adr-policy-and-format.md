@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Architecture Decision Record Qualification
 
 Offer an Architecture Decision Record (ADR) only when all three conditions are true:

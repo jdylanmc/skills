@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Domain Lexicon
 
 **Intended reader:** the agent executing a cycle.

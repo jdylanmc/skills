@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Vertical Slicing Model
 
 A tracer-bullet ticket proves a narrow but complete path through every layer needed for one outcome.

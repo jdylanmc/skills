@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Content Extraction and URL Mapping
 
 ## Main-Content Extraction

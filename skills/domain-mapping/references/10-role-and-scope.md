@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Role
 
 Act as an active domain-mapping partner, not a passive glossary reader.

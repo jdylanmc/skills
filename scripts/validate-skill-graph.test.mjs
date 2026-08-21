@@ -368,6 +368,53 @@ function unit(name, level, includes, body, requiresSkills = []) {
 
 const ATOM = (name) => unit(name, 'atom', [], `# ${name}\n`);
 
+function chroniclerFixture() {
+  return {
+    'skills/_base/_atoms/chronicle-append/chronicle-append.md': ATOM('chronicle-append'),
+    'skills/_base/_atoms/chronicle-replay/chronicle-replay.md': ATOM('chronicle-replay'),
+    'skills/_base/_molecules/chronicler/chronicler.md': unit(
+      'chronicler',
+      'molecule',
+      [
+        '_base/_atoms/chronicle-append/chronicle-append.md',
+        '_base/_atoms/chronicle-replay/chronicle-replay.md',
+      ],
+      '# chronicler\n\n## Required References\n\n1. [Append](../../_atoms/chronicle-append/chronicle-append.md)\n2. [Replay](../../_atoms/chronicle-replay/chronicle-replay.md)\n',
+    ),
+  };
+}
+
+test('requires every routable skill to directly compose Chronicler when it is installed', (t) => {
+  const missing = fixture(t, {
+    ...chroniclerFixture(),
+    'skills/demo/SKILL.md': participating([], '# Demo\n'),
+  });
+  assert.throws(
+    () => validateRepository(missing),
+    /every routable skill must directly compose _base\/_molecules\/chronicler\/chronicler\.md/,
+  );
+
+  const accepted = fixture(t, {
+    ...chroniclerFixture(),
+    'skills/demo/SKILL.md': participating(
+      ['_base/_molecules/chronicler/chronicler.md'],
+      '# Demo\n\n## Required References\n\n1. [Chronicler](../_base/_molecules/chronicler/chronicler.md)\n',
+    ),
+  });
+  assert.doesNotThrow(() => validateRepository(accepted));
+});
+
+test('requires every routable skill to opt in to the graph when Chronicler is installed', (t) => {
+  const root = fixture(t, {
+    ...chroniclerFixture(),
+    'skills/demo/SKILL.md': '# Demo\n',
+  });
+  assert.throws(
+    () => validateRepository(root),
+    /every routable skill must declare includes and directly compose/,
+  );
+});
+
 test('accepts a molecule composing atoms in their level namespaces', (t) => {
   const root = fixture(t, {
     'skills/_base/_atoms/alpha/alpha.md': ATOM('alpha'),

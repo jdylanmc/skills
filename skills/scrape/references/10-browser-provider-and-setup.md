@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Browser Provider and Setup
 
 ## Replaceable Provider Contract

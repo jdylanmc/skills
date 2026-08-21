@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Composition and Corpus Contract
 
 ## Composition

@@ -320,6 +320,44 @@ test('Ship with Squadron composes Chronicle through a complete dependency closur
   );
 });
 
+test('every routable skill directly composes Chronicle through a complete dependency closure', () => {
+  const result = validateRepository(REPOSITORY_ROOT);
+  const chronicler = '_base/_molecules/chronicler/chronicler.md';
+  const append = '_base/_atoms/chronicle-append/chronicle-append.md';
+  const replay = '_base/_atoms/chronicle-replay/chronicle-replay.md';
+
+  for (const skill of result.routableSkills) {
+    const entry = `${skill}/SKILL.md`;
+    assert.ok(
+      result.graph.get(entry)?.includes(chronicler),
+      `${entry} must directly compose the Chronicler molecule`,
+    );
+    const closure = closureFor(result, entry);
+    assert.ok(closure.includes(chronicler), `${entry} must reach Chronicler`);
+    assert.ok(closure.includes(append), `${entry} must reach Chronicle append`);
+    assert.ok(closure.includes(replay), `${entry} must reach Chronicle replay`);
+  }
+});
+
+test('the universal Chronicle contract requires complete best-effort shared-run lifecycle recording', () => {
+  const chronicler = fs.readFileSync(
+    path.join(
+      REPOSITORY_ROOT,
+      'skills/_base/_molecules/chronicler/chronicler.md',
+    ),
+    'utf8',
+  );
+  const contract = sectionBody(chronicler, '## Invocation Contract');
+
+  assert.match(contract, /Before the skill's core workflow/);
+  assert.match(contract, /reuse a caller-supplied run context or\s+create the root context once/);
+  assert.match(contract, /paired `before` and `after` event for each material operation/);
+  assert.match(contract, /Pass `run_id`, `root_skill`, and `log_path` unchanged/);
+  assert.match(contract, /Before every terminal return/);
+  assert.match(contract, /continue the skill/);
+  assert.match(contract, /Do not\s+retry in a loop/);
+});
+
 test('Squadron Control State holds current state only, not a duplicate history', () => {
   const controlState = fs.readFileSync(
     path.join(REPOSITORY_ROOT, 'skills/ship-with-squadron/references/20-control-state-and-state-machine.md'),

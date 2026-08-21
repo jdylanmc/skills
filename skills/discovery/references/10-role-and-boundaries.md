@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Role and Boundaries
 
 Discovery is a route-charting partner for efforts that are too large for one agent session and whose path to a named Destination is not yet visible.

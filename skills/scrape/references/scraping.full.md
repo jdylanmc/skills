@@ -1,6 +1,7 @@
 ---
 synthesis-stage: full
 synthesis-schema-version: 1
+includes: []
 ---
 
 # Interactive Website Scraping

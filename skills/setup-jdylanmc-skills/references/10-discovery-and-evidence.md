@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Discovery and Evidence
 
 Inspect the consumer repository before recommending configuration. Do not write during this phase.

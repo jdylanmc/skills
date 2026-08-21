@@ -2,6 +2,7 @@
 name: scrape
 description: Interactively plans and runs a bounded website crawl through a replaceable browser automation provider, writing one main-content Markdown file per page in a URL-shaped directory tree. Invoke when the user asks to scrape, crawl, archive, or extract a website interactively and wants the raw page tree. Use `/scrape-with-synthesis` instead when the user also wants one crawl-level synthesis set, and `/synthesize` alone when the source is already one local file. Do not use for one-off API requests, unattended bulk harvesting, access-control bypass, CAPTCHA evasion, or destructive browser automation.
 allowed-tools: ["read", "search", "edit", "execute", "playwright-browser_navigate", "playwright-browser_snapshot", "playwright-browser_find", "playwright-browser_click", "playwright-browser_fill_form", "playwright-browser_type", "playwright-browser_press_key", "playwright-browser_wait_for", "playwright-browser_handle_dialog", "playwright-browser_console_messages", "playwright-browser_tabs", "playwright-browser_navigate_back", "playwright-browser_evaluate", "playwright-browser_network_requests", "playwright-browser_network_request", "playwright-browser_take_screenshot", "playwright-browser_close"]
+includes: ["_base/_molecules/chronicler/chronicler.md","scrape/references/10-browser-provider-and-setup.md","scrape/references/20-interactive-crawl-plan.md","scrape/references/30-navigation-auth-and-scope.md","scrape/references/40-content-and-url-mapping.md","scrape/references/50-images-and-assets.md","scrape/references/60-validation-resume-and-errors.md","scrape/references/scraping.full.md","scrape/references/scraping.mini.md","scrape/references/scraping.nano.md"]
 ---
 
 # Scrape
@@ -26,6 +27,7 @@ disagrees with them, these files govern.
 4. [Content extraction and URL mapping](./references/40-content-and-url-mapping.md)
 5. [Images and assets](./references/50-images-and-assets.md)
 6. [Validation, resume, and errors](./references/60-validation-resume-and-errors.md)
+7. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 Read these background orientation files on demand only: when the user asks for
 the scraping model, or when a decision is not covered above. They are
@@ -43,7 +45,7 @@ token.
 - `read` and `search` inspect local crawl artifacts only.
 - `edit` writes page Markdown, the index, the manifest, and temporary siblings
   inside the crawl root.
-- `execute` is limited to: the SHA-256 hashing defined in
+- `execute` is limited to Chronicle invocation recording, the SHA-256 hashing defined in
   [Content extraction and URL mapping](./references/40-content-and-url-mapping.md),
   byte-size measurement, file and directory inspection, atomic rename, removal
   of temporary files by exact recorded path, and the bounded unauthenticated

@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Domain Documentation: Multiple Contexts
 
 This repository uses multiple bounded contexts.

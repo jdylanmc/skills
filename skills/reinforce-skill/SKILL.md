@@ -2,6 +2,7 @@
 name: reinforce-skill
 description: Applies one evidence-backed recommendation from the current session's post-mortem to one existing canonical skill package, validates and adversarially roasts the exact result, opens a pull request, and shepherds that pull request under an explicit merge authorization. Use when the operator invokes "/reinforce-skill <skill-name>" after reviewing a Post-Mortem recommendation. Do not use to create a new skill, edit multiple unrelated skills, apply unvalidated lessons, or bypass review and merge gates.
 allowed-tools: ["read", "search", "execute", "edit", "task"]
+includes: ["_base/_molecules/chronicler/chronicler.md","reinforce-skill/references/10-reinforcement-contract.md","reinforce-skill/references/20-implementation-and-review.md","reinforce-skill/references/30-pull-request-and-completion.md"]
 ---
 
 # Reinforce Skill
@@ -19,6 +20,7 @@ Read and follow these files by phase:
    [Implementation and review loop](./references/20-implementation-and-review.md)
 3. Before publishing, shepherding, or reporting:
    [Pull request, completion, and scenarios](./references/30-pull-request-and-completion.md)
+4. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

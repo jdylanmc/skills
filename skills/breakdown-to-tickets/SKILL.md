@@ -2,6 +2,7 @@
 name: breakdown-to-tickets
 description: Converts an approved plan, published `/spec`, `/discovery` handoff or map, referenced ticket, or current conversation into dependency-ordered tracer-bullet implementation tickets. Previews the breakdown and blocker graph, then publishes one ready-for-agent tracker item per approved slice. Provider-neutral and planning-only.
 allowed-tools: ["*"]
+includes: ["_base/_molecules/chronicler/chronicler.md","breakdown-to-tickets/references/10-role-and-boundaries.md","breakdown-to-tickets/references/20-repository-contracts.md","breakdown-to-tickets/references/30-inputs-and-context-gathering.md","breakdown-to-tickets/references/40-vertical-slicing-model.md","breakdown-to-tickets/references/50-prefactoring-and-wide-refactors.md","breakdown-to-tickets/references/60-ticket-formats.md","breakdown-to-tickets/references/70-preview-and-approval.md","breakdown-to-tickets/references/80-publishing-dependencies-and-frontier.md","breakdown-to-tickets/references/90-safeguards-and-degradation.md","breakdown-to-tickets/references/95-examples-and-scenarios.md","breakdown-to-tickets/references/99-error-handling.md"]
 ---
 
 # Breakdown to Tickets
@@ -23,6 +24,7 @@ Read and follow these files in order:
 9. [Safeguards and degradation](./references/90-safeguards-and-degradation.md)
 10. [Examples and scenario tests](./references/95-examples-and-scenarios.md)
 11. [Error handling](./references/99-error-handling.md)
+12. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

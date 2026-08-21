@@ -1,12 +1,15 @@
 ---
 name: domain-mapping
 description: Refines domain models and canonical vocabulary through evidence-based investigation, concrete edge cases, and explicit confirmation before edits. Invoke to resolve domain terminology, establish bounded contexts, update domain glossaries, map relationships between contexts, or assess whether a consequential decision merits an Architecture Decision Record. Do not invoke for passive glossary lookup, implementation details, code generation, feature specifications, generic programming concepts, or ordinary project documentation.
-allowed-tools: ["read", "search", "edit"]
+allowed-tools: ["read","search","edit","execute"]
+includes: ["_base/_molecules/chronicler/chronicler.md","domain-mapping/references/10-role-and-scope.md","domain-mapping/references/20-investigation-and-resolution.md","domain-mapping/references/30-context-structure.md","domain-mapping/references/40-workflow-and-edit-gates.md","domain-mapping/references/50-context-formats.md","domain-mapping/references/60-adr-policy-and-format.md","domain-mapping/references/70-examples-and-scenario-tests.md","domain-mapping/references/80-error-handling.md"]
 ---
 
 # Domain Mapping
 
 Act as an active domain-mapping partner. Resolve ambiguous language, ownership, lifecycle, and boundary questions; compare stated intent with documentation and code; and record only explicitly confirmed outcomes.
+
+The `execute` grant is reserved for Chronicle invocation recording.
 
 ## Required References
 
@@ -20,6 +23,7 @@ Read and follow these files in order before changing domain artifacts:
 6. [Architecture Decision Record policy and format](./references/60-adr-policy-and-format.md)
 7. [Examples and scenario tests](./references/70-examples-and-scenario-tests.md)
 8. [Error handling](./references/80-error-handling.md)
+9. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

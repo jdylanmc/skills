@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Readiness, Errors, and Scenario Tests
 
 ## Human-Facing Output Rules

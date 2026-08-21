@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Issue Tracker: Azure DevOps
 
 Issues and specifications for this repository live as Azure Boards work items. Prefer configured Azure DevOps tools; use the Azure DevOps CLI extension when command-line access is required.

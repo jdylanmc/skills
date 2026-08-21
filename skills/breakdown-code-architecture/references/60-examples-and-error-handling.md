@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Examples and Error Handling
 
 ## Example: Unfamiliar Symbol

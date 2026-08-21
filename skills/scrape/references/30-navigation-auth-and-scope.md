@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Navigation, Authentication, and Scope
 
 ## Queue Discipline

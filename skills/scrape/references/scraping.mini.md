@@ -1,6 +1,7 @@
 ---
 synthesis-stage: mini
 synthesis-schema-version: 1
+includes: []
 ---
 
 # Interactive Scraping Model

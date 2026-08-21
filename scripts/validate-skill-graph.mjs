@@ -70,6 +70,7 @@ export const LEVEL_NAMESPACES = new Map([
   ['_base/_atoms/', 'atom'],
   ['_base/_molecules/', 'molecule'],
 ]);
+export const CHRONICLER = '_base/_molecules/chronicler/chronicler.md';
 
 function levelNamespaceOf(relativePath) {
   for (const [prefix, level] of LEVEL_NAMESPACES) {
@@ -407,6 +408,22 @@ export function validateRepository(repositoryRoot) {
     for (const target of targets) {
       if (target.endsWith('.md') && !participating.has(target)) {
         throw new Error(`${source}: reachable Markdown include has not opted in: ${target}`);
+      }
+    }
+  }
+
+  if (fs.existsSync(path.join(skillsRoot, ...CHRONICLER.split('/')))) {
+    for (const skill of localSkills) {
+      const entry = `${skill}/SKILL.md`;
+      if (!graph.has(entry)) {
+        throw new Error(
+          `${entry}: every routable skill must declare includes and directly compose ${CHRONICLER}`,
+        );
+      }
+      if (!graph.get(entry).includes(CHRONICLER)) {
+        throw new Error(
+          `${entry}: every routable skill must directly compose ${CHRONICLER}`,
+        );
       }
     }
   }

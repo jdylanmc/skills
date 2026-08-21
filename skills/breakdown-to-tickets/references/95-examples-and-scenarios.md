@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Examples and Scenario Tests
 
 ## Plan to Vertical Slices

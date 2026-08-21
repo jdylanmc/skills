@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Composition Contract
 
 Create Ticket is designed to be called by other skills, not only by a person directly. It must behave predictably as a subroutine.

@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Inputs and Repository Contracts
 
 ## Evidence Inputs

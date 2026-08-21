@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Context Glossary Format
 
 Use this compact structure for a new or deliberately rewritten context glossary:

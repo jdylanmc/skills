@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Acceptance Criteria and Unresolved Items
 
 ## Binary and Checkable

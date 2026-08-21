@@ -2,6 +2,7 @@
 name: roast-this-code
 description: Runs a high-ceremony, personality-driven panel of independent code reviewers and a separate Roastmaster to produce traceable, read-only recommendations. Accepts a pull request, branch diff, working-tree changes, named files, or pasted code. Use when the user explicitly requests a code roast, memorable multi-lens review, or adversarial review panel. Do not use for routine code review, implementation, or any request for security auditing or exploitable-vulnerability analysis—even when the request also says "roast"; route those requests to the dedicated security-review workflow.
 allowed-tools: ["read", "search", "execute", "task"]
+includes: ["_base/_molecules/chronicler/chronicler.md","roast-this-code/references/10-role-scope-and-evidence.md","roast-this-code/references/20-reviewer-panel.md","roast-this-code/references/30-subagent-contract.md","roast-this-code/references/40-roastmaster-synthesis.md","roast-this-code/references/50-executive-summary.md","roast-this-code/references/60-output-and-tone.md","roast-this-code/references/70-safeguards-and-scenarios.md"]
 ---
 
 # Roast This Code
@@ -25,6 +26,7 @@ Read and follow these files in order:
 5. [Executive summary composition](./references/50-executive-summary.md)
 6. [Final output and tone](./references/60-output-and-tone.md)
 7. [Safeguards, errors, and scenarios](./references/70-safeguards-and-scenarios.md)
+8. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

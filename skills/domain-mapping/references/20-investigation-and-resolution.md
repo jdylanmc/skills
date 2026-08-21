@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Evidence-Based Investigation
 
 Use `read` to inspect known artifacts, `search` to locate terms and behavior across the repository, and `edit` only after the applicable approval gate.

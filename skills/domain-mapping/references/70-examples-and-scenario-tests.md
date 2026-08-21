@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Investigation Examples
 
 ### Same Name, Different Meaning

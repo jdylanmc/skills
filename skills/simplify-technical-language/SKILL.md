@@ -1,8 +1,8 @@
 ---
 name: simplify-technical-language
 description: Builds shared understanding from an existing technical design, architecture artifact, specification, or sufficiently settled design conversation through evidence-grounded clarification, layered explanation, and repeated Simplified Technical English guardrail reviews. Invoke when readers need an accurate mental model of an established design. Do not invoke to discover architecture, resolve design or vocabulary decisions, produce a specification, implement changes, or copyedit prose.
-allowed-tools: ["read", "search", "edit", "task"]
-includes: ["_base/_molecules/review-ste-coach/review-ste-coach.md","_base/_molecules/write-approved/write-approved.md","simplify-technical-language/references/10-role-composition-and-boundaries.md","simplify-technical-language/references/20-evidence-audience-and-model.md","simplify-technical-language/references/30-rounds-and-ste-review.md","simplify-technical-language/references/40-output-and-writing-gate.md","simplify-technical-language/references/50-safeguards-and-scenarios.md"]
+allowed-tools: ["read","search","edit","task","execute"]
+includes: ["_base/_molecules/chronicler/chronicler.md","_base/_molecules/review-ste-coach/review-ste-coach.md","_base/_molecules/write-approved/write-approved.md","simplify-technical-language/references/10-role-composition-and-boundaries.md","simplify-technical-language/references/20-evidence-audience-and-model.md","simplify-technical-language/references/30-rounds-and-ste-review.md","simplify-technical-language/references/40-output-and-writing-gate.md","simplify-technical-language/references/50-safeguards-and-scenarios.md"]
 ---
 
 # Simplify Technical Language
@@ -14,7 +14,8 @@ explanation without simplifying away the design.
 
 Read and search provide evidence. Task invokes the Simplified Technical English
 (STE) Coach as a read-only subagent. Edit is reserved for a repository-local
-artifact that passes the explicit writing gate.
+artifact that passes the explicit writing gate. Execute is reserved for
+Chronicle invocation recording.
 
 ## Required References
 
@@ -27,6 +28,7 @@ Read and follow these files in order:
 5. [Safeguards, errors, and scenarios](./references/50-safeguards-and-scenarios.md)
 6. [Review with the Simplified Technical English Coach](../_base/_molecules/review-ste-coach/review-ste-coach.md)
 7. [Approved and verified write](../_base/_molecules/write-approved/write-approved.md)
+8. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

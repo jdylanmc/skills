@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Fog and Scope
 
 ## Not Yet Specified

@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Issue Tracker: Local-only Markdown
 
 All issues, specifications, Discovery maps, and child tickets for this repository live as Markdown under `.scratch/`. No remote issue tracker is used.

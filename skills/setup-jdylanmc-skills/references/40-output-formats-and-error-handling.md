@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Output Formats and Error Handling
 
 ## Agent Skills Block

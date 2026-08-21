@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Examples and Scenario Tests
 
 **Intended reader:** the agent resolving an ambiguous situation, and the human reviewing the package's behavior.

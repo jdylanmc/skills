@@ -183,6 +183,13 @@ export function deriveGraph(repositoryRoot) {
     const entry = parsedByFile.get(relativeFile);
     const granted = entry.parsed.allowedTools;
     if (granted === null) {
+      const required = unionTools(unitClosure(result.graph, relativeFile), resolvedTools);
+      grantViolations.push({
+        relativeFile,
+        missing: required,
+        required,
+        granted: [],
+      });
       continue;
     }
     if (granted.includes(WILDCARD)) {

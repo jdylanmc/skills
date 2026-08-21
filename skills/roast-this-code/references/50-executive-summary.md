@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Executive Summary Composition
 
 ## Source of Truth

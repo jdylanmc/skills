@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Ticket Model and Types
 
 Each ticket:

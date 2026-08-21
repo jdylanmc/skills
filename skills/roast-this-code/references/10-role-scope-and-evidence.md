@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Role, Scope, and Evidence
 
 ## Role
@@ -83,7 +87,8 @@ reviewer for producing more findings.
 
 ## Read-Only Command Policy
 
-Execution is limited to read-only repository and provider inspection, such as
+Chronicle invocation recording is the only permitted write in this read-only
+skill. All other execution is limited to read-only repository and provider inspection, such as
 `git status`, `git rev-parse`, `git merge-base`, `git diff`, `git show`,
 `git log`, `git ls-files`, `git remote get-url`, `gh pr view`, `gh pr diff`,
 and equivalent read-only Azure DevOps queries.
@@ -91,8 +96,8 @@ and equivalent read-only Azure DevOps queries.
 Do not run builds, tests, linters, formatters, package managers, generators, or
 scripts unless the repository proves they are non-mutating. Prefer existing
 continuous-integration results. Never install dependencies, update snapshots,
-write caches, modify files, or contact an external service except to read the
-explicit pull-request scope.
+write caches, modify files, or contact an external service except to append the
+bounded Skill Run Log or read the explicit pull-request scope.
 
 ## Context Budget
 

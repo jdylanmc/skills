@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Research and Prototypes
 
 **Intended reader:** the agent about to delegate research or propose a prototype.

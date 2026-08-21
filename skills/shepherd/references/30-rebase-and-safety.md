@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Rebase, Push, and Safety Policy
 
 ## Automatic Rebase

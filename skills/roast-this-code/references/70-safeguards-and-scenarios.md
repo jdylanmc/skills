@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Safeguards, Errors, and Scenarios
 
 ## Safeguards

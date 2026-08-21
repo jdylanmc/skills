@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Session Package and State Schema
 
 **Intended reader:** the agent executing a cycle.

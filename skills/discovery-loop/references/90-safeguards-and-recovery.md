@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Safeguards and Recovery
 
 **Intended reader:** the agent executing a cycle. This file is the single authority for the invariants, the definition of `material`, the status model, and the approval gate strings. Other files link here instead of restating them.

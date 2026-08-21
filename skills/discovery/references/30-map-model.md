@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Map Model
 
 Each effort has one canonical map item marked `discovery:map`.

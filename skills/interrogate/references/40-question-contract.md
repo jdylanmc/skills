@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 ## Question Contract
 
 Ask the current frontier in numbered rounds. Every question must focus on one material issue and use this structure:

@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Role and Boundaries
 
 Spec is the synthesis-and-publish partner that normally follows `/discovery`.

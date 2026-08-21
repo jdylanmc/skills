@@ -148,6 +148,37 @@ test('a skill whose grant does not cover a transitively composed atom is reporte
   assert.equal(derived.grantViolations[0].relativeFile, 'zulu/SKILL.md');
 });
 
+test('a skill with no allowed-tools grant is reported rather than skipped', () => {
+  const root = makeRepository();
+  writeAtom(root, 'alpha', { tools: ['execute'] });
+  writeAtom(root, 'beta', { tools: [] });
+  writeMolecule(root, 'gamma', ['alpha', 'beta']);
+
+  fs.mkdirSync(path.join(root, 'skills', 'zulu'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'skills', 'zulu', 'SKILL.md'),
+    [
+      '---',
+      'name: zulu',
+      'description: Skill zulu.',
+      'includes: ["_base/_molecules/gamma/gamma.md"]',
+      '---',
+      '',
+      '# zulu',
+      '',
+      '## Required References',
+      '',
+      '1. [gamma](../_base/_molecules/gamma/gamma.md)',
+      '',
+    ].join('\n'),
+  );
+
+  const derived = deriveGraph(root);
+  assert.equal(derived.grantViolations.length, 1);
+  assert.deepEqual(derived.grantViolations[0].missing, ['execute']);
+  assert.deepEqual(derived.grantViolations[0].granted, []);
+});
+
 test('a skill grant is never rewritten, only reported', () => {
   const root = makeRepository();
   writeAtom(root, 'alpha', { tools: ['execute'] });

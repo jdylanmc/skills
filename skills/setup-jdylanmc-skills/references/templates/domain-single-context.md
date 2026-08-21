@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Domain Documentation: Single Context
 
 This repository uses one domain context.

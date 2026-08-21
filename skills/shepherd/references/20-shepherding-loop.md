@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Shepherding Loop
 
 ## Build a Fresh Snapshot

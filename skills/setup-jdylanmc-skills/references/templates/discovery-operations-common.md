@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Shared Discovery Operations
 
 Tracker templates adapt this contract to their native concepts. Setup records the contract; it does not execute `/discovery`.

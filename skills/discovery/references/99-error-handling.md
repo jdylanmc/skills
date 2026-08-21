@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Error Handling
 
 - **Missing tracker guidance:** Direct the user to `/setup-jdylanmc-skills`; offer an explicitly confirmed local-only fallback; never invent provider behavior.

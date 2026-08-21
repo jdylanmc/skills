@@ -2,6 +2,7 @@
 name: scrape-with-synthesis
 description: Composes `/scrape` and `/synthesize` in one user-facing session: interactively crawls a website into a URL-shaped Markdown tree, builds one retained crawl corpus, and produces one crawl-level full, mini, simplified, and nano synthesis set. Invoke when the user wants both a navigable local scrape and a durable synthesis of the complete crawl. Use `/scrape` alone for the raw page tree only, and `/synthesize` alone when the source is already one local file. Do not use when either child skill is unavailable, for per-page synthesis, or for access-control bypass.
 allowed-tools: ["read", "search", "edit", "execute", "task", "playwright-browser_navigate", "playwright-browser_snapshot", "playwright-browser_find", "playwright-browser_click", "playwright-browser_fill_form", "playwright-browser_type", "playwright-browser_press_key", "playwright-browser_wait_for", "playwright-browser_handle_dialog", "playwright-browser_console_messages", "playwright-browser_tabs", "playwright-browser_navigate_back", "playwright-browser_evaluate", "playwright-browser_network_requests", "playwright-browser_network_request", "playwright-browser_take_screenshot", "playwright-browser_close"]
+includes: ["_base/_molecules/chronicler/chronicler.md","scrape-with-synthesis/references/10-composition-and-corpus.md","scrape-with-synthesis/references/20-validation-and-errors.md"]
 ---
 
 # Scrape With Synthesis
@@ -20,6 +21,7 @@ Read and follow these files in order:
 
 1. [Composition and corpus contract](./references/10-composition-and-corpus.md)
 2. [Validation and errors](./references/20-validation-and-errors.md)
+3. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Tool Use
 

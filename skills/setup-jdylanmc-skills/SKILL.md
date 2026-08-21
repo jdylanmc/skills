@@ -2,6 +2,7 @@
 name: setup-jdylanmc-skills
 description: Configures a consumer repository for jdylanmc engineering skills by discovering existing conventions, interviewing the user about unresolved choices, previewing exact edits, and writing only after explicit approval. Invoke when asked to initialize, set up, configure, or refresh jdylanmc skill guidance in a repository.
 allowed-tools: ["read", "search", "execute", "edit"]
+includes: ["_base/_molecules/chronicler/chronicler.md","setup-jdylanmc-skills/references/10-discovery-and-evidence.md","setup-jdylanmc-skills/references/20-sequential-interview.md","setup-jdylanmc-skills/references/30-preview-write-and-rerun-policy.md","setup-jdylanmc-skills/references/40-output-formats-and-error-handling.md","setup-jdylanmc-skills/references/templates/README.md","setup-jdylanmc-skills/references/templates/agent-skills-section.md","setup-jdylanmc-skills/references/templates/discovery-operations-common.md","setup-jdylanmc-skills/references/templates/domain-multi-context.md","setup-jdylanmc-skills/references/templates/domain-single-context.md","setup-jdylanmc-skills/references/templates/issue-tracker-azure-devops.md","setup-jdylanmc-skills/references/templates/issue-tracker-github.md","setup-jdylanmc-skills/references/templates/issue-tracker-gitlab.md","setup-jdylanmc-skills/references/templates/issue-tracker-local.md","setup-jdylanmc-skills/references/templates/triage-labels.md"]
 ---
 
 # Setup jdylanmc Skills
@@ -31,6 +32,7 @@ Use the applicable seed templates:
 - [Agent skills instruction block](./references/templates/agent-skills-section.md)
 - [Single-context domain guidance](./references/templates/domain-single-context.md)
 - [Multi-context domain guidance](./references/templates/domain-multi-context.md)
+6. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

@@ -3,7 +3,7 @@ name: chronicler
 description: Keep one bounded running log of skill operations across a long-running session, and replay it on demand. Composes the chronicle append and chronicle replay atoms.
 level: molecule
 includes: ["_base/_atoms/chronicle-append/chronicle-append.md","_base/_atoms/chronicle-replay/chronicle-replay.md","_base/_molecules/chronicler/chronicler.mjs"]
-used-by: ["post-mortem/SKILL.md","ship-with-squadron/SKILL.md"]
+used-by: ["breakdown-code-architecture/SKILL.md","breakdown-to-tickets/SKILL.md","create-ticket/SKILL.md","discovery-loop/SKILL.md","discovery/SKILL.md","domain-mapping/SKILL.md","interrogate/SKILL.md","post-mortem/SKILL.md","reinforce-skill/SKILL.md","roast-this-agent/SKILL.md","roast-this-code/SKILL.md","roast-this-prompt/SKILL.md","roast-this-skill/SKILL.md","scrape-with-synthesis/SKILL.md","scrape/SKILL.md","setup-jdylanmc-skills/SKILL.md","shepherd/SKILL.md","ship-with-squadron/SKILL.md","simplify-technical-language/SKILL.md","spec/SKILL.md","synthesize/SKILL.md"]
 allowed-tools: ["execute"]
 ---
 
@@ -13,8 +13,8 @@ Keep one bounded Skill Run Log for a root skill invocation, and replay a
 selected log on demand. Chronicler observes what happened. It never owns claims,
 merges, provider state, or delivery authority.
 
-Chronicler is never used on its own. It is composed by a skill that needs
-continuity across a long-running session.
+Chronicler is never used on its own. Every routable skill composes it so each
+invocation leaves bounded diagnostic evidence.
 
 Recording is best effort. A skill that cannot record reports the failure, marks
 its evidence incomplete, and continues delivering.
@@ -40,6 +40,30 @@ once:
 Pass all three values unchanged to every nested skill or agent. A nested
 participant adds only its own `--skill` name. Never re-derive the path from the
 current directory or worktree, and never infer a run from the newest file.
+
+## Invocation Contract
+
+Apply this contract to every routable skill invocation:
+
+1. Before the skill's core workflow, reuse a caller-supplied run context or
+   create the root context once. Probe the append entry point and record one
+   `run` `before` event.
+2. Record one paired `before` and `after` event for each material operation.
+   Record delegation and externally observed degradation as `observation`
+   events.
+3. Pass `run_id`, `root_skill`, and `log_path` unchanged to every nested skill
+   or agent. A nested skill records with its own `--skill` value and never
+   creates a second run.
+4. Before every terminal return, record one `run` `after` event with the final
+   outcome, including refusal, cancellation, blockage, degradation, and
+   failure outcomes.
+5. If recording is unavailable or an append fails, report the stable failure
+   category once, mark diagnostics incomplete, and continue the skill. Do not
+   retry in a loop or convert a recording failure into a workflow failure.
+
+The invocation contract is infrastructure, not new authority. It does not
+weaken any skill's read-only boundary, approval gate, mutation rule, or output
+contract.
 
 ## What to Record
 

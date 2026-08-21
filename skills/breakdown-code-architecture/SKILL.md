@@ -1,12 +1,15 @@
 ---
 name: breakdown-code-architecture
 description: Maps how an existing codebase or selected area is structured and behaves, with evidence from code relationships expressed in the repository's own terms. Invoke when onboarding to a repository, zooming out from unfamiliar code, tracing modules and callers, documenting existing architecture, or asking how a feature fits into the larger system. Do not invoke for routine implementation, narrow debugging, code review, speculative redesign, resolving domain terminology or glossaries, or planning new work.
-allowed-tools: ["read", "search", "edit"]
+allowed-tools: ["read","search","edit","execute"]
+includes: ["_base/_molecules/chronicler/chronicler.md","breakdown-code-architecture/references/10-role-scope-and-boundaries.md","breakdown-code-architecture/references/20-orientation-and-evidence.md","breakdown-code-architecture/references/30-relationship-tracing.md","breakdown-code-architecture/references/40-architecture-map-format.md","breakdown-code-architecture/references/50-persistence-and-update-gates.md","breakdown-code-architecture/references/60-examples-and-error-handling.md"]
 ---
 
 # Breakdown Code Architecture
 
 Build an evidence-backed architecture map for an existing repository or a user-named area. Return the map in the conversation by default. Write architecture documentation only when the user explicitly requests persistence and approves the proposed file change. Never reproduce secret, credential, token, or personal-data values in any output.
+
+The `execute` grant is reserved for Chronicle invocation recording.
 
 ## Required References
 
@@ -18,6 +21,7 @@ Read and follow these files in order:
 4. [Architecture map output contract](./references/40-architecture-map-format.md)
 5. [Persistence and update gates](./references/50-persistence-and-update-gates.md)
 6. [Examples and error handling](./references/60-examples-and-error-handling.md)
+7. [Chronicler recording molecule](../_base/_molecules/chronicler/chronicler.md)
 
 ## Core Workflow
 

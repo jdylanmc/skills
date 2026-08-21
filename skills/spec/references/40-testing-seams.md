@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Testing Seams
 
 A testing seam is the boundary through which tests exercise observable behavior.

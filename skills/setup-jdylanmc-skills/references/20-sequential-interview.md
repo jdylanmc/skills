@@ -1,3 +1,7 @@
+---
+includes: []
+requires-skills: []
+---
 # Sequential Interview
 
 Take sections in order. Ask one question, wait for its answer, then continue. Put the recommended answer first and explain only choices that materially branch.
