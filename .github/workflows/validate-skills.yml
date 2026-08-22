@@ -43,6 +43,8 @@ jobs:
           scripts/conformance.test.mjs
           skills/_base/_molecules/chronicler/chronicler.test.mjs
           skills/_base/_molecules/chronicler/chronicler.adversarial.test.mjs
+          skills/_base/_molecules/persist-bounded-handoff/persist-bounded-handoff.test.mjs
+          skills/_base/_molecules/persist-bounded-handoff/persist-bounded-handoff.adversarial.test.mjs
           skills/_base/_molecules/roast-coordinate-review/roast-coordinate-review.adversarial.test.mjs
           skills/_base/_atoms/chronicle-append/chronicle-append.test.mjs
           skills/_base/_atoms/chronicle-replay/chronicle-replay.test.mjs

@@ -3,3 +3,8 @@
 
 # Skill Run Logs are machine-local evidence and are never committed.
 .skill-log/
+
+# Test sandboxes hold the scratch temporary roots that repository-local tests
+# point the runtime at instead of the real operating-system temporary
+# directory. They are machine-local and are never committed.
+.test-sandbox/
