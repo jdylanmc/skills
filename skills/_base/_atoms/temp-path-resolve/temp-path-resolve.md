@@ -25,17 +25,24 @@ Asking the runtime is the only answer that stays correct.
 ## Operation
 
 ```text
-node <atoms>/temp-path-resolve.mjs --slug <slug> [--child <name>]
+node <atoms>/temp-path-resolve.mjs (--slug <slug> | --slug-source <name>) [--child <name>]
 ```
 
 Exit `0` prints `directory`, `path`, `name`, and `attempt` as JSON. Any
-non-zero exit prints a stable failure category on standard error. Check
-availability with `--probe`, which prints `handoff: available`.
+non-zero exit prints one JSON failure object on standard error.
 
 | Input | Required | Meaning |
 | --- | --- | --- |
-| `--slug` | yes | The repository or work slug that identifies the artifact. Lowercase alphanumeric words joined by single hyphens, at most 64 characters. |
+| `--slug` | one of | An already-normalized slug: lowercase alphanumeric words joined by single hyphens, at most 64 characters. Validated, never rewritten. |
+| `--slug-source` | one of | A raw repository or work name, normalized here. `Xbox.Apps` becomes `xbox-apps`; `Ship_With_Squadron` becomes `ship-with-squadron`. At most 300 UTF-8 bytes, and must hold at least one letter or digit. |
 | `--child` | no | The single child directory name. Defaults to `handoffs`. One lowercase hyphenated name, never a path. |
+| `--probe` | no | Prints `temp-path-resolve: available` and exits `0`. |
+
+Exactly one of `--slug` and `--slug-source` is supplied; both or neither is
+`usage`. The two forms exist so a caller never has to reimplement the
+normalization: pass the raw name and let this atom apply it, or pass a slug you
+already normalized and have it checked. Both end at the same guarantee, so the
+proposed name always matches `^[a-z0-9]+(?:-[a-z0-9]+)*$`.
 
 ## Resolution
 
@@ -67,6 +74,42 @@ availability with `--probe`, which prints `handoff: available`.
 | `path` | The proposed absolute file path. |
 | `name` | The proposed file name. |
 | `attempt` | Which candidate was proposed, starting at `1`. Anything above `1` means a name was already taken. |
+
+## Failure Categories
+
+A failure is one JSON object on standard error, `{"error": {"code", "reason",
+"message"}}`, and the exit status is `1`. `reason` is always present and is
+`null` for every category this atom reports.
+
+| Category | Meaning |
+| --- | --- |
+| `usage` | The arguments were not understood, or neither or both slug forms were supplied. |
+| `malformed_payload` | The slug, slug source, or child name broke a shape or a bound above. |
+| `temp_unavailable` | The runtime reported a temporary directory that does not resolve or is not a directory. This is an environment fault, not caller input. |
+| `unsafe_temp_root` | The child exists with a shape this atom refuses: a symbolic link, a non-directory, or on a system with user identities a directory owned by another user or writable by group or others. |
+| `name_exhausted` | 100 candidate names were all taken. |
+| `unsafe_target` | A candidate name exists but cannot be inspected. |
+| `internal_error` | An unclassified defect in this atom. Report it. |
+
+### Recovering from `unsafe_temp_root`
+
+This is the one failure a caller can be stuck on, because the offending
+directory belongs to somebody else and this atom deletes nothing. In order:
+
+1. **Use a different child.** Pass `--child` with another lowercase hyphenated
+   name. This is the only step a caller can take on its own, it needs no
+   privilege, and it is the recommended answer for an automated run.
+2. **Have the operator inspect and remove the child.** On a shared temporary
+   root a pre-created `handoffs` directory owned by another account is worth
+   looking at before it is deleted; it may be somebody else's tooling, or it
+   may be an attempt to capture handoffs.
+3. **Point the runtime somewhere private.** Setting the platform's temporary
+   directory to a per-user location resolves the whole class, because the child
+   is then created inside a directory only that user can write to.
+
+Never answer this failure by writing into the workspace or by relaxing the
+ownership check. The check exists because a handoff written into a directory
+somebody else controls can be replaced after it was verified.
 
 ## Guarantees
 

@@ -10,10 +10,11 @@ import {
   HandoffError,
   HEADING_ORDER,
   PLACEHOLDER,
-  PROBE_RESPONSE,
+  SCHEMA_VERSION,
   checkArtifactReferences,
   normalizePayload,
   persistBoundedHandoff,
+  probeResponse,
   redactText,
   renderHandoff,
   resolveHandoffPath,
@@ -208,6 +209,46 @@ test('slugify normalizes a repository or work name into a usable slug', () => {
   assert.throws(() => slugify('///'), (error) => error instanceof HandoffError && error.code === 'malformed_payload');
 });
 
+test('a raw repository or work name is accepted as slug_source and normalized here', (t) => {
+  const root = sandbox(t, 'handoff-slug-source');
+  for (const [source, expected] of [
+    ['Xbox.Apps', 'xbox-apps'],
+    ['Ship_With_Squadron', 'ship-with-squadron'],
+    ['users/dylanmccurry/fix-queue', 'users-dylanmccurry-fix-queue'],
+  ]) {
+    assert.equal(normalizePayload(completePayload({ slug: undefined, slug_source: source })).slug, expected);
+  }
+
+  const result = persistBoundedHandoff(
+    completePayload({ slug: undefined, slug_source: 'Xbox.Apps' }),
+    { now: new Date('2026-08-22T07:08:09Z') },
+  );
+  assert.equal(result.name, 'xbox-apps-20260822T070809Z.md');
+  assert.equal(path.dirname(result.path), path.join(root, 'handoffs'));
+
+  // The two forms are alternatives, not a fallback chain.
+  assert.throws(
+    () => normalizePayload(completePayload({ slug_source: 'Xbox.Apps' })),
+    (error) => error instanceof HandoffError && error.code === 'malformed_payload',
+  );
+  assert.equal(
+    resolveHandoffPath({ slugSource: 'Xbox.Apps', now: new Date('2026-08-22T07:08:09Z') }).name,
+    'xbox-apps-20260822T070809Z-01.md',
+  );
+});
+
+test('a payload may declare the schema version it was written against', () => {
+  assert.equal(normalizePayload(completePayload()).schema_version, SCHEMA_VERSION);
+  assert.equal(
+    normalizePayload(completePayload({ schema_version: SCHEMA_VERSION })).schema_version,
+    SCHEMA_VERSION,
+  );
+  assert.throws(
+    () => normalizePayload(completePayload({ schema_version: SCHEMA_VERSION + 1 })),
+    (error) => error instanceof HandoffError && error.code === 'malformed_payload',
+  );
+});
+
 test('the molecule entry point persists a handoff supplied on standard input', (t) => {
   const root = sandbox(t, 'handoff-cli');
   const stdout = execFileSync(process.execPath, [MOLECULE_ENTRY, '--stdin'], {
@@ -223,7 +264,7 @@ test('the molecule entry point persists a handoff supplied on standard input', (
     env: sandboxEnvironment(root),
     encoding: 'utf8',
   });
-  assert.equal(probe.trim(), PROBE_RESPONSE);
+  assert.equal(probe.trim(), probeResponse('persist-bounded-handoff'));
 });
 
 test('every atom entry point is available and performs its own step', (t) => {
@@ -236,6 +277,8 @@ test('every atom entry point is available and performs its own step', (t) => {
     encoding: 'utf8',
   });
 
+  // Each unit answers with its own name. A shared `handoff: available` would
+  // tie generic atoms to a caller they know nothing about.
   for (const name of [
     'artifact-reference',
     'handoff-render',
@@ -243,7 +286,7 @@ test('every atom entry point is available and performs its own step', (t) => {
     'temp-path-resolve',
     'write-guarded',
   ]) {
-    assert.equal(run(name, ['--probe']).trim(), PROBE_RESPONSE, `${name} is not probeable`);
+    assert.equal(run(name, ['--probe']).trim(), probeResponse(name), `${name} is not probeable`);
   }
 
   const redacted = JSON.parse(run('redact-sensitive', ['--stdin'], 'api_key=Sup3rSecretValue'));

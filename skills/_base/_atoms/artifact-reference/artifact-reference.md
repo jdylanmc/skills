@@ -25,13 +25,20 @@ the copy is the one the next reader trusts.
 ## Operation
 
 ```text
-node <atoms>/artifact-reference.mjs --stdin
+node <atoms>/artifact-reference.mjs (--payload <file> | --stdin)
 ```
 
-The payload is `{"references": [...], "bodies": {"<field>": "<text>"}}`. Exit
-`0` prints the normalized `references` and the `bodies_checked`. Any non-zero
-exit prints a stable failure category on standard error. Check availability
-with `--probe`, which prints `handoff: available`.
+| Input | Required | Meaning |
+| --- | --- | --- |
+| `--payload` | one of | A file holding the JSON payload. |
+| `--stdin` | one of | The JSON payload on standard input. |
+| `--probe` | no | Prints `artifact-reference: available` and exits `0`. |
+
+The payload is `{"references": [...], "bodies": {"<field>": "<text>"}}`. Both
+fields are optional; any other field name is rejected. Exactly one payload
+source is supplied; both or neither is `usage`. Exit `0` prints the normalized
+`references` and the `bodies_checked`. Any non-zero exit prints one JSON
+failure object on standard error.
 
 ## Reference Shape
 
@@ -46,7 +53,15 @@ Prose belongs in `note`, never in `reference`. A locator with whitespace is
 rejected, which is what keeps a reference machine-checkable rather than a
 sentence that happens to contain a link.
 
+A locator must also not end in `:` or `=`. A reference is rendered next to its
+note as `- <reference> - <note>`, so one ending in a separator reads as an
+assignment formed with the join, which no consumer intended and which a caller
+cannot recover from once the document exists. A locator ends at the resource.
+
 At most 50 references are accepted.
+
+A payload is read at up to 262144 UTF-8 bytes, and each checked body is held to
+8000 UTF-8 bytes.
 
 ## Body Exclusion
 
@@ -61,6 +76,19 @@ body to measure.
 | --- | --- |
 | `references` | The normalized references, in the order supplied. |
 | `bodies_checked` | The names of the bodies that passed, sorted. |
+
+## Failure Categories
+
+A failure is one JSON object on standard error, `{"error": {"code", "reason",
+"message"}}`, and the exit status is `1`. `reason` is always present and is
+`null` for every category this atom reports.
+
+| Category | Meaning |
+| --- | --- |
+| `usage` | The arguments or the payload source could not be understood. |
+| `malformed_payload` | The payload, a reference, or a body broke a shape or a bound above. This includes an unterminated fence and an unpaired UTF-16 surrogate. |
+| `inlined_artifact_body` | A body reproduced an artifact. The category names the field, so the caller knows what to replace with a link. |
+| `internal_error` | An unclassified defect in this atom. Report it. |
 
 ## Guarantees
 

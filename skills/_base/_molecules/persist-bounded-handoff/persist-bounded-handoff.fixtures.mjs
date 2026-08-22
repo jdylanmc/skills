@@ -18,9 +18,42 @@ export const SANDBOX_ROOT = path.join(REPOSITORY_ROOT, '.test-sandbox');
 export const ATOMS = path.join(REPOSITORY_ROOT, 'skills', '_base', '_atoms');
 export const MOLECULE_ENTRY = path.join(HERE, 'persist-bounded-handoff.mjs');
 
+/**
+ * Suites run in separate processes, so one suite can remove the shared
+ * scratch root between another suite's `mkdirSync` and its `mkdtempSync`.
+ * Only that exact race is retried; anything else is a real failure.
+ */
+function makeSandboxRoot(label) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    fs.mkdirSync(SANDBOX_ROOT, { recursive: true });
+    try {
+      return fs.realpathSync(fs.mkdtempSync(path.join(SANDBOX_ROOT, `${label}-`)));
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
+  throw new Error(`could not create a sandbox for ${label} beneath ${SANDBOX_ROOT}`);
+}
+
+/**
+ * Removes the shared scratch root once the last sandbox inside it is gone, so
+ * a test run leaves the working tree exactly as it found it. A root another
+ * suite still owns, or one another suite already removed, is left alone.
+ */
+function removeSandboxRootIfEmpty() {
+  try {
+    fs.rmdirSync(SANDBOX_ROOT);
+  } catch (error) {
+    if (!['ENOTEMPTY', 'ENOENT', 'EEXIST', 'EBUSY', 'EPERM'].includes(error.code)) {
+      throw error;
+    }
+  }
+}
+
 export function sandbox(t, label) {
-  fs.mkdirSync(SANDBOX_ROOT, { recursive: true });
-  const root = fs.realpathSync(fs.mkdtempSync(path.join(SANDBOX_ROOT, `${label}-`)));
+  const root = makeSandboxRoot(label);
   const previous = { TMPDIR: process.env.TMPDIR, TEMP: process.env.TEMP, TMP: process.env.TMP };
   for (const key of ['TMPDIR', 'TEMP', 'TMP']) {
     process.env[key] = root;
@@ -34,6 +67,7 @@ export function sandbox(t, label) {
       }
     }
     fs.rmSync(root, { recursive: true, force: true });
+    removeSandboxRootIfEmpty();
   });
   return root;
 }

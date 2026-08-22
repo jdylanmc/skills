@@ -31,15 +31,18 @@ node <atoms>/write-guarded.mjs --destination <path> --allowed-root <path> --stdi
 ```
 
 Exit `0` prints `path` and `bytes` as JSON, after the file has been reread and
-compared. Any non-zero exit prints a stable failure category on standard error.
-Check availability with `--probe`, which prints
-`handoff: available`.
+compared. Any non-zero exit prints one JSON failure object on standard error.
 
 | Input | Required | Meaning |
 | --- | --- | --- |
 | `--destination` | yes | One absolute path for the new file. |
 | `--allowed-root` | yes | The absolute directory the destination must sit directly inside. |
-| `--stdin` or `--content-file` | yes | Exactly one source for the content. |
+| `--content-file` | one of | A file holding the content to write. |
+| `--stdin` | one of | The content on standard input. |
+| `--probe` | no | Prints `write-guarded: available` and exits `0`. |
+
+Exactly one content source is supplied; both or neither is `usage`. Content is
+read at up to 262144 UTF-8 bytes.
 
 ## Guards
 
@@ -56,6 +59,11 @@ Check availability with `--probe`, which prints
 4. **Exclusive create.** The file is opened with exclusive creation, so an
    entry that appears between the checks and the open fails the write instead
    of being followed or overwritten.
+5. **Encodable content.** Content carrying an unpaired UTF-16 surrogate is
+   refused before anything is created. Such a code unit has no UTF-8 encoding,
+   so the bytes that land could never equal the string that was sent, and the
+   reread below would report corruption for an input this atom already knew was
+   unwritable.
 
 ## Verification
 
@@ -73,17 +81,39 @@ sent. On any mismatch, remove the file this atom created and report
 
 ## Failure Categories
 
+A failure is one JSON object on standard error and the exit status is `1`:
+
+```json
+{
+  "error": {
+    "code": "unsafe_target",
+    "reason": "target_exists",
+    "message": "..."
+  }
+}
+```
+
+`code` and `reason` are the contract; `message` is for a human reading a log.
+`reason` is always present and is `null` for every category and every cause
+except the one named below.
+
 | Category | Meaning |
 | --- | --- |
+| `usage` | The arguments were not understood, or the content source could not be read. |
+| `malformed_payload` | The destination or root was not an absolute path, or the content was not an encodable string. |
 | `path_escape` | The destination is not directly inside the allowed root. |
 | `unsafe_target` | The destination or its parent has a shape this atom refuses, or the destination already exists. |
 | `write_failed` | The file could not be created or written. Nothing partial is left behind. |
 | `verification_failed` | The reread did not match. The created file is removed. |
+| `internal_error` | An unclassified defect in this atom. Report it. |
 
-An `unsafe_target` caused by a name that is already taken carries the reason
-`target_exists`. That is the only refusal a caller may answer by resolving a
-fresh destination and calling again; every other one is a real refusal and
-retrying it just repeats the same failure.
+An `unsafe_target` caused by a name that is already taken carries
+`"reason": "target_exists"`. That is the only refusal a caller may answer by
+resolving a fresh destination and calling again; every other one is a real
+refusal and retrying it just repeats the same failure. A caller on the command
+line reads the field rather than matching the message, so the discriminator
+cannot drift with the wording. `unsafe_target` from a directory, a device, or a
+symbolic link reports `"reason": null` and must not be retried.
 
 ## Guarantees
 

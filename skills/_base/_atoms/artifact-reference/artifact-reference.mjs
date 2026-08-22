@@ -22,5 +22,5 @@ export function run(argv) {
 }
 
 if (isDirectInvocation(import.meta.url)) {
-  runEntryPoint(process.argv.slice(2), run);
+  runEntryPoint(process.argv.slice(2), run, 'artifact-reference');
 }

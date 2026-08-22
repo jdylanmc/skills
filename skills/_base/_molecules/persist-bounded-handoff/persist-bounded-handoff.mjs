@@ -40,7 +40,6 @@ export const MAX_WRITE_ATTEMPTS = 5;
 export const DEFAULT_TITLE = 'Handoff';
 export const DEFAULT_CHILD_DIRECTORY = 'handoffs';
 export const PLACEHOLDER = 'No confirmed information yet.';
-export const PROBE_RESPONSE = 'handoff: available';
 
 /**
  * The approved heading order. `Goal`, `Current Progress`, `What Worked`,
@@ -76,6 +75,7 @@ const PAYLOAD_FIELDS = new Set([
   'schema_version',
   'title',
   'slug',
+  'slug_source',
   'available_skills',
   ...SECTION_KEYS,
 ]);
@@ -85,6 +85,15 @@ const SKILL_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CHILD_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const TITLE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 '\u2019.,()-]{0,79}$/;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+/**
+ * A high surrogate with no low surrogate after it, or a low surrogate with no
+ * high surrogate before it. Such a code unit has no UTF-8 encoding, so it is
+ * replaced with U+FFFD the moment it is written. Rejecting it while the
+ * payload is still being normalized turns a late `verification_failed` on a
+ * file that already exists into an early `malformed_payload` a caller can fix.
+ */
+const LONE_SURROGATE_PATTERN =
+  /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 const FENCE_PATTERN = /^\s{0,3}(`{3,}|~{3,})/;
 
 export class HandoffError extends Error {
@@ -116,37 +125,74 @@ function isPlainObject(value) {
  * ---------------------------------------------------------------------- */
 
 /**
- * A key names a secret when any of its segments is a secret word, or when the
- * key with its separators removed contains a compound secret word. Testing the
- * captured key as a string rather than matching alternatives inside the
- * expression keeps the scan linear and makes `secret_key`, `signing_key`, and
- * a bare `key` all reachable, none of which a keyword-must-come-last pattern
- * can see.
+ * Whole words that name a secret. Short and ambiguous entries such as `key`,
+ * `sig`, and `pat` are safe here precisely because this tier matches a whole
+ * word and never a substring, which is what keeps `monkeys`, `design`, and
+ * `path` out of the rule.
  */
-const SECRET_SEGMENTS = new Set([
+const SECRET_WORDS = new Set([
   'accesskey', 'accountkey', 'apikey', 'apikeys', 'auth', 'authorization',
   'clientsecret', 'connectionstring', 'credential', 'credentials', 'key',
   'keys', 'passphrase', 'passwd', 'password', 'passwords', 'pat', 'privatekey',
   'pwd', 'sas', 'secret', 'secrets', 'sig', 'signature', 'token', 'tokens',
 ]);
 
+/**
+ * Compounds recognized anywhere in a key that has been stripped to letters
+ * and digits. This tier exists for the forms that carry no boundary at all -
+ * `PGPASSWORD`, `APIKEY`, `AWSSECRETKEY` - so every entry has to be long and
+ * specific enough that containing it is evidence by itself.
+ */
 const SECRET_COMPOUNDS = [
-  'accesskey',
-  'accountkey',
-  'apikey',
-  'clientsecret',
-  'connectionstring',
-  'privatekey',
-  'refreshtoken',
-  'sharedaccesssignature',
+  'accesskey', 'accesstoken', 'accountkey', 'apikey', 'apitoken', 'authtoken',
+  'bearertoken', 'clientsecret', 'connectionstring', 'credential',
+  'encryptionkey', 'idtoken', 'masterkey', 'passphrase', 'passwd', 'password',
+  'privatekey', 'refreshtoken', 'secretkey', 'securitytoken', 'sessiontoken',
+  'sharedaccesssignature', 'signingkey', 'sshkey',
 ];
 
+/**
+ * Words that name a secret only when the key holds more than one of them.
+ * `DB_PASS`, `MYSQL_PASS`, and `userPass` are credentials; a sentence about a
+ * second `pass:` is not, and a bare `pass` is far too common in a handoff's
+ * own prose to spend on this.
+ */
+const QUALIFIED_SECRET_WORDS = new Set(['pass']);
+
+/**
+ * Splits a key into words on separators, on a camel-case boundary, and on a
+ * letter-to-digit boundary, so `access_token`, `accessToken`, `AccessToken`,
+ * `ACCESS_TOKEN`, and `oauth2Token` all yield the word `token`.
+ */
+function keyWords(key) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/([A-Za-z])([0-9])/g, '$1 $2')
+    .replace(/([0-9])([A-Za-z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+/**
+ * A key names a secret when one of its words is a secret word, or when the
+ * key stripped to letters and digits contains a secret compound. Testing the
+ * captured key as a string rather than matching alternatives inside the
+ * expression keeps the scan linear, and the two tiers together mean the
+ * keyword may sit anywhere in the key without a short word such as `pat`
+ * matching the middle of `path`.
+ */
 export function namesSecret(key) {
-  const lower = key.toLowerCase();
-  if (SECRET_COMPOUNDS.some((word) => lower.replace(/[^a-z0-9]/g, '').includes(word))) {
+  const compact = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (SECRET_COMPOUNDS.some((word) => compact.includes(word))) {
     return true;
   }
-  return lower.split(/[^a-z0-9]+/).some((segment) => SECRET_SEGMENTS.has(segment));
+  const words = keyWords(key);
+  return words.some(
+    (word) => SECRET_WORDS.has(word)
+      || (words.length > 1 && QUALIFIED_SECRET_WORDS.has(word)),
+  );
 }
 
 /** Keys are short. Bounding the run keeps one pathological token cheap. */
@@ -156,16 +202,31 @@ const SECRET_KEY = String.raw`[A-Za-z0-9_.\[\]-]{1,64}`;
  * An unquoted secret value runs to whitespace, but stops before punctuation
  * that carries structure - a closing bracket, a query separator, or sentence
  * punctuation - so redaction never swallows the Markdown around it.
- *
- * A value that is already a redaction marker is matched whole and left alone,
- * which is what keeps a second pass from relabelling or re-bracketing it.
  */
-const SECRET_VALUE = String.raw`(?:\[REDACTED:[a-z-]+\]|"[^"\n]*"|'[^'\n]*'|[^\s,;)\]}>"'&]*[^\s,;)\]}>"'&.!?])`;
+const SECRET_VALUE = String.raw`(?:"[^"\n]*"|'[^'\n]*'|[^\s,;)\]}>"'&]*[^\s,;)\]}>"'&.!?])`;
 
-const MARKER_PATTERN = /^\[REDACTED:[a-z-]+\]$/;
-
+/**
+ * A key and its value are on one line. The separator carries spaces and tabs,
+ * never a line break.
+ *
+ * An unbounded `\s*` reaches across a blank line, so a sentence that merely
+ * ends in `key:` pairs with the next section's `##` heading; the document is
+ * rewritten and then reported as `redaction_incomplete`.
+ *
+ * Allowing one indented continuation line instead is worse, not better. In a
+ * handoff an indented line after `key:` is almost always a nested bullet or a
+ * wrapped sentence, and because the value backtracks to a single character the
+ * span replaced is the child bullet's `-` or the sentence's first word:
+ * `- Auth:\n  - uses Entra ID` becomes `- Auth:\n  [REDACTED:secret] uses
+ * Entra ID`, which destroys the list and tells the reader a credential was
+ * removed from a line that never held one. That result is a fixed point, so
+ * nothing catches it and the damaged document is written as a success.
+ *
+ * One line it is. A credential split across lines is the caller's content to
+ * fix, and the bound is documented so the caller knows to fix it.
+ */
 const ASSIGNMENT_PATTERN = new RegExp(
-  String.raw`(?<![A-Za-z0-9_.\[\]-])(${SECRET_KEY})(\s*[:=]\s*)(${SECRET_VALUE})`,
+  String.raw`(?<![A-Za-z0-9_.\[\]-])(${SECRET_KEY})([ \t]*[:=][ \t]*)(${SECRET_VALUE})`,
   'g',
 );
 
@@ -186,7 +247,7 @@ function redactAssignments(text) {
   let match = ASSIGNMENT_PATTERN.exec(text);
   while (match !== null) {
     const [whole, key, separator, value] = match;
-    if (namesSecret(key) && !MARKER_PATTERN.test(value)) {
+    if (namesSecret(key)) {
       result += `${text.slice(cursor, match.index)}${key}${separator}[REDACTED:secret]`;
       cursor = match.index + whole.length;
       hits += 1;
@@ -196,6 +257,95 @@ function redactAssignments(text) {
     match = ASSIGNMENT_PATTERN.exec(text);
   }
   return { text: `${result}${text.slice(cursor)}`, hits };
+}
+
+const MARKER_SPAN_PATTERN = /\[REDACTED:[a-z-]+\]/g;
+
+const LOCAL_PART_CHARACTER = /[A-Za-z0-9._%+-]/;
+const DOMAIN_CHARACTER = /[A-Za-z0-9.-]/;
+const DOMAIN_SHAPE = /^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
+/**
+ * Replaces every electronic mail address, anchoring on `@` and walking out
+ * from it rather than scanning for a local part.
+ *
+ * A regular expression cannot do this safely. Scanning for the local part
+ * makes `[A-Za-z0-9._%+-]+@` retry at every position of a long run, which is
+ * quadratic on adversarial dotted input. Pinning the run with a lookbehind
+ * fixes that but breaks two other things: a span whose domain turns out not
+ * to end in a top-level domain is consumed without being replaced, hiding a
+ * real address behind it, and the lookbehind reads the text before an
+ * already-replaced address, so a second address glued to the first is missed
+ * on one pass and found on the next.
+ *
+ * Walking out from `@` has neither problem. Every character is visited a
+ * bounded number of times, the left walk stops at `cursor` so a local part
+ * can never reach back into text already emitted, and a span that is not an
+ * address advances by one `@` instead of by its whole length.
+ */
+function redactEmails(text) {
+  let result = '';
+  let cursor = 0;
+  let hits = 0;
+  let searchFrom = 0;
+  for (;;) {
+    const at = text.indexOf('@', searchFrom);
+    if (at === -1) {
+      break;
+    }
+    let start = at;
+    while (start > cursor && LOCAL_PART_CHARACTER.test(text[start - 1])) {
+      start -= 1;
+    }
+    let end = at + 1;
+    while (end < text.length && DOMAIN_CHARACTER.test(text[end])) {
+      end += 1;
+    }
+    // A sentence ends `...@contoso.example.` and a domain does not end in a
+    // separator, so give the trailing punctuation back to the prose.
+    while (end > at + 1 && (text[end - 1] === '.' || text[end - 1] === '-')) {
+      end -= 1;
+    }
+    if (start < at && DOMAIN_SHAPE.test(text.slice(at + 1, end))) {
+      result += `${text.slice(cursor, start)}[REDACTED:email]`;
+      cursor = end;
+      searchFrom = end;
+      hits += 1;
+      continue;
+    }
+    searchFrom = at + 1;
+  }
+  return { text: `${result}${text.slice(cursor)}`, hits };
+}
+
+/**
+ * Runs one rule over the spans between existing redaction markers, never over
+ * a marker and never across one.
+ *
+ * This is what makes redaction idempotent by construction instead of by every
+ * rule remembering to exempt its own output. A key or a value allowed to run
+ * into `[REDACTED:` finds the marker's own colon: `secrets[a@b.example]`
+ * becomes `secrets[[REDACTED:email]]`, and a second pass then reads
+ * `secrets[[REDACTED` as a secret key and nests a marker inside a marker.
+ * Excising the markers first removes the whole class.
+ */
+function outsideMarkers(apply) {
+  return (text) => {
+    MARKER_SPAN_PATTERN.lastIndex = 0;
+    let result = '';
+    let cursor = 0;
+    let hits = 0;
+    let match = MARKER_SPAN_PATTERN.exec(text);
+    while (match !== null) {
+      const span = apply(text.slice(cursor, match.index));
+      result += `${span.text}${match[0]}`;
+      hits += span.hits;
+      cursor = match.index + match[0].length;
+      match = MARKER_SPAN_PATTERN.exec(text);
+    }
+    const tail = apply(text.slice(cursor));
+    return { text: `${result}${tail.text}`, hits: hits + tail.hits };
+  };
 }
 
 function fromPattern(source, replace) {
@@ -264,13 +414,7 @@ const REDACTION_RULES = [
   },
   {
     category: 'email',
-    // The lookbehind pins the local part to the start of its run and the
-    // domain has no optional tail to backtrack into, so the scan stays linear
-    // on adversarial dotted input. The top-level domain is checked afterwards.
-    apply: fromPattern(
-      /(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g,
-      (match) => (/\.[A-Za-z]{2,}$/.test(match) ? '[REDACTED:email]' : match),
-    ),
+    apply: redactEmails,
   },
   {
     category: 'phone',
@@ -286,9 +430,20 @@ export const REDACTION_CATEGORIES = [
 ].sort();
 
 /**
+ * Every rule, scoped to the spans between existing markers. Built once so a
+ * call does not rebuild the wrappers, and kept separate from `REDACTION_RULES`
+ * so each rule stays readable as the span it recognizes.
+ */
+const SEGMENTED_RULES = REDACTION_RULES.map((rule) => ({
+  category: rule.category,
+  apply: outsideMarkers(rule.apply),
+}));
+
+/**
  * Applies the deterministic redaction floor. The result is idempotent: every
- * marker this function emits is inert under all of its own rules, so redacting
- * already-redacted text returns the same text.
+ * marker this function emits is excised before any rule runs again, so
+ * redacting already-redacted text returns the same text no matter what sits
+ * beside a marker.
  *
  * `redactions` counts spans this call actually changed, so a second pass over
  * already-redacted text reports nothing.
@@ -305,7 +460,7 @@ export function redactText(value) {
   }
   let text = value;
   const counts = new Map();
-  for (const rule of REDACTION_RULES) {
+  for (const rule of SEGMENTED_RULES) {
     const { text: next, hits } = rule.apply(text);
     text = next;
     if (hits) {
@@ -328,6 +483,13 @@ function mergeRedactions(target, redactions) {
  * Payload validation
  * ---------------------------------------------------------------------- */
 
+/**
+ * The one normalization an adapter may rely on. A repository or work name
+ * such as `Xbox.Apps` or `Ship_With_Squadron` becomes `xbox-apps` or
+ * `ship-with-squadron`. Callers that hold a raw name pass it as `slug_source`
+ * rather than reimplementing this, and callers that already hold a normalized
+ * name pass `slug`, which is validated and never rewritten.
+ */
 export function slugify(value) {
   if (typeof value !== 'string') {
     fail('malformed_payload', 'slug source must be a string');
@@ -344,6 +506,34 @@ export function slugify(value) {
   return slug;
 }
 
+/**
+ * Resolves the file-name slug from the two accepted forms. Exactly one is
+ * supplied: `slug` is validated as already normalized, `slugSource` is a raw
+ * name this core normalizes. Both end at the same guarantee, so the name a
+ * handoff is written under always matches `SLUG_PATTERN`.
+ */
+function resolveSlug(slug, slugSource) {
+  const hasSlug = slug !== undefined && slug !== null && slug !== '';
+  const hasSource = slugSource !== undefined && slugSource !== null && slugSource !== '';
+  if (hasSlug && hasSource) {
+    fail(
+      'malformed_payload',
+      'supply either a normalized slug or a raw slug source, not both',
+    );
+  }
+  if (hasSource) {
+    return slugify(normalizeLine(slugSource, 'slug_source', MAX_LOCATOR_BYTES));
+  }
+  const normalized = normalizeLine(slug ?? '', 'slug', MAX_SLUG_LENGTH);
+  if (!SLUG_PATTERN.test(normalized)) {
+    fail(
+      'malformed_payload',
+      'slug must be lowercase alphanumeric words joined by single hyphens; supply the raw repository or work name as slug_source to have it normalized here',
+    );
+  }
+  return normalized;
+}
+
 function normalizeText(value, field) {
   if (typeof value !== 'string') {
     fail('malformed_payload', `${field} must be a string`);
@@ -358,6 +548,9 @@ function normalizeText(value, field) {
     .replace(/\n+$/, '');
   if (CONTROL_CHARACTER_PATTERN.test(text)) {
     fail('malformed_payload', `${field} carries a control character`);
+  }
+  if (LONE_SURROGATE_PATTERN.test(text)) {
+    fail('malformed_payload', `${field} carries an unpaired UTF-16 surrogate`);
   }
   if (byteLength(text) > MAX_SECTION_BYTES) {
     fail(
@@ -378,6 +571,9 @@ function normalizeLine(value, field, limit) {
   }
   if (/[\r\n]/.test(line) || CONTROL_CHARACTER_PATTERN.test(line)) {
     fail('malformed_payload', `${field} must be a single line`);
+  }
+  if (LONE_SURROGATE_PATTERN.test(line)) {
+    fail('malformed_payload', `${field} carries an unpaired UTF-16 surrogate`);
   }
   if (byteLength(line) > limit) {
     fail('malformed_payload', `${field} exceeds ${limit} UTF-8 bytes`);
@@ -499,6 +695,18 @@ function normalizeLocator(value, field) {
       `${field} must be a whitespace-free locator such as a URL, path, #issue, or commit; put prose in note`,
     );
   }
+  // A locator is rendered as `- <reference> - <note>`, so one ending in a
+  // separator forms an assignment with the join that neither field could form
+  // alone: `token:` beside any note reads as `token: -`. The document then
+  // fails the post-render redaction check with a category the caller is told
+  // not to retry. No real locator ends this way, so refusing it here turns an
+  // unrecoverable failure into one the message explains.
+  if (/[:=]$/.test(locator)) {
+    fail(
+      'malformed_payload',
+      `${field} must not end in ':' or '='; a locator ends at the resource, not at a separator`,
+    );
+  }
   return locator;
 }
 
@@ -581,13 +789,7 @@ export function normalizePayload(input) {
     fail('malformed_payload', `unsupported schema_version: ${JSON.stringify(input.schema_version)}`);
   }
 
-  const slug = normalizeLine(input.slug ?? '', 'slug', MAX_SLUG_LENGTH);
-  if (!SLUG_PATTERN.test(slug)) {
-    fail(
-      'malformed_payload',
-      'slug must be lowercase alphanumeric words joined by single hyphens',
-    );
-  }
+  const slug = resolveSlug(input.slug, input.slug_source);
 
   const title = input.title === undefined || input.title === null
     ? DEFAULT_TITLE
@@ -827,11 +1029,13 @@ export function resolveTempDirectory(child = DEFAULT_CHILD_DIRECTORY) {
  * with a two-digit ordinal. The proposal is not a reservation: the write
  * creates the file exclusively, so a name taken in between is caught there.
  */
-export function resolveHandoffPath({ slug, now = new Date(), child = DEFAULT_CHILD_DIRECTORY } = {}) {
-  const normalized = normalizeLine(slug ?? '', 'slug', MAX_SLUG_LENGTH);
-  if (!SLUG_PATTERN.test(normalized)) {
-    fail('malformed_payload', 'slug must be lowercase alphanumeric words joined by single hyphens');
-  }
+export function resolveHandoffPath({
+  slug,
+  slugSource,
+  now = new Date(),
+  child = DEFAULT_CHILD_DIRECTORY,
+} = {}) {
+  const normalized = resolveSlug(slug, slugSource);
   const directory = resolveTempDirectory(child);
   const stamp = utcStamp(now);
 
@@ -861,6 +1065,13 @@ export function resolveHandoffPath({ slug, now = new Date(), child = DEFAULT_CHI
 export function writeGuarded({ destination, allowedRoot, content }) {
   if (typeof content !== 'string') {
     fail('malformed_payload', 'content must be a string');
+  }
+  // A lone surrogate has no UTF-8 encoding, so the bytes that land can never
+  // equal the string that was sent. Refusing it here means the reread check
+  // reports real corruption rather than an input this atom already knew was
+  // unwritable, and nothing is created in the meantime.
+  if (LONE_SURROGATE_PATTERN.test(content)) {
+    fail('malformed_payload', 'content carries an unpaired UTF-16 surrogate and cannot be encoded');
   }
   if (typeof destination !== 'string' || !path.isAbsolute(destination)) {
     fail('malformed_payload', 'destination must be an absolute path');
@@ -1082,16 +1293,45 @@ export function readPayload(argv, usage) {
   return readJsonSource(parsed, usage);
 }
 
-export function runEntryPoint(argv, handler) {
+/**
+ * The availability answer for one unit. Naming the unit rather than the
+ * handoff family keeps a generic atom honest: `redact-sensitive` and
+ * `write-guarded` are usable outside a handoff, and a probe that answered
+ * `handoff: available` would tie them to a caller they do not know about.
+ */
+export function probeResponse(unit) {
+  return `${unit}: available`;
+}
+
+/**
+ * Runs one entry point and reports its outcome.
+ *
+ * A failure is one JSON object on standard error, never prose, because the
+ * discriminator a caller acts on is a field rather than a phrase: only
+ * `unsafe_target` with reason `target_exists` may be answered by resolving a
+ * fresh name and calling again. `reason` is always present and is `null` when
+ * the category carries no discriminator.
+ */
+export function runEntryPoint(argv, handler, unit) {
+  if (typeof unit !== 'string' || !unit) {
+    throw new TypeError('runEntryPoint requires the name of the unit it runs');
+  }
   if (argv.includes('--probe')) {
-    process.stdout.write(`${PROBE_RESPONSE}\n`);
+    process.stdout.write(`${probeResponse(unit)}\n`);
     return;
   }
   try {
     process.stdout.write(handler(argv));
   } catch (error) {
-    const code = error instanceof HandoffError ? error.code : 'internal_error';
-    process.stderr.write(`${code}: ${error.message}\n`);
+    const handoffError = error instanceof HandoffError;
+    const failure = {
+      error: {
+        code: handoffError ? error.code : 'internal_error',
+        reason: handoffError ? error.reason : null,
+        message: error.message,
+      },
+    };
+    process.stderr.write(`${JSON.stringify(failure, null, 2)}\n`);
     process.exitCode = 1;
   }
 }
@@ -1110,8 +1350,12 @@ export function isDirectInvocation(moduleUrl) {
 const USAGE = 'Usage: persist-bounded-handoff.mjs (--payload <file> | --stdin) [--probe]';
 
 if (isDirectInvocation(import.meta.url)) {
-  runEntryPoint(process.argv.slice(2), (argv) => {
-    const payload = readPayload(argv, USAGE);
-    return `${JSON.stringify(persistBoundedHandoff(payload), null, 2)}\n`;
-  });
+  runEntryPoint(
+    process.argv.slice(2),
+    (argv) => {
+      const payload = readPayload(argv, USAGE);
+      return `${JSON.stringify(persistBoundedHandoff(payload), null, 2)}\n`;
+    },
+    'persist-bounded-handoff',
+  );
 }

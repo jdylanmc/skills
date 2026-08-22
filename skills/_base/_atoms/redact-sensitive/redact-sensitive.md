@@ -25,13 +25,19 @@ one. Every replacement here is announced.
 ## Operation
 
 ```text
-node <atoms>/redact-sensitive.mjs --stdin
+node <atoms>/redact-sensitive.mjs (--file <path> | --stdin)
 ```
 
-Exit `0` prints `text` and `redactions` as JSON. `redactions` counts the spans
-this call actually changed, grouped by category. Any non-zero exit prints a
-stable failure category on standard error. Check availability with `--probe`, which prints
-`handoff: available`.
+| Input | Required | Meaning |
+| --- | --- | --- |
+| `--file` | one of | A file holding the text to redact. |
+| `--stdin` | one of | The text on standard input. |
+| `--probe` | no | Prints `redact-sensitive: available` and exits `0`. |
+
+Exactly one text source is supplied; both or neither is `usage`. Exit `0`
+prints `text` and `redactions` as JSON. `redactions` counts the spans this call
+actually changed, grouped by category. Any non-zero exit prints one JSON
+failure object on standard error.
 
 ## Markers
 
@@ -46,13 +52,35 @@ Every replacement is `[REDACTED:<category>]`:
 | `email` | An electronic mail address. |
 | `phone` | A telephone number written with separators or a country code. |
 
-A key names a secret when any of its segments is one of `password`, `passwd`,
-`pwd`, `passphrase`, `secret`, `token`, `key`, `credential`, `sas`, `sig`,
-`signature`, `authorization`, `auth`, or `pat`, or when the key with its
-separators removed contains a compound such as `apikey`, `accountkey`,
-`accesskey`, `clientsecret`, `privatekey`, `connectionstring`, or
-`refreshtoken`. The keyword may sit anywhere in the key, so `secret_key`,
-`signing_key`, and a bare `key` are all covered.
+A key names a secret when either tier below recognizes it. The keyword may sit
+anywhere in the key, so `secret_key`, `accessToken`, `dbPassword`, `signingKey`,
+`PGPASSWORD`, and a bare `key` are all covered.
+
+**Whole words.** The key is split on separators, on a camel-case boundary, and
+on a letter-to-digit boundary, so `access_token`, `accessToken`, `AccessToken`,
+`ACCESS_TOKEN`, and `oauth2Token` all yield the word `token`. A key naming any
+of `password`, `passwords`, `passwd`, `pwd`, `passphrase`, `secret`, `secrets`,
+`token`, `tokens`, `key`, `keys`, `apikey`, `apikeys`, `accesskey`,
+`accountkey`, `privatekey`, `clientsecret`, `connectionstring`, `credential`,
+`credentials`, `sas`, `sig`, `signature`, `authorization`, `auth`, or `pat` is
+a secret.
+
+`pass` is recognized the same way, but only when the key holds more than one
+word, so `DB_PASS`, `MYSQL_PASS`, and `userPass` are secrets while a sentence
+about a second `pass:` is not.
+
+**Compounds.** The key is stripped to letters and digits and searched for
+`password`, `passwd`, `passphrase`, `credential`, `apikey`, `apitoken`,
+`accesskey`, `accesstoken`, `accountkey`, `authtoken`, `bearertoken`,
+`clientsecret`, `connectionstring`, `encryptionkey`, `idtoken`, `masterkey`,
+`privatekey`, `refreshtoken`, `secretkey`, `securitytoken`, `sessiontoken`,
+`sharedaccesssignature`, `signingkey`, or `sshkey`. This tier exists for the
+forms that carry no boundary at all, such as `PGPASSWORD` and `AWSSECRETKEY`,
+so every entry is long and specific enough that containing it is evidence.
+
+The two tiers are deliberately different. A short word such as `key`, `sig`, or
+`pat` is only ever matched whole, which is what keeps `monkeys`, `design`,
+`assign`, `path`, `patch`, `author`, and `keyboard` out of the rule.
 
 ## Rules
 
@@ -61,6 +89,20 @@ separators removed contains a compound such as `apikey`, `accountkey`,
 - An unquoted value ends at whitespace or at punctuation that carries
   structure, so a link, a list item, or a sentence around the value survives
   intact.
+- A key and its value are on **one line**. The separator carries spaces and
+  tabs, never a line break, so `password: hunter2` is recognized and a
+  `password:` whose value sits on the next line is not. This is a deliberate
+  trade, and it is the safer one: a line after `key:` is nearly always a
+  nested bullet or a wrapped sentence, and pairing them replaces the bullet
+  marker or the first word - `- Auth:` above `  - uses Entra ID` would become
+  `- Auth:` above `  [REDACTED:secret] uses Entra ID` - which destroys the
+  list and tells the reader a credential was removed from a line that never
+  held one. Put a credential and the key that names it on one line, or
+  neither is recognized.
+- An electronic mail address is found by anchoring on `@` and walking out from
+  it, so two addresses joined by a character such as `_` or `+` are both
+  replaced in a single pass, and a span whose domain cannot be an address
+  never hides a real address behind it.
 - An assignment nested inside another one is still found. `https://host/x?token=...`
   matches first with the key `https`, which names nothing; scanning resumes
   inside it and redacts the `token`.
@@ -72,14 +114,34 @@ separators removed contains a compound such as `apikey`, `accountkey`,
   redacted.
 - Input is limited to 65536 UTF-8 bytes. Redaction is a bounded scan, not a
   log filter.
+- The entry point reads at most 262144 UTF-8 bytes before the bound above is
+  applied.
 
 ## Guarantees
 
 - **Idempotent.** Redacting already-redacted text returns the same text and
   reports no further replacements. A marker is never relabelled, re-bracketed,
-  or nested.
+  or nested. This holds by construction: every rule runs only on the spans
+  **between** existing markers, never on a marker and never across one, so
+  neither a key nor a value can run into `[REDACTED:` and find its colon.
+  `secrets[a@b.example]` becomes `secrets[[REDACTED:email]]` and stays there.
+- **Complete in one pass.** Every span a second pass would replace is replaced
+  by the first, so a caller that redacts once has not left something behind
+  for a caller that redacts twice.
 - Every replacement is visible as a marker. Nothing is deleted quietly.
 - The categories are stable names a caller can report and a test can assert.
+
+## Failure Categories
+
+A failure is one JSON object on standard error, `{"error": {"code", "reason",
+"message"}}`, and the exit status is `1`. `reason` is always present and is
+`null` for every category this atom reports.
+
+| Category | Meaning |
+| --- | --- |
+| `usage` | The arguments were not understood, or the text source could not be read. |
+| `malformed_payload` | The input was not a string, or exceeded the bound above. |
+| `internal_error` | An unclassified defect in this atom. Report it. |
 
 ## Boundaries
 
