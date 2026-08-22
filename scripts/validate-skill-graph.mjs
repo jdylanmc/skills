@@ -55,16 +55,18 @@ export function readFrontmatter(rawContent, file) {
     description: fields.get('description') ?? null,
     level: fields.get('level') ?? null,
     includes: parseJsonField('includes', null),
+    composes: parseJsonField('composes', null),
     requiresSkills: parseJsonField('requires-skills', []),
     allowedTools: parseJsonField('allowed-tools', null),
     usedBy: parseJsonField('used-by', null),
+    disableModelInvocation: parseJsonField('disable-model-invocation', null),
+    userInvocable: parseJsonField('user-invocable', null),
   };
 }
 
 /**
- * Level namespaces under `_base`. A unit's composition level is derived from
- * its path, so the filesystem is the authority and the `level` field is a
- * cross-check rather than a claim the graph has to trust.
+ * Shared level namespaces under `_base`. Skills may also own scoped
+ * `<skill>/_atoms/` and `<skill>/_molecules/` namespaces.
  */
 export const LEVEL_NAMESPACES = new Map([
   ['_base/_atoms/', 'atom'],
@@ -75,8 +77,21 @@ export const CHRONICLER = '_base/_molecules/chronicler/chronicler.md';
 function levelNamespaceOf(relativePath) {
   for (const [prefix, level] of LEVEL_NAMESPACES) {
     if (relativePath.startsWith(prefix)) {
-      return { prefix, level };
+      return { prefix, level, owner: null };
     }
+  }
+  const segments = relativePath.split('/');
+  if (
+    segments.length >= 3
+    && segments[0]
+    && segments[0] !== '_base'
+    && ['_atoms', '_molecules'].includes(segments[1])
+  ) {
+    return {
+      prefix: `${segments[0]}/${segments[1]}/`,
+      level: segments[1] === '_atoms' ? 'atom' : 'molecule',
+      owner: segments[0],
+    };
   }
   return null;
 }
@@ -106,8 +121,15 @@ export function unitDescriptor(relativeFile) {
   };
 }
 
-function validateLevelNamespaces(skillsRoot, validatedUnits) {
-  for (const [prefix] of LEVEL_NAMESPACES) {
+function validateLevelNamespaces(skillsRoot, validatedUnits, localSkills) {
+  const namespaces = [
+    ...LEVEL_NAMESPACES.keys(),
+    ...[...localSkills].flatMap((skill) => [
+      `${skill}/_atoms/`,
+      `${skill}/_molecules/`,
+    ]),
+  ];
+  for (const prefix of namespaces) {
     const directory = path.join(skillsRoot, ...prefix.split('/').filter(Boolean));
     if (!fs.existsSync(directory)) {
       continue;
@@ -307,6 +329,11 @@ export function validateRepository(repositoryRoot) {
     const parsed = readFrontmatter(fs.readFileSync(file, 'utf8'), relativeFile);
     const namespace = levelNamespaceOf(relativeFile);
     const unit = unitDescriptor(relativeFile);
+    if (namespace?.owner && !localSkills.has(namespace.owner)) {
+      throw new Error(
+        `${relativeFile}: a local unit must belong to a routable skill package`,
+      );
+    }
     if (namespace && !unit) {
       throw new Error(
         `${relativeFile}: a unit file must be located at <level-namespace>/<unit-name>/<unit-name>.md`,
@@ -322,6 +349,12 @@ export function validateRepository(repositoryRoot) {
     }
     if (!Array.isArray(parsed.includes) || !parsed.includes.every((item) => typeof item === 'string')) {
       throw new Error(`${relativeFile}: includes must be a JSON string array`);
+    }
+    if (
+      parsed.composes !== null
+      && (!Array.isArray(parsed.composes) || !parsed.composes.every((item) => typeof item === 'string'))
+    ) {
+      throw new Error(`${relativeFile}: composes must be a JSON string array`);
     }
     if (!Array.isArray(parsed.requiresSkills)) {
       throw new Error(`${relativeFile}: requires-skills must be a JSON array`);
@@ -347,24 +380,50 @@ export function validateRepository(repositoryRoot) {
       if (parsed.requiresSkills.length) {
         throw new Error(`${relativeFile}: a ${namespaceLevel.level} must not declare requires-skills`);
       }
-      if (namespaceLevel.level === 'atom' && parsed.includes.length) {
-        throw new Error(`${relativeFile}: an atom references no other unit, so includes must be empty`);
+      if (parsed.composes === null) {
+        throw new Error(`${relativeFile}: a unit must declare composes`);
+      }
+      if (namespaceLevel.level === 'atom' && parsed.composes.length) {
+        throw new Error(`${relativeFile}: an atom composes no other unit, so composes must be empty`);
+      }
+      if (
+        namespaceLevel.level === 'atom'
+        && parsed.includes.some((target) => unitDescriptor(target))
+      ) {
+        throw new Error(`${relativeFile}: an atom references no other unit`);
       }
       if (namespaceLevel.level === 'molecule') {
-        const composed = parsed.includes.filter((target) => target.endsWith('.md'));
-        if (composed.length < 2) {
+        if (parsed.composes.length < 2) {
           throw new Error(
-            `${relativeFile}: a molecule composes two or more units; found ${composed.length}`,
+            `${relativeFile}: a molecule composes two or more units; found ${parsed.composes.length}`,
           );
         }
-        for (const target of parsed.includes) {
-          if (target.endsWith('.md')) {
-            if (!unitDescriptor(target)) {
-              throw new Error(
-                `${relativeFile}: a molecule composes only canonical atoms and molecules; ${target} is not a unit`,
-              );
-            }
-          } else if (!target.startsWith(`${namespaceLevel.root}${stem}.`)) {
+        for (const target of parsed.composes) {
+          const targetUnit = unitDescriptor(target);
+          if (!targetUnit) {
+            throw new Error(
+              `${relativeFile}: a molecule composes only canonical atoms and molecules; ${target} is not a unit`,
+            );
+          }
+          if (
+            namespaceLevel.owner
+            && targetUnit.owner
+            && targetUnit.owner !== namespaceLevel.owner
+          ) {
+            throw new Error(
+              `${relativeFile}: a local molecule may not compose a unit owned by ${targetUnit.owner}`,
+            );
+          }
+        }
+        for (const target of parsed.includes.filter((item) => item.endsWith('.md'))) {
+          if (!unitDescriptor(target)) {
+            throw new Error(
+              `${relativeFile}: a molecule may include only canonical atoms and molecules; ${target} is not a unit`,
+            );
+          }
+        }
+        for (const target of parsed.includes.filter((item) => !item.endsWith('.md'))) {
+          if (!target.startsWith(`${namespaceLevel.root}${stem}.`)) {
             throw new Error(
               `${relativeFile}: a unit may include only its own local support files; found ${target}`,
             );
@@ -395,6 +454,47 @@ export function validateRepository(repositoryRoot) {
       throw new Error(
         `${relativeFile}: includes mirror drift; declared=${JSON.stringify(declared)} markdown=${JSON.stringify(markdownIncludes)}`,
       );
+    }
+
+    if (parsed.composes !== null) {
+      if (
+        parsed.composes.some(
+          (target) => target.includes('\\') || target.split('/').includes('..'),
+        )
+      ) {
+        throw new Error(`${relativeFile}: composes must use normalized forward-slash paths`);
+      }
+      if (new Set(parsed.composes).size !== parsed.composes.length) {
+        throw new Error(`${relativeFile}: composes contains duplicates`);
+      }
+      const expectedComposes = parsed.includes
+        .filter((target) => unitDescriptor(target))
+        .sort();
+      const declaredComposes = [...parsed.composes].sort();
+      if (JSON.stringify(expectedComposes) !== JSON.stringify(declaredComposes)) {
+        throw new Error(
+          `${relativeFile}: composes drift; declared=${JSON.stringify(declaredComposes)} expected=${JSON.stringify(expectedComposes)}`,
+        );
+      }
+    }
+
+    const skillEntry = relativeFile.endsWith('/SKILL.md') && !relativeFile.startsWith('_base/');
+    if (skillEntry && parsed.composes !== null) {
+      if (typeof parsed.disableModelInvocation !== 'boolean') {
+        throw new Error(`${relativeFile}: an atomic skill must declare disable-model-invocation`);
+      }
+      if (typeof parsed.userInvocable !== 'boolean') {
+        throw new Error(`${relativeFile}: an atomic skill must declare user-invocable`);
+      }
+      const skill = relativeFile.split('/')[0];
+      for (const target of parsed.composes) {
+        const targetUnit = unitDescriptor(target);
+        if (targetUnit?.owner && targetUnit.owner !== skill) {
+          throw new Error(
+            `${relativeFile}: a skill may not compose a local unit owned by ${targetUnit.owner}`,
+          );
+        }
+      }
     }
 
     for (const dependency of parsed.requiresSkills) {
@@ -457,7 +557,7 @@ export function validateRepository(repositoryRoot) {
     throw new Error(`_base must not contain routable SKILL.md files: ${baseSkillEntries.join(', ')}`);
   }
 
-  validateLevelNamespaces(skillsRoot, validatedUnits);
+  validateLevelNamespaces(skillsRoot, validatedUnits, localSkills);
 
   return {
     graph,

@@ -26,22 +26,38 @@ skills/
         <molecule-name>.test.mjs
   <skill-name>/
     SKILL.md
-    references/
-      <supporting-instructions>.md
+    _atoms/
+      <atom-name>/
+        <atom-name>.md
+    _molecules/
+      <molecule-name>/
+        <molecule-name>.md
 ```
 
-`SKILL.md` is the canonical entry point for every skill. Supporting instructions belong beside it under `references/` and are linked from the skill.
+`SKILL.md` is the canonical routable entry point for every skill. It keeps the
+router-facing summary and composes skill-local or shared units for execution.
 
-Non-routable shared units live under `skills/_base/` in level namespaces. A unit
-is exactly one Markdown file inside a same-named unit root, and its composition
-level is derived from its path: `_atoms/` holds atoms and `_molecules/` holds
-molecules.
+Non-routable units live in level namespaces. Skill-local units belong under the
+owning skill; units reused by multiple skills belong under `skills/_base/`. A
+unit is exactly one Markdown file inside a same-named unit root, and its
+composition level is derived from its path: `_atoms/` holds atoms and
+`_molecules/` holds molecules.
 
 An **atom** is one single operation judged from the caller's point of view. It
 references no other unit and declares `includes: []`. A **molecule** composes
 two or more atoms or molecules by reference to produce one bounded outcome. A
 **skill** is the only unit that may be invoked directly: the contract the agent
 understands.
+
+Every unit and atomic skill declares `composes`: the exact direct atom or
+molecule dependencies it uses. `includes` remains the complete mirror of links
+in required sections. Local unit names are scoped to their skill; `_base` names
+identify repository-wide shared units.
+
+Skills also declare standard invocation flags. Automatically discoverable
+skills use `disable-model-invocation: false`; long-running or high-ceremony
+skills reserved for explicit human invocation use `true`. `user-invocable`
+states whether the skill appears as a direct user action.
 
 Every routable skill directly composes the `chronicler` molecule. A root
 invocation creates one bounded Skill Run Log, nested skills reuse that run

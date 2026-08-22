@@ -3,6 +3,7 @@ name: write-approved
 description: Gate one write behind an explicit approval phrase, then perform it verifiably, restoring the previous state and requiring fresh approval when the result does not match what was approved.
 level: molecule
 includes: ["_base/_atoms/approval-gate-mutation/approval-gate-mutation.md","_base/_atoms/write-verified/write-verified.md"]
+composes: ["_base/_atoms/approval-gate-mutation/approval-gate-mutation.md","_base/_atoms/write-verified/write-verified.md"]
 used-by: ["breakdown-code-architecture/references/50-persistence-and-update-gates.md","simplify-technical-language/SKILL.md","simplify-technical-language/references/40-output-and-writing-gate.md"]
 allowed-tools: ["edit","read"]
 ---

@@ -4,6 +4,7 @@ description: Spawn one agent from a persona and a prompt and return its response
 level: atom
 allowed-tools: ["task"]
 includes: []
+composes: []
 used-by: ["_base/_molecules/review-ste-coach/review-ste-coach.md","_base/_molecules/roast-coordinate-review/roast-coordinate-review.md"]
 ---
 

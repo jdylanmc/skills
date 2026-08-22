@@ -3,6 +3,7 @@ name: chronicler
 description: Keep one bounded running log of skill operations across a long-running session, and replay it on demand. Composes the chronicle append and chronicle replay atoms.
 level: molecule
 includes: ["_base/_atoms/chronicle-append/chronicle-append.md","_base/_atoms/chronicle-replay/chronicle-replay.md","_base/_molecules/chronicler/chronicler.mjs"]
+composes: ["_base/_atoms/chronicle-append/chronicle-append.md","_base/_atoms/chronicle-replay/chronicle-replay.md"]
 used-by: ["breakdown-code-architecture/SKILL.md","breakdown-to-tickets/SKILL.md","create-ticket/SKILL.md","discovery-loop/SKILL.md","discovery/SKILL.md","domain-mapping/SKILL.md","interrogate/SKILL.md","post-mortem/SKILL.md","reinforce-skill/SKILL.md","roast-this-agent/SKILL.md","roast-this-code/SKILL.md","roast-this-prompt/SKILL.md","roast-this-skill/SKILL.md","scrape-with-synthesis/SKILL.md","scrape/SKILL.md","setup-jdylanmc-skills/SKILL.md","shepherd/SKILL.md","ship-with-squadron/SKILL.md","simplify-technical-language/SKILL.md","spec/SKILL.md","synthesize/SKILL.md"]
 allowed-tools: ["execute"]
 ---

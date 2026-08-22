@@ -39,6 +39,18 @@ Every claim used in a decision must be traceable to an entry here.
 | Commit #40, `Generate used-by and molecule allowed-tools from the graph` | 2026-08-21 | `fe0b3989372400adb1486e2fa53974ffac9c02ed` | Generates committed `used-by` for all ten units and transitive `allowed-tools` for three molecules, while verifying rather than automatically widening skill permission grants. | n-0003, n-0005 |
 | Current level namespaces | 2026-08-21 | commit `fe0b398` | Seven atoms: `agent-resolve`, `agent-spawn`, `approval-gate-mutation`, `chronicle-append`, `chronicle-replay`, `review-validate-report`, `write-verified`. Three molecules: `chronicler`, `review-ste-coach`, `write-approved`. | n-0003 |
 | Focused refresh of all three artifact-roast packages | 2026-08-21 | commit `fe0b398` | Roughly 75-105 workflow lines remain repeated across the three `SKILL.md` files. The narrow shared skeleton is coordinate, validate, retry once, synthesize, and common status handling. `agent-resolve` covers safe agent lookup but not roast-specific lens/doctrine adaptation, source recording, orchestration, retry, synthesis, or final status. | n-0004, n-0007, n-0008 |
+| `obra/superpowers` skills directory | 2026-08-21 | GitHub `main`, fleet-read 14 skill packages | Five independent read-only lanes analyzed planning, orchestration, engineering quality, review/release, and meta-skill design. The source is MIT licensed, Copyright 2025 Jesse Vincent. | n-0009..n-0015 |
+| [Superpowers MIT License](https://github.com/obra/superpowers/blob/main/LICENSE) | 2026-08-21 | GitHub `main` | Adaptation and redistribution are permitted when the copyright and permission notice are preserved. | n-0009 |
+| c-0007 Superpowers synthesis | 2026-08-21 | five fleet reports reconciled against the current 21-skill catalog | Recommended 17 atoms, four molecules, two complementary routable skills, five non-unit updates, and rejection of twelve source skills as direct routable imports. | n-0009..n-0015 |
+| Root `CONTEXT.md` after the c-0007 `/domain-mapping` handoff | 2026-08-21 | sha256 `89889368e9d32272dd7c2e36d3e5294ae1d2bf00e130e2710372ca42cd78c00e` | Confirms `Shared unit` and the two-current-or-approved-consumer threshold. | n-0003, n-0009 |
+| [ADR 0001](../../../adr/0001-use-local-units-and-promote-proven-shared-units.md) | 2026-08-21 | sha256 `a4e6af367deeddc4a63c139462ae8e4fe671c26543212dc6dc5e2c54512fe726` | Records local-by-default ownership, scoped local names, and evidence-backed promotion to `_base`. | n-0003 |
+| [GitHub Story #41](https://github.com/jdylanmc/skills/issues/41) | 2026-08-21 | created and verified in c-0007 | Native sub-issue of packaging Branch #33. Tracks recommendation disposition and creates Tasks only after individual approval. | n-0009 |
+| xgang-harness `handoff/SKILL.md` | 2026-08-22 | version 1.0.1, local installed plugin | Establishes the five-section pickup-compatible core and the current Squadron-facing human-readable handoff discipline. Destination selection, wiki ingestion, and filename confirmation are explicitly excluded from the new variant. | n-0016 |
+| [Matt Pocock Handoff](https://github.com/mattpocock/skills/blob/main/skills/productivity/handoff/SKILL.md) | 2026-08-22 | SHA `2eb98a51b97bb5bac461a26ad14828eeac827909` | Establishes OS-temp placement, argument-tailored focus, artifact-reference-not-duplication, sensitive-data redaction, and suggested-skill guidance. | n-0016 |
+| [Matt Pocock Skills MIT License](https://github.com/mattpocock/skills/blob/main/LICENSE) | 2026-08-22 | SHA `f1dd2c09108dde1a5f56097cee8461b3ea834499` | Adaptation is permitted with the copyright and permission notice preserved; Copyright 2026 Matt Pocock. | n-0016 |
+| Ship with Squadron handoff contracts | 2026-08-22 | current working tree | Squadron requires an installed Handoff skill, stops before worker launch when missing, invokes it on timeout, requires the five human-readable headings, and records the returned path in control state and the timeout envelope. | n-0016 |
+| [GitHub Story #42](https://github.com/jdylanmc/skills/issues/42) and Tasks [#43](https://github.com/jdylanmc/skills/issues/43), [#44](https://github.com/jdylanmc/skills/issues/44), [#45](https://github.com/jdylanmc/skills/issues/45) | 2026-08-22 | created and verified in c-0009 | Records the approved shared-core architecture. All Tasks are native children of #42; #44 and #45 are natively blocked by #43. | n-0016..n-0019 |
+| [GitHub Story #46](https://github.com/jdylanmc/skills/issues/46) and Tasks [#47](https://github.com/jdylanmc/skills/issues/47), [#48](https://github.com/jdylanmc/skills/issues/48) | 2026-08-22 | created and verified in c-0010 | Records approved A01-A03 and M01. Both Tasks are native children of #46; #48 is natively blocked by #47. | n-0010, n-0020, n-0021 |
 
 ## Research Results
 
@@ -181,6 +193,148 @@ this slice because it substantially enlarges the audit surface. Issue #35 is
 also excluded: its panel scheduling, re-review, and hypothetical-finding
 behavior is not present in current code and would expand behavior rather than
 collapse it.
+
+### c-0007 - Superpowers recommendation ledger
+
+Five independent research lanes read all 14 skill packages under
+[`obra/superpowers/skills`](https://github.com/obra/superpowers/tree/main/skills)
+and compared them with the current catalog. No source package was copied or
+established.
+
+#### Recommended atoms
+
+| ID | Proposed atom | Source | Candidate consumers |
+| --- | --- | --- | --- |
+| A01 | `evidence-gate` | `verification-before-completion` | Shepherd, Squadron, Reinforce Skill |
+| A02 | `worktree-context-detect` | `using-git-worktrees`, `finishing-a-development-branch` | Squadron, plan execution |
+| A03 | `worktree-create-safe` | `using-git-worktrees` | Squadron, plan execution |
+| A04 | `review-package-build` | `subagent-driven-development` | Roast This Code, Squadron, Shepherd |
+| A05 | `scoped-re-review` | `subagent-driven-development` | Squadron, Shepherd, Reinforce Skill |
+| A06 | `placeholder-scan` | `writing-plans` | Spec, Breakdown to Tickets, Create Ticket |
+| A07 | `interface-contract-document` | `writing-plans` | Breakdown to Tickets, Squadron |
+| A08 | `type-consistency-check` | `writing-plans` | Spec, Breakdown to Tickets |
+| A09 | `condition-poll` | `systematic-debugging` | Debugging, Shepherd, Squadron |
+| A10 | `defense-layers` | `systematic-debugging` | Debugging, code review |
+| A11 | `architecture-escalation` | `systematic-debugging` | Debugging, Shepherd |
+| A12 | `rationalization-guard` | `using-superpowers`, `writing-skills`, `brainstorming` | Gate-bearing and discipline-heavy skills |
+| A13 | `form-to-failure-match` | `writing-skills` | Skill Coach, Reinforce Skill |
+| A14 | `wording-micro-test` | `writing-skills` | Skill Coach, Reinforce Skill |
+| A15 | `design-isolation-evaluate` | `brainstorming` | Atomic migration, Spec, architecture breakdown |
+| A16 | `tdd-step-sequence` | `writing-plans` | Breakdown to Tickets |
+| A17 | `ruling-record` | `subagent-driven-development` | Squadron, plan execution |
+
+#### Recommended molecules
+
+| ID | Proposed molecule | Direct candidate composition |
+| --- | --- | --- |
+| M01 | `safe-worktree-isolation` | A01, A02, A03 |
+| M02 | `scoped-review-fix-loop` | A01, A04, A05, A17 |
+| M03 | `implementation-plan-quality` | A06, A07, A08, A15 |
+| M04 | `skill-pressure-test` | A12, A13, A14 |
+
+#### Complementary routable skills
+
+| ID | Proposed skill | Disposition |
+| --- | --- | --- |
+| S01 | `systematic-debugging` | Recommend. The catalog has doctrine but no routable root-cause workflow. |
+| S02 | `plan-based-subagent-development` | Discuss. It must stay distinct from tracker-backed Squadron and be human-only. |
+
+#### Non-unit recommendations
+
+| ID | Recommendation |
+| --- | --- |
+| N01 | Teach Skill Coach that descriptions route by triggers and boundaries rather than replacing the workflow body. |
+| N02 | Integrate form-to-failure matching and wording micro-tests into Skill Coach and reinforcement. |
+| N03 | Consider targeted testing-doctrine enrichment rather than importing a competing TDD skill. |
+| N04 | Run a separately approved feasibility prototype before adopting the visual companion. |
+| N05 | Establish repository-level MIT attribution handling for adapted units. |
+
+#### Direct routable imports rejected
+
+Reject wholesale import of `brainstorming`, `dispatching-parallel-agents`,
+`executing-plans`, `finishing-a-development-branch`, `receiving-code-review`,
+`requesting-code-review`, `test-driven-development`, `using-git-worktrees`,
+`using-superpowers`, `verification-before-completion`, `writing-plans`, and
+`writing-skills`. Their useful behavior is either subsumed by richer current
+skills, doctrine-like rather than operational, or represented by the candidate
+units above.
+
+#### Required behavior-union decisions
+
+1. Decide whether A01 is a final claim gate layered over provider-specific
+   readiness or replaces existing verification text.
+2. Keep M02 as a cheap inner correction loop and the Roast family as the outer
+   adversarial gate.
+3. Make M01 the sole worktree-creation authority wherever composed.
+4. Decide whether A16 is optional agent-ready enrichment or mandatory ticket
+   granularity.
+5. Adapt rationalization concepts into either explicit tables or the existing
+   safeguard style.
+
+### c-0011 - Wave 2 implementation-plan quality decisions
+
+The loop reread `obra/superpowers` `writing-plans` at source SHA
+`f74605bfa9af7a3fb7e4ad7f17750a86a9b0d728`. Its plan self-review requires a
+placeholder scan and cross-task type-consistency check, and its task format
+defines exact `Consumes` and `Produces` contracts so isolated implementers do
+not infer neighboring names or types. Its file-structure guidance evaluates
+responsibility, interface, colocation, and independent review boundaries.
+
+Repository evidence shows:
+
+- `spec`, `breakdown-to-tickets`, and `create-ticket` independently produce
+  planning artifacts that need bounded completeness checks;
+- `breakdown-to-tickets` and `ship-with-squadron` both need exact task
+  interface contracts for isolated work;
+- `spec` and `breakdown-to-tickets` both need producer/consumer consistency;
+- `spec`, `breakdown-code-architecture`, and the atomic migration need
+  evidence-backed change-boundary evaluation;
+- only `breakdown-to-tickets` currently consumes the complete four-check
+  implementation-plan gate.
+
+The user approved A06, narrowed A07, A08, renamed A15, and local-first M03 in
+c-0011 Q1-Q6. Promotion created:
+
+- Story [#49](https://github.com/jdylanmc/skills/issues/49);
+- Task [#50](https://github.com/jdylanmc/skills/issues/50);
+- Task [#51](https://github.com/jdylanmc/skills/issues/51);
+- Task [#52](https://github.com/jdylanmc/skills/issues/52), natively blocked
+  by #50 and #51.
+
+### c-0012 - Wave 3 scoped review correction decisions
+
+The loop reread `obra/superpowers`:
+
+- `subagent-driven-development` at SHA
+  `aac35b91c07af15eca580a205eb0c894b86e87c8`;
+- `requesting-code-review` at SHA
+  `fa4f2f9965591d6d8a7ef4ad47e6ba4d5ac344d0`;
+- `receiving-code-review` at SHA
+  `950da7b74bf6dbed6b8726d12ddadd65a9f5fda7`.
+
+The sources establish precise review inputs, complete multi-commit ranges,
+finding-scoped re-review, capped correction, and durable rulings. Current
+Roast, Squadron, Shepherd, and Reinforce Skill contracts establish the
+critical boundary: broad independent review and authorization remain outside
+the correction loop.
+
+The user approved A04, A05, A17, and renamed M02 in c-0012 Q1-Q4. Promotion
+created:
+
+- Story [#53](https://github.com/jdylanmc/skills/issues/53);
+- Task [#54](https://github.com/jdylanmc/skills/issues/54);
+- Task [#55](https://github.com/jdylanmc/skills/issues/55);
+- Task [#56](https://github.com/jdylanmc/skills/issues/56), natively blocked
+  by #47, #54, and #55.
+
+### c-0013 - Wave 4 systematic debugging decisions
+
+The loop reread Superpowers `systematic-debugging` at SHA
+`095d194ac041502905f15b01d22d294fb94db8b2` and reconciled it with current
+doctrine, Shepherd, and Squadron. The user approved A09-A11 and S01 in Q1-Q4.
+Promotion created [#57](https://github.com/jdylanmc/skills/issues/57) through
+[#60](https://github.com/jdylanmc/skills/issues/60); #60 is blocked by #47,
+#58, and #59.
 
 
 ## Prototype Outputs

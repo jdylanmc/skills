@@ -2,7 +2,7 @@
 schema-version: 1
 state-root: docs/discovery
 sessions: 2
-last-updated-cycle: atomic-skill-composition/c-0006
+last-updated-cycle: atomic-skill-composition/c-0013
 ---
 
 # Primary Discovery Map - Engineering Skills Library
@@ -25,7 +25,7 @@ and an automated check enforces the model.
 
 | Session | Kind | Priority | Maturity | Active fog | Major blockers | Package |
 | --- | --- | --- | --- | --- | --- | --- |
-| atomic-skill-composition | cross-cutting | P0 | promotion-ready | Implement the selected `roast-coordinate-review` slice, refresh the remaining inventory afterward, and decide whether the collapse union audit can be automated | none | [discovery.md](./sessions/atomic-skill-composition/discovery.md) |
+| atomic-skill-composition | cross-cutting | P0 | promotion-ready | Deliver the approved foundations and systematic-debugging skill, then continue skill pressure-testing and deferred recommendations | none | [discovery.md](./sessions/atomic-skill-composition/discovery.md) |
 | test-coverage-doctrine | cross-cutting | unprioritized | vague | Recorded only, no cycle run. Seam and internal are undefined, and the position may conflict with the shipped testing doctrine | none recorded | [discovery.md](./sessions/test-coverage-doctrine/discovery.md) |
 
 ## Typed Session Links
@@ -41,5 +41,8 @@ and an automated check enforces the model.
 - Routing agent - the runtime that reads `SKILL.md` frontmatter and decides which skill handles a request.
 - Consuming skill - a skill that depends on another skill or a shared base package.
 - Constraint - canonical formats are Markdown; generated JSON manifests may not replace canonical Markdown files.
-- Constraint - `skills/_base/` holds level namespaces `_atoms/` and `_molecules/`; everything beneath `_base` is non-routable and contains no `SKILL.md`. A Markdown file outside a level namespace is not a unit.
+- Constraint - skill-local units live in scoped `_atoms/` and `_molecules/`
+  namespaces under their owning skill; units with at least two current or
+  explicitly approved consumers live in the shared namespaces under `_base`.
+  Only `SKILL.md` is routable.
 - Constraint - `scripts/validate-skill-graph.mjs` is a merge gate over the `includes` dependency mirror.

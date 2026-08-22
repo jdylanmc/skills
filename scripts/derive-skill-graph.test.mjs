@@ -27,6 +27,7 @@ function writeAtom(root, name, { tools = [], usedBy = null } = {}) {
     'level: atom',
     `allowed-tools: ${JSON.stringify(tools)}`,
     'includes: []',
+    'composes: []',
   ];
   if (usedBy !== null) {
     lines.push(`used-by: ${JSON.stringify(usedBy)}`);
@@ -47,6 +48,7 @@ function writeMolecule(root, name, composes, { tools = null, usedBy = null } = {
     lines.push(`allowed-tools: ${JSON.stringify(tools)}`);
   }
   lines.push(`includes: ${JSON.stringify(includes)}`);
+  lines.push(`composes: ${JSON.stringify(includes)}`);
   if (usedBy !== null) {
     lines.push(`used-by: ${JSON.stringify(usedBy)}`);
   }
@@ -295,6 +297,7 @@ test('a molecule composing another molecule unions transitively', () => {
       'description: Molecule outer.',
       'level: molecule',
       'includes: ["_base/_atoms/alpha/alpha.md","_base/_molecules/inner/inner.md"]',
+      'composes: ["_base/_atoms/alpha/alpha.md","_base/_molecules/inner/inner.md"]',
       '---',
       '',
       '# outer',

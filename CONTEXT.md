@@ -66,3 +66,12 @@ by a person: the contract the agent understands. A skill composes molecules and
 atoms rather than restating what a shared unit already defines.
 
 Discouraged aliases: `organism`
+
+**Shared unit**
+
+An atom or molecule stored under `skills/_base/` because at least two named
+consumers are either current skills or explicitly approved skill designs. A
+unit with fewer qualifying consumers remains a skill-local unit under its
+owning skill.
+
+Discouraged alias: `global unit`

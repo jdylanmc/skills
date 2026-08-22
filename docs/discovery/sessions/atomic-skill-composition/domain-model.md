@@ -70,15 +70,35 @@ level the agent's router is asked to understand.
 
 All three composition levels are now confirmed vocabulary.
 
+### Shared unit
+
+An atom or molecule stored under `skills/_base/` because at least two named
+consumers are either current skills or explicitly approved skill designs. A
+unit with fewer qualifying consumers remains a skill-local unit under its
+owning skill.
+
+Discouraged alias: `global unit`.
+
+- Confirmed: c-0007, handoff key
+  `atomic-skill-composition/c-0007/64a7db0d4ca6`
+- Canonical artifact: root [CONTEXT.md](../../../../CONTEXT.md), section
+  `## Language` -> `### Skill composition`
+- Decision artifact:
+  [ADR 0001](../../../adr/0001-use-local-units-and-promote-proven-shared-units.md)
+- Artifact digest at time of mirroring: sha256
+  `89889368e9d32272dd7c2e36d3e5294ae1d2bf00e130e2710372ca42cd78c00e`
+
 ## Candidate and Unconfirmed
 
 ### Candidate terms
 
 - **Molecule** - confirmed in c-0002. See the confirmed section above.
 - **Skill** - confirmed in c-0003. See the confirmed section above.
-- **Level namespace** - an underscore-prefixed directory under `skills/_base/`
-  holding units of exactly one composition level, such as `_atoms/` or
-  `_molecules/`. The prefix marks it as a namespace rather than a package.
+- **Level namespace** - an `_atoms/` or `_molecules/` directory under a
+  routable skill or under `_base`, holding units of exactly one composition
+  level. Its path determines both level and ownership.
+- **Local unit** - an atom or molecule stored under one routable skill because
+  it has fewer than two qualifying consumers. Its name is scoped to that skill.
 - **Recipe** - the mental model for what a skill is: an invocable procedure that
   names what it needs and the steps it runs. Explicitly not a structural level.
 - **Composition level** - the declared position of a unit in the
@@ -118,17 +138,19 @@ All three composition levels are now confirmed vocabulary.
 - RESOLVED in c-0005, then partially superseded by direct user instruction
   after c-0006. Unit names still use `<domain>-<verb>[-<object>]`, but each unit
   now has a same-named isolation root inside its level namespace.
+- RESOLVED in c-0007. Skill-local units are the default, `_base` holds shared
+  units with at least two current or approved consumers, and local names are
+  scoped to their owning skill.
 - No material domain-language question was opened in c-0006. The selected
   `roast-coordinate-review` name follows the confirmed composition vocabulary
   and the settled naming convention.
 
-### Level namespace after c-0004
+### Level namespace after c-0007
 
-The c-0004 Q1 answer promotes `Level namespace` from a convenient location to
-the **sole locus of unit identity**. A Markdown file inside one is a unit; a
-Markdown file outside one is not a unit at all and carries no level. The term's
-written definition did not change, so no `/domain-mapping` handoff was raised
-for it; its significance changed, not its meaning.
+The path remains the sole locus of unit identity, but c-0007 expands the path
+model. A namespace beneath a routable skill owns scoped local units; the
+matching namespace beneath `_base` owns shared units. A Markdown file outside
+one is not a unit and carries no level.
 
 ### Conflicts awaiting `/domain-mapping`
 

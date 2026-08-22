@@ -3,6 +3,7 @@ name: roast-coordinate-review
 description: Coordinate one artifact roast from already resolved trusted inputs, validate the unchanged envelope, retry coordinate exactly once on failure, synthesize a valid envelope, and return the roast unchanged.
 level: molecule
 includes: ["_base/_atoms/agent-spawn/agent-spawn.md","_base/_atoms/review-validate-report/review-validate-report.md"]
+composes: ["_base/_atoms/agent-spawn/agent-spawn.md","_base/_atoms/review-validate-report/review-validate-report.md"]
 used-by: ["roast-this-agent/SKILL.md","roast-this-prompt/SKILL.md","roast-this-skill/SKILL.md"]
 allowed-tools: ["task"]
 ---

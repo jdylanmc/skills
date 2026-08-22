@@ -4,6 +4,7 @@ description: Write approved content to one destination, aborting when the destin
 level: atom
 allowed-tools: ["read", "edit"]
 includes: []
+composes: []
 used-by: ["_base/_molecules/write-approved/write-approved.md"]
 ---
 

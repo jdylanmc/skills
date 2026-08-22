@@ -3,6 +3,7 @@ name: review-ste-coach
 description: Run one Simplified Technical English Coach execution-monitor review of a candidate artifact, validate the returned report, retry once with the exact defects named, and report the coach unavailable when it fails again.
 level: molecule
 includes: ["_base/_atoms/agent-spawn/agent-spawn.md","_base/_atoms/review-validate-report/review-validate-report.md"]
+composes: ["_base/_atoms/agent-spawn/agent-spawn.md","_base/_atoms/review-validate-report/review-validate-report.md"]
 used-by: ["simplify-technical-language/SKILL.md","simplify-technical-language/references/30-rounds-and-ste-review.md","synthesize/SKILL.md","synthesize/references/60-simplified-output.md"]
 allowed-tools: ["task"]
 ---
