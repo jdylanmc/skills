@@ -434,107 +434,6 @@ test('accepts a molecule composing atoms in their level namespaces', (t) => {
     'skills/_base/_molecules/combo/combo.mjs': 'export const combo = 1;\n',
   });
 
-  test('accepts scoped local units with the same names in different skills', (t) => {
-    const files = {};
-    for (const skill of ['alpha-skill', 'beta-skill']) {
-      const first = `${skill}/_atoms/resolve-input/resolve-input.md`;
-      const second = `${skill}/_atoms/render-output/render-output.md`;
-      const molecule = `${skill}/_molecules/run-workflow/run-workflow.md`;
-      files[`skills/${first}`] = ATOM('resolve-input');
-      files[`skills/${second}`] = ATOM('render-output');
-      files[`skills/${molecule}`] = unit(
-        'run-workflow',
-        'molecule',
-        [first, second],
-        `# run-workflow\n\n## Required References\n\n1. [Resolve](../../_atoms/resolve-input/resolve-input.md)\n2. [Render](../../_atoms/render-output/render-output.md)\n`,
-      );
-      files[`skills/${skill}/SKILL.md`] = [
-        '---',
-        `name: ${skill}`,
-        `description: Skill ${skill}.`,
-        'allowed-tools: []',
-        `includes: ["${molecule}"]`,
-        `composes: ["${molecule}"]`,
-        'disable-model-invocation: false',
-        'user-invocable: true',
-        '---',
-        '',
-        `# ${skill}`,
-        '',
-        '## Required References',
-        '',
-        '1. [Workflow](./_molecules/run-workflow/run-workflow.md)',
-        '',
-      ].join('\n');
-    }
-
-    const root = fixture(t, files);
-    assert.doesNotThrow(() => validateRepository(root));
-  });
-
-  test('rejects cross-skill composition of a scoped local unit', (t) => {
-    const root = fixture(t, {
-      'skills/alpha/SKILL.md': participating([], '# alpha\n'),
-      'skills/beta/SKILL.md': participating([], '# beta\n'),
-      'skills/alpha/_atoms/resolve/resolve.md': ATOM('resolve'),
-      'skills/beta/_atoms/render/render.md': ATOM('render'),
-      'skills/alpha/_molecules/workflow/workflow.md': unit(
-        'workflow',
-        'molecule',
-        ['alpha/_atoms/resolve/resolve.md', 'beta/_atoms/render/render.md'],
-        '# workflow\n\n## Required References\n\n1. [Resolve](../../_atoms/resolve/resolve.md)\n2. [Render](../../../beta/_atoms/render/render.md)\n',
-      ),
-    });
-    assert.throws(() => validateRepository(root), /may not compose a unit owned by beta/);
-  });
-
-  test('rejects composes metadata that does not mirror direct unit includes', (t) => {
-    const root = fixture(t, {
-      'skills/demo/SKILL.md': [
-        '---',
-        'name: demo',
-        'description: Demo.',
-        'allowed-tools: []',
-        'includes: ["demo/_atoms/resolve/resolve.md"]',
-        'composes: []',
-        'disable-model-invocation: false',
-        'user-invocable: true',
-        '---',
-        '',
-        '# Demo',
-        '',
-        '## Required References',
-        '',
-        '1. [Resolve](./_atoms/resolve/resolve.md)',
-        '',
-      ].join('\n'),
-      'skills/demo/_atoms/resolve/resolve.md': ATOM('resolve'),
-    });
-    assert.throws(() => validateRepository(root), /composes drift/);
-  });
-
-  test('requires invocation flags when a skill declares atomic composition', (t) => {
-    const root = fixture(t, {
-      'skills/demo/SKILL.md': [
-        '---',
-        'name: demo',
-        'description: Demo.',
-        'allowed-tools: []',
-        'includes: ["demo/_atoms/resolve/resolve.md"]',
-        'composes: ["demo/_atoms/resolve/resolve.md"]',
-        '---',
-        '',
-        '# Demo',
-        '',
-        '## Required References',
-        '',
-        '1. [Resolve](./_atoms/resolve/resolve.md)',
-        '',
-      ].join('\n'),
-      'skills/demo/_atoms/resolve/resolve.md': ATOM('resolve'),
-    });
-    assert.throws(() => validateRepository(root), /must declare disable-model-invocation/);
-  });
   const result = validateRepository(root);
   // closureFor walks Markdown units only; a local support file is mirror
   // validated but is not a node in the composition graph.
@@ -543,6 +442,108 @@ test('accepts a molecule composing atoms in their level namespaces', (t) => {
     '_base/_atoms/alpha/alpha.md',
     '_base/_atoms/beta/beta.md',
   ]);
+});
+
+test('accepts scoped local units with the same names in different skills', (t) => {
+  const files = {};
+  for (const skill of ['alpha-skill', 'beta-skill']) {
+    const first = `${skill}/_atoms/resolve-input/resolve-input.md`;
+    const second = `${skill}/_atoms/render-output/render-output.md`;
+    const molecule = `${skill}/_molecules/run-workflow/run-workflow.md`;
+    files[`skills/${first}`] = ATOM('resolve-input');
+    files[`skills/${second}`] = ATOM('render-output');
+    files[`skills/${molecule}`] = unit(
+      'run-workflow',
+      'molecule',
+      [first, second],
+      `# run-workflow\n\n## Required References\n\n1. [Resolve](../../_atoms/resolve-input/resolve-input.md)\n2. [Render](../../_atoms/render-output/render-output.md)\n`,
+    );
+    files[`skills/${skill}/SKILL.md`] = [
+      '---',
+      `name: ${skill}`,
+      `description: Skill ${skill}.`,
+      'allowed-tools: []',
+      `includes: ["${molecule}"]`,
+      `composes: ["${molecule}"]`,
+      'disable-model-invocation: false',
+      'user-invocable: true',
+      '---',
+      '',
+      `# ${skill}`,
+      '',
+      '## Required References',
+      '',
+      '1. [Workflow](./_molecules/run-workflow/run-workflow.md)',
+      '',
+    ].join('\n');
+  }
+
+  const root = fixture(t, files);
+  assert.doesNotThrow(() => validateRepository(root));
+});
+
+test('rejects cross-skill composition of a scoped local unit', (t) => {
+  const root = fixture(t, {
+    'skills/alpha/SKILL.md': participating([], '# alpha\n'),
+    'skills/beta/SKILL.md': participating([], '# beta\n'),
+    'skills/alpha/_atoms/resolve/resolve.md': ATOM('resolve'),
+    'skills/beta/_atoms/render/render.md': ATOM('render'),
+    'skills/alpha/_molecules/workflow/workflow.md': unit(
+      'workflow',
+      'molecule',
+      ['alpha/_atoms/resolve/resolve.md', 'beta/_atoms/render/render.md'],
+      '# workflow\n\n## Required References\n\n1. [Resolve](../../_atoms/resolve/resolve.md)\n2. [Render](../../../beta/_atoms/render/render.md)\n',
+    ),
+  });
+  assert.throws(() => validateRepository(root), /may not compose a unit owned by beta/);
+});
+
+test('rejects composes metadata that does not mirror direct unit includes', (t) => {
+  const root = fixture(t, {
+    'skills/demo/SKILL.md': [
+      '---',
+      'name: demo',
+      'description: Demo.',
+      'allowed-tools: []',
+      'includes: ["demo/_atoms/resolve/resolve.md"]',
+      'composes: []',
+      'disable-model-invocation: false',
+      'user-invocable: true',
+      '---',
+      '',
+      '# Demo',
+      '',
+      '## Required References',
+      '',
+      '1. [Resolve](./_atoms/resolve/resolve.md)',
+      '',
+    ].join('\n'),
+    'skills/demo/_atoms/resolve/resolve.md': ATOM('resolve'),
+  });
+  assert.throws(() => validateRepository(root), /composes drift/);
+});
+
+test('requires invocation flags when a skill declares atomic composition', (t) => {
+  const root = fixture(t, {
+    'skills/demo/SKILL.md': [
+      '---',
+      'name: demo',
+      'description: Demo.',
+      'allowed-tools: []',
+      'includes: ["demo/_atoms/resolve/resolve.md"]',
+      'composes: ["demo/_atoms/resolve/resolve.md"]',
+      '---',
+      '',
+      '# Demo',
+      '',
+      '## Required References',
+      '',
+      '1. [Resolve](./_atoms/resolve/resolve.md)',
+      '',
+    ].join('\n'),
+    'skills/demo/_atoms/resolve/resolve.md': ATOM('resolve'),
+  });
+  assert.throws(() => validateRepository(root), /must declare disable-model-invocation/);
 });
 
 test('rejects a unit whose declared level contradicts its namespace', (t) => {

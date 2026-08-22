@@ -41,8 +41,16 @@ const ATOM_UNITS = [
   '_base/_atoms/write-guarded/write-guarded.md',
 ];
 
+/**
+ * Reads a committed unit document with line endings normalized. A Windows
+ * checkout stores these files with carriage returns, so a contract assertion
+ * that spans a line break has to compare normalized text or it only ever
+ * passes on the platform it was written on.
+ */
 function read(relativePath) {
-  return fs.readFileSync(path.join(REPOSITORY_ROOT, 'skills', relativePath), 'utf8');
+  return fs
+    .readFileSync(path.join(REPOSITORY_ROOT, 'skills', relativePath), 'utf8')
+    .replace(/\r\n/g, '\n');
 }
 
 /* ---------------------------------------------------------------- payloads */
